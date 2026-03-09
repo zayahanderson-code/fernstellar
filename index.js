@@ -10,53 +10,46 @@ app.use(express.static('public'));
 const resend = new Resend(process.env.RESEND_API_KEY);
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-// ─────────────────────────────────────────────
-// VOLLRATH LAW KNOWLEDGE BASE
-// ─────────────────────────────────────────────
 const FIRM_CONTEXT = `
-You are Finn, an AI intake assistant for Vollrath Law — a premier family law and estate planning firm in Oviedo, Florida.
+You are Ander, an AI intake assistant for Henry Law Firm — a premier family law and estate planning firm in Oviedo, Florida.
 
 ABOUT THE FIRM:
-- Name: Vollrath Law
-- Phone: 407-900-0464
-- Address: 1757 W. Broadway, Oviedo, FL
-- Known as the "blue awning attorneys"
-- Managing partners: Stephanie Vollrath and Sharon Vollrath — two sisters practicing together for nearly a decade
-- Team: Stephanie Vollrath, Sharon Vollrath, Melora G. Vandersluis, Abigail Edelstein, Kimberly Palmer, Jenann Celecia
-- Serving Seminole County and Central Florida for over 25 years
-- Areas served: Oviedo, Casselberry, Geneva, Lake Mary, Longwood, Sanford, Winter Springs
-- Free consultations available at vollrath-law.com/contact-us
+- Name: Henry Law Firm
+- Attorney: LaMya Henry
+- Location: Orlando, Florida
+- Practice focus: Consumer debt defense
+- Free consultations available
 
 PRACTICE AREAS:
-1. Family Law — divorce, child custody, child support, alimony, prenuptial agreements, post-divorce modifications, collaborative divorce
-2. Estate Planning — wills, trusts, guardianship, special needs planning, advanced directives, power of attorney, living wills
-3. Probate — probate administration, summary administration, estate settlement
-4. Real Estate — title closings, mortgage closings, property transactions
+1. Debt Collection Defense — defending clients sued by debt collectors
+2. FDCPA Violations — pursuing compensation when collectors break the law
+3. Credit Card Lawsuits — negotiating settlements or fighting in court
+4. Wage Garnishment — stopping or reducing garnishments on paychecks
+5. Debt Negotiation — negotiating directly with creditors to reduce balances
+6. Bank Levy Defense — responding fast to protect client funds from levies
 
-KEY LEGAL FACTS (Florida):
-- Child support uses the Income Shares Model based on both parents' incomes and parenting time
-- Child custody uses the "best interest of the child" standard — shared parental responsibility is the norm
-- Equitable distribution of marital assets does not always mean 50/50
-- Estates under $75,000 may qualify for summary administration (simplified probate)
-- Formal probate typically takes 6-12 months
-- A basic estate plan includes: will, durable power of attorney, health care surrogate, living will, beneficiary designations
-- Vollrath Law offers free consultations
+KEY LEGAL FACTS (Florida debt defense):
+- The Fair Debt Collection Practices Act (FDCPA) prohibits abusive, unfair, or deceptive collection practices
+- Collectors who violate the FDCPA may owe the debtor up to $1,000 in statutory damages plus attorney fees
+- Florida has a 5-year statute of limitations on written contracts (like credit cards)
+- Debt buyers often lack proper documentation — cases can be dismissed on procedural grounds
+- Wage garnishment in Florida is limited — head of household exemption may protect income
+- Many debt collection lawsuits go uncontested — having an attorney changes outcomes dramatically
+- Clients should NEVER ignore a debt lawsuit summons — a default judgment can be devastating
 
 YOUR PERSONALITY AND RULES:
-- You are warm, empathetic, and conversational — like a kind, knowledgeable friend
+- You are warm, empathetic, and conversational — like a calm, knowledgeable friend
 - You NEVER give specific legal advice or tell someone what they should do legally
-- You CAN explain how things generally work, what processes look like, and what questions to ask an attorney
-- When someone asks a legal question, answer it in plain English and always end with a gentle note that this is general information, not legal advice, and encourage them to schedule a free consultation
+- You CAN explain how things generally work, what processes look like, what rights they have
+- When someone asks a legal question, answer it in plain English — end with a gentle note that this is general info, not legal advice, and encourage a free consultation
 - You are NOT a lawyer and must never pretend to be
-- You are conducting an intake conversation — your goal is to understand the person's situation and collect their name, what they need help with, and their phone number
-- Be human. React to what people say. If someone shares something painful, acknowledge it before moving on
-- Never sound like a form. Never list questions back to back without warmth in between
+- You are conducting an intake — your goal is to understand their situation and collect their name, what they need help with, and their phone number
+- Be human. React to what people say. If someone shares something painful or stressful, acknowledge it first
+- Never sound like a form — never list questions back to back without warmth
 - Keep responses concise — this is a chat interface, not an essay
+- Many clients are scared, embarrassed, or overwhelmed about debt — meet them with zero judgment
 `;
 
-// ─────────────────────────────────────────────
-// CLASSIFY PRACTICE AREA
-// ─────────────────────────────────────────────
 function classifyPracticeArea(text) {
   const t = text.toLowerCase();
   if (t.includes('divorce') || t.includes('custody') || t.includes('child support') || t.includes('alimony') || t.includes('separation') || t.includes('prenup') || t.includes('spouse') || t.includes('husband') || t.includes('wife') || t.includes('visitation')) return 'Family Law';
@@ -66,9 +59,6 @@ function classifyPracticeArea(text) {
   return 'General';
 }
 
-// ─────────────────────────────────────────────
-// VALIDATORS
-// ─────────────────────────────────────────────
 function validate(key, value) {
   switch (key) {
     case 'phone': return /^[\d\s\-\(\)\+]{7,15}$/.test(value.trim());
@@ -85,9 +75,6 @@ function typingDelay(message) {
   return 1800;
 }
 
-// ─────────────────────────────────────────────
-// SCORE CALCULATOR
-// ─────────────────────────────────────────────
 function calcScore(state) {
   let score = 2;
   if (state.practiceArea && state.practiceArea !== 'General') score += 2;
@@ -97,13 +84,10 @@ function calcScore(state) {
   return Math.min(score, 10);
 }
 
-// ─────────────────────────────────────────────
-// GENERATE SUMMARY
-// ─────────────────────────────────────────────
 function generateSummary(state, score) {
   const urgency = score >= 8 ? 'HIGH' : score >= 5 ? 'MODERATE' : 'LOW';
   return `
-NEW INTAKE — FINN AI · VOLLRATH LAW
+NEW INTAKE — ANDER AI · VOLLRATH LAW
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 CLIENT
@@ -126,19 +110,16 @@ RECOMMENDED ACTION
 ${score >= 7 ? `Strong lead. Recommend calling ${state.firstName} within the hour.` : score >= 4 ? 'Moderate lead. Follow up within 24 hours.' : 'Standard lead. Follow up when available.'}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Powered by Finn · Fern Stellar AI
+Powered by Ander · Fern Stellar AI
   `.trim();
 }
 
-// ─────────────────────────────────────────────
-// EMAIL NOTIFICATION
-// ─────────────────────────────────────────────
 async function sendNotification(state, score) {
   const summary = generateSummary(state, score);
   const urgencyLabel = score >= 8 ? '🔴 HIGH PRIORITY' : score >= 5 ? '🟡 MODERATE' : '🟢 STANDARD';
   try {
     const result = await resend.emails.send({
-      from: 'Finn at Fern Stellar <onboarding@resend.dev>',
+      from: 'Ander at Fern Stellar <onboarding@resend.dev>',
       to: [process.env.FIRM_EMAIL],
       subject: `${urgencyLabel} New Intake — ${state.firstName || 'Unknown'} | ${state.practiceArea || 'General'} | Score: ${score}/10`,
       text: summary,
@@ -146,7 +127,7 @@ async function sendNotification(state, score) {
         <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#f5f0e8;padding:32px;">
           <div style="background:#0d1b2a;padding:24px 28px;border-radius:12px 12px 0 0;">
             <p style="color:#c9a84c;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:0 0 4px 0;">New Intake · Vollrath Law</p>
-            <h1 style="color:#fff;font-size:20px;margin:0;display:inline-block;">Finn AI Intake</h1>
+            <h1 style="color:#fff;font-size:20px;margin:0;display:inline-block;">Ander AI Intake</h1>
             <span style="float:right;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:6px 14px;color:#e8c96a;font-size:20px;font-weight:700;">${score}/10</span>
           </div>
           <div style="background:#fff;padding:28px;border-radius:0 0 12px 12px;">
@@ -164,7 +145,7 @@ async function sendNotification(state, score) {
               <p style="font-size:14px;color:#0d1b2a;line-height:1.6;margin:0;font-style:italic;">"${state.story || 'Not provided'}"</p>
             </div>
             <div style="text-align:center;padding-top:16px;border-top:1px solid rgba(0,0,0,.06);">
-              <p style="font-size:11px;color:#9ca3af;margin:0;">Powered by <strong style="color:#0d1b2a;">Finn</strong> · <strong style="color:#0d1b2a;">Fern Stellar</strong> AI Intake</p>
+              <p style="font-size:11px;color:#9ca3af;margin:0;">Powered by <strong style="color:#0d1b2a;">Ander</strong> · <strong style="color:#0d1b2a;">Fern Stellar</strong> AI Intake</p>
             </div>
           </div>
         </div>
@@ -176,11 +157,7 @@ async function sendNotification(state, score) {
   }
 }
 
-// ─────────────────────────────────────────────
-// ASK CLAUDE (Finn's brain)
-// ─────────────────────────────────────────────
 async function askClaude(conversationHistory, state) {
-  // Build a state summary for Claude's awareness
   const stateSummary = `
 CURRENT INTAKE STATE:
 - First name collected: ${state.firstName ? 'Yes — ' + state.firstName : 'No'}
@@ -210,13 +187,9 @@ IMPORTANT: If the person asks a question at any point, answer it from your knowl
   return response.content[0].text;
 }
 
-// ─────────────────────────────────────────────
-// EXTRACT STATE FROM CONVERSATION
-// ─────────────────────────────────────────────
 function extractState(conversationHistory, currentState) {
   const allText = conversationHistory.filter(m => m.role === 'user').map(m => m.content).join(' ');
 
-  // Extract first name from early messages
   if (!currentState.firstName) {
     const msgs = conversationHistory.filter(m => m.role === 'user');
     if (msgs.length >= 2) {
@@ -226,7 +199,6 @@ function extractState(conversationHistory, currentState) {
     }
   }
 
-  // Extract phone
   if (!currentState.phone) {
     const phoneMatch = allText.match(/[\d\s\-\(\)\+]{7,15}/);
     if (phoneMatch && validate('phone', phoneMatch[0])) {
@@ -234,19 +206,16 @@ function extractState(conversationHistory, currentState) {
     }
   }
 
-  // Extract story (third user message onwards)
   if (!currentState.story) {
     const msgs = conversationHistory.filter(m => m.role === 'user');
     if (msgs.length >= 3) currentState.story = msgs[2].content;
   }
 
-  // Classify practice area
   if (!currentState.practiceArea || currentState.practiceArea === 'General') {
     const area = classifyPracticeArea(allText);
     if (area !== 'General') currentState.practiceArea = area;
   }
 
-  // Detect urgency
   if (!currentState.urgency) {
     const u = allText.toLowerCase();
     currentState.urgency = (u.includes('court') || u.includes('deadline') || u.includes('urgent') || u.includes('soon') || u.includes('health') || u.includes('sick') || u.includes('creditor')) ? 'urgent' : 'standard';
@@ -255,20 +224,13 @@ function extractState(conversationHistory, currentState) {
   return currentState;
 }
 
-// ─────────────────────────────────────────────
-// HARDCODED DISCLOSURE FLOW (step 0 only)
-// ─────────────────────────────────────────────
-const disclosureMessage = "Hey there 👋 — I'm Finn. Before we get started, just want to be upfront: I'm an AI, not a lawyer, and nothing I say is legal advice.\n\nI'm here to walk you through a quick intake so the right people at Vollrath Law can take a look at your situation and reach out.\n\nWhenever you're ready, just say \"I understand\" and we'll jump in. 😊";
+const disclosureMessage = "Hey there 👋 — I'm Ander. Before we get started, just want to be upfront: I'm an AI, not a lawyer, and nothing I say is legal advice.\n\nI'm here to walk you through a quick intake so the right people at Henry Law Firm can take a look at your situation and reach out.\n\nWhenever you're ready, just say \"I understand\" and we'll jump in. 😊";
 
 const disclosureAccepted = (val) => ['i understand', 'ok', 'okay', 'yes', 'sure', 'got it', 'understood', 'ready', "let's go", 'lets go', 'go'].includes(val.trim().toLowerCase());
 
-// ─────────────────────────────────────────────
-// API ENDPOINT — MAIN CHAT
-// ─────────────────────────────────────────────
 app.post('/api/message', async (req, res) => {
   const { step, state, userMessage, history = [] } = req.body;
 
-  // Step 0 — Disclosure gate (no AI needed)
   if (step === 0) {
     if (!disclosureAccepted(userMessage)) {
       return res.json({
@@ -284,43 +246,33 @@ app.post('/api/message', async (req, res) => {
     });
   }
 
-  // All other steps — Claude powered
   try {
-    // Build conversation history for Claude
-    const conversationHistory = [
-      ...history,
-      { role: 'user', content: userMessage }
-    ];
-
-    // Extract state from conversation
+    const conversationHistory = [...history, { role: 'user', content: userMessage }];
     const updatedState = extractState(conversationHistory, { ...state });
 
-    // Check if intake is complete
     if (updatedState.phone && updatedState.story && updatedState.firstName && !updatedState.intakeComplete) {
       updatedState.intakeComplete = true;
       const score = calcScore(updatedState);
       sendNotification(updatedState, score);
     }
 
-    // Ask Claude for Finn's response
-    const finnResponse = await askClaude(conversationHistory, updatedState);
+    const anderResponse = await askClaude(conversationHistory, updatedState);
 
-    // Check if Claude naturally closed the conversation
     const isDone = updatedState.intakeComplete &&
-      (finnResponse.toLowerCase().includes('take care') ||
-       finnResponse.toLowerCase().includes('all set') ||
-       finnResponse.toLowerCase().includes('in touch') ||
-       finnResponse.toLowerCase().includes('you\'ve got this'));
+      (anderResponse.toLowerCase().includes('take care') ||
+       anderResponse.toLowerCase().includes('all set') ||
+       anderResponse.toLowerCase().includes('in touch') ||
+       anderResponse.toLowerCase().includes('you\'ve got this'));
 
     return res.json({
       done: isDone,
       step: step + 1,
-      message: finnResponse,
+      message: anderResponse,
       type: 'text',
       options: [],
       state: updatedState,
-      history: [...conversationHistory, { role: 'assistant', content: finnResponse }],
-      delay: typingDelay(finnResponse)
+      history: [...conversationHistory, { role: 'assistant', content: anderResponse }],
+      delay: typingDelay(anderResponse)
     });
 
   } catch (err) {
@@ -333,9 +285,6 @@ app.post('/api/message', async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────
-// START CONVERSATION
-// ─────────────────────────────────────────────
 app.get('/api/start', (req, res) => {
   res.json({
     step: 0,
@@ -347,5 +296,5 @@ app.get('/api/start', (req, res) => {
 });
 
 app.listen(3000, () => {
-  console.log('🌿 Fern Stellar · Finn (Claude-powered) running on http://localhost:3000');
+  console.log('🌿 Fern Stellar · Ander (Claude-powered) running on http://localhost:3000');
 });
