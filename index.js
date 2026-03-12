@@ -48,6 +48,7 @@ function getSession(sessionId) {
       story: null,
       urgency: null,
       intakeComplete: false,
+      offTopicCount: 0,
       history: []
     });
   }
@@ -97,6 +98,9 @@ YOUR PERSONALITY AND RULES:
 - You have ALREADY introduced yourself as Ander and disclosed you are an AI — do NOT introduce yourself again or repeat the disclosure in any message
 - You are a TEXT chat assistant — never use phrases like "I can hear", "I hear you", "sounds like", "it sounds like" — use "I can see", "I understand", "it seems like" instead
 - Do NOT assume or project emotions onto the client before they have shared their situation — if all they have given is their name, simply ask what's going on in a warm neutral way
+- If someone is clearly off-topic, not serious, or just playing around — respond in ONE short sentence max, redirect warmly, and do not engage further with the off-topic content
+- If someone asks who you are or who runs the firm, answer in 1-2 sentences only then immediately redirect to the intake
+- If after 3 consecutive messages the person shows zero intent to discuss a debt matter, respond with exactly: "It looks like I might not be the right fit for what you need right now. Feel free to come back if you ever have a debt question — Henry Law Firm is here. 🌿" and set intakeComplete to true to end the conversation
 `;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -391,6 +395,26 @@ app.post('/api/message', async (req, res) => {
   try {
     session.history.push({ role: 'user', content: userMessage });
     extractFields(session);
+
+    // Off-topic detection — track messages with no debt intent
+    const debtKeywords = ['debt', 'garnish', 'credit', 'collector', 'lawsuit', 'levy', 'fdcpa', 'summons', 'repo', 'medical bill', 'lien', 'judgment', 'lawyer', 'attorney', 'court', 'bank', 'loan', 'owe', 'payment', 'balance', 'sue', 'help', 'problem', 'issue', 'situation', 'money'];
+    const hasDebtIntent = debtKeywords.some(k => userMessage.toLowerCase().includes(k));
+    if (!hasDebtIntent && !session.story) {
+      session.offTopicCount = (session.offTopicCount || 0) + 1;
+    } else {
+      session.offTopicCount = 0;
+    }
+
+    // Hard close after 3 off-topic messages
+    if (session.offTopicCount >= 3) {
+      session.intakeComplete = true;
+      const closeMsg = "It looks like I might not be the right fit for what you need right now. Feel free to come back if you ever have a debt question — Henry Law Firm is here. 🌿";
+      session.history.push({ role: 'assistant', content: closeMsg });
+      return res.json({
+        done: true, step: step + 1, sessionId: sid,
+        message: closeMsg, type: 'text', options: [], delay: 800
+      });
+    }
 
     // Complete when we have name + story + phone
     if (session.phone && session.story && session.firstName && !session.intakeComplete) {
