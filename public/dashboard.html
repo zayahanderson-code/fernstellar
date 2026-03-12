@@ -7,504 +7,112 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --ink: #0d1b2a;
-    --gold: #c9a84c;
-    --gold-light: #e8c96a;
-    --gold-dim: rgba(201,168,76,0.15);
-    --cream: #f5f0e8;
-    --cream-dark: #ede8df;
-    --white: #ffffff;
-    --muted: #6b7280;
-    --border: rgba(13,27,42,0.10);
-    --red: #ef4444;
-    --amber: #f59e0b;
-    --green: #22c55e;
-    --red-bg: #fef2f2;
-    --amber-bg: #fffbeb;
-    --green-bg: #f0fdf4;
+    --ink: #0d1b2a; --gold: #c9a84c; --gold-light: #e8c96a; --gold-dim: rgba(201,168,76,0.15);
+    --cream: #f5f0e8; --cream-dark: #ede8df; --white: #ffffff; --muted: #6b7280;
+    --border: rgba(13,27,42,0.10); --red: #ef4444; --amber: #f59e0b; --green: #22c55e;
   }
+  body { font-family: 'Outfit', sans-serif; background: var(--cream); color: var(--ink); min-height: 100vh; }
 
-  body {
-    font-family: 'Outfit', sans-serif;
-    background: var(--cream);
-    color: var(--ink);
-    min-height: 100vh;
-  }
-
-  /* ── SIDEBAR ── */
   .sidebar {
-    position: fixed;
-    top: 0; left: 0;
-    width: 220px;
-    height: 100vh;
-    background: var(--ink);
-    padding: 28px 0;
-    display: flex;
-    flex-direction: column;
-    z-index: 100;
+    position: fixed; top: 0; left: 0; width: 220px; height: 100vh;
+    background: var(--ink); padding: 28px 0; display: flex; flex-direction: column; z-index: 100;
   }
-
-  .sidebar-brand {
-    padding: 0 24px 28px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-  }
-
-  .sidebar-brand .logo-text {
-    font-family: 'DM Serif Display', serif;
-    font-size: 18px;
-    color: var(--white);
-    line-height: 1;
-  }
-
-  .sidebar-brand .logo-sub {
-    font-size: 10px;
-    color: var(--gold);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-top: 4px;
-  }
-
-  .sidebar-nav {
-    padding: 20px 0;
-    flex: 1;
-  }
-
-  .nav-label {
-    font-size: 10px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.3);
-    padding: 0 24px;
-    margin-bottom: 8px;
-  }
-
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 24px;
-    font-size: 13px;
-    color: rgba(255,255,255,0.55);
-    cursor: pointer;
-    transition: all 0.15s;
-    border-left: 2px solid transparent;
-    text-decoration: none;
-  }
-
+  .sidebar-brand { padding: 0 24px 28px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .sidebar-brand .logo-text { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--white); }
+  .sidebar-brand .logo-sub { font-size: 10px; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+  .sidebar-nav { padding: 20px 0; flex: 1; }
+  .nav-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.3); padding: 0 24px; margin-bottom: 8px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 24px; font-size: 13px; color: rgba(255,255,255,0.55); cursor: pointer; transition: all 0.15s; border-left: 2px solid transparent; text-decoration: none; }
   .nav-item:hover { color: var(--white); background: rgba(255,255,255,0.05); }
   .nav-item.active { color: var(--gold-light); border-left-color: var(--gold); background: rgba(201,168,76,0.08); }
+  .sidebar-footer { padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 11px; color: rgba(255,255,255,0.25); }
 
-  .nav-icon { font-size: 15px; width: 18px; text-align: center; }
-
-  .sidebar-footer {
-    padding: 16px 24px;
-    border-top: 1px solid rgba(255,255,255,0.08);
-    font-size: 11px;
-    color: rgba(255,255,255,0.25);
-  }
-
-  /* ── MAIN ── */
-  .main {
-    margin-left: 220px;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .topbar {
-    background: var(--white);
-    border-bottom: 1px solid var(--border);
-    padding: 16px 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 50;
-  }
-
-  .topbar-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 22px;
-    color: var(--ink);
-  }
-
-  .topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .btn {
-    padding: 8px 18px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    border: none;
-    transition: all 0.15s;
-    font-family: 'Outfit', sans-serif;
-  }
-
-  .btn-primary {
-    background: var(--ink);
-    color: var(--gold-light);
-  }
-  .btn-primary:hover { background: #1a2d42; }
-
-  .btn-ghost {
-    background: transparent;
-    color: var(--muted);
-    border: 1px solid var(--border);
-  }
+  .main { margin-left: 220px; min-height: 100vh; }
+  .topbar { background: var(--white); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+  .topbar-title { font-family: 'DM Serif Display', serif; font-size: 22px; }
+  .btn { padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; font-family: 'Outfit', sans-serif; }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
   .btn-ghost:hover { background: var(--cream); color: var(--ink); }
 
-  /* ── CONTENT ── */
-  .content {
-    padding: 32px;
-    flex: 1;
-  }
-
-  /* ── STAT CARDS ── */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 16px;
-    margin-bottom: 28px;
-  }
-
-  .stat-card {
-    background: var(--white);
-    border-radius: 12px;
-    padding: 20px;
-    border: 1px solid var(--border);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: var(--gold);
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-
+  .content { padding: 32px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 28px; }
+  .stat-card { background: var(--white); border-radius: 12px; padding: 20px; border: 1px solid var(--border); position: relative; overflow: hidden; }
+  .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gold); opacity: 0; transition: opacity 0.2s; }
   .stat-card:hover::before { opacity: 1; }
+  .stat-label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .stat-value { font-family: 'DM Serif Display', serif; font-size: 32px; color: var(--ink); line-height: 1; }
 
-  .stat-label {
-    font-size: 11px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 10px;
-  }
-
-  .stat-value {
-    font-family: 'DM Serif Display', serif;
-    font-size: 32px;
-    color: var(--ink);
-    line-height: 1;
-  }
-
-  .stat-sub {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 6px;
-  }
-
-  /* ── FILTERS ── */
-  .filters-bar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
-
-  .search-wrap {
-    position: relative;
-    flex: 1;
-    min-width: 200px;
-  }
-
-  .search-icon {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--muted);
-    font-size: 14px;
-    pointer-events: none;
-  }
-
-  .search-input {
-    width: 100%;
-    padding: 9px 12px 9px 36px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    font-size: 13px;
-    background: var(--white);
-    color: var(--ink);
-    font-family: 'Outfit', sans-serif;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-
+  .filters-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .search-wrap { position: relative; flex: 1; min-width: 200px; }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; pointer-events: none; }
+  .search-input { width: 100%; padding: 9px 12px 9px 36px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; background: var(--white); color: var(--ink); font-family: 'Outfit', sans-serif; outline: none; transition: border-color 0.15s; }
   .search-input:focus { border-color: var(--gold); }
   .search-input::placeholder { color: var(--muted); }
-
-  .filter-tabs {
-    display: flex;
-    gap: 4px;
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 3px;
-  }
-
-  .filter-tab {
-    padding: 6px 14px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    border: none;
-    background: transparent;
-    color: var(--muted);
-    transition: all 0.15s;
-    font-family: 'Outfit', sans-serif;
-  }
-
-  .filter-tab.active {
-    background: var(--ink);
-    color: var(--gold-light);
-  }
-
+  .filter-tabs { display: flex; gap: 4px; background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 3px; }
+  .filter-tab { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; background: transparent; color: var(--muted); transition: all 0.15s; font-family: 'Outfit', sans-serif; }
+  .filter-tab.active { background: var(--ink); color: var(--gold-light); }
   .filter-tab:hover:not(.active) { background: var(--cream); color: var(--ink); }
 
-  /* ── LEADS TABLE ── */
-  .table-wrap {
-    background: var(--white);
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    overflow: hidden;
-  }
-
-  .table-header {
-    display: grid;
-    grid-template-columns: 2fr 1.4fr 1.2fr 0.8fr 1fr 1.2fr;
-    padding: 12px 20px;
-    background: var(--cream-dark);
-    border-bottom: 1px solid var(--border);
-    font-size: 10px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--muted);
-    font-weight: 600;
-  }
-
-  .lead-row {
-    display: grid;
-    grid-template-columns: 2fr 1.4fr 1.2fr 0.8fr 1fr 1.2fr;
-    padding: 14px 20px;
-    border-bottom: 1px solid var(--border);
-    align-items: center;
-    transition: background 0.12s;
-    animation: rowIn 0.25s ease both;
-  }
-
-  @keyframes rowIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
+  .table-wrap { background: var(--white); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+  .table-header { display: grid; grid-template-columns: 1.8fr 1.2fr 1.2fr 1.1fr 0.7fr 1fr 1fr; padding: 12px 20px; background: var(--cream-dark); border-bottom: 1px solid var(--border); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .lead-row { display: grid; grid-template-columns: 1.8fr 1.2fr 1.2fr 1.1fr 0.7fr 1fr 1fr; padding: 14px 20px; border-bottom: 1px solid var(--border); align-items: center; transition: background 0.12s; animation: rowIn 0.25s ease both; cursor: pointer; }
+  @keyframes rowIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
   .lead-row:last-child { border-bottom: none; }
   .lead-row:hover { background: var(--cream); }
-
-  .lead-name {
-    font-weight: 600;
-    font-size: 14px;
-    color: var(--ink);
-  }
-
-  .lead-story {
-    font-size: 12px;
-    color: var(--muted);
-    margin-top: 2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 280px;
-  }
-
-  .lead-phone {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: var(--ink);
-  }
-
-  .badge {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 500;
-  }
-
-  .badge-area {
-    background: var(--gold-dim);
-    color: #8a6a1a;
-    border: 1px solid rgba(201,168,76,0.3);
-  }
-
-  .score-bar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .score-num {
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    font-weight: 500;
-    min-width: 28px;
-  }
-
-  .score-track {
-    flex: 1;
-    height: 4px;
-    background: var(--cream-dark);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-
-  .score-fill {
-    height: 100%;
-    border-radius: 2px;
-    transition: width 0.4s ease;
-  }
-
-  .status-select {
-    font-size: 12px;
-    padding: 4px 8px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background: var(--cream);
-    color: var(--ink);
-    cursor: pointer;
-    font-family: 'Outfit', sans-serif;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-
-  .status-select:focus { border-color: var(--gold); }
-
-  .status-select.new      { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
-  .status-select.contacted { background: var(--amber-bg); color: #92400e; border-color: #fcd34d; }
-  .status-select.converted { background: var(--green-bg); color: #166534; border-color: #86efac; }
-  .status-select.closed   { background: #f3f4f6; color: #6b7280; border-color: #d1d5db; }
-
-  .actions-cell {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .icon-btn {
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background: transparent;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    transition: all 0.15s;
-    color: var(--muted);
-  }
-
+  .lead-name { font-weight: 600; font-size: 14px; color: var(--ink); }
+  .lead-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .lead-phone { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--ink); }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+  .badge-area { background: var(--gold-dim); color: #8a6a1a; border: 1px solid rgba(201,168,76,0.3); }
+  .score-wrap { display: flex; align-items: center; gap: 7px; }
+  .score-num { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; min-width: 22px; }
+  .score-track { flex: 1; height: 4px; background: var(--cream-dark); border-radius: 2px; overflow: hidden; }
+  .score-fill { height: 100%; border-radius: 2px; }
+  .urgency-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+  .status-select { font-size: 12px; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--cream); color: var(--ink); cursor: pointer; font-family: 'Outfit', sans-serif; outline: none; }
+  .status-select.new { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+  .status-select.contacted { background: #fffbeb; color: #92400e; border-color: #fcd34d; }
+  .status-select.converted { background: #f0fdf4; color: #166534; border-color: #86efac; }
+  .status-select.closed { background: #f3f4f6; color: #6b7280; border-color: #d1d5db; }
+  .actions-cell { display: flex; align-items: center; gap: 6px; }
+  .icon-btn { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: all 0.15s; color: var(--muted); }
   .icon-btn:hover { background: var(--cream-dark); color: var(--ink); }
-  .icon-btn.delete:hover { background: var(--red-bg); color: var(--red); border-color: #fecaca; }
+  .icon-btn.delete:hover { background: #fef2f2; color: var(--red); border-color: #fecaca; }
 
-  .lead-time {
-    font-size: 11px;
-    color: var(--muted);
-  }
-
-  /* ── EMPTY STATE ── */
-  .empty-state {
-    text-align: center;
-    padding: 80px 20px;
-    color: var(--muted);
-  }
-
+  .empty-state { text-align: center; padding: 80px 20px; color: var(--muted); }
   .empty-icon { font-size: 40px; margin-bottom: 16px; }
   .empty-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--ink); margin-bottom: 8px; }
-  .empty-sub { font-size: 14px; }
-
-  /* ── LOADING ── */
-  .loading {
-    text-align: center;
-    padding: 60px;
-    color: var(--muted);
-    font-size: 14px;
-  }
-
-  .spinner {
-    width: 28px;
-    height: 28px;
-    border: 2px solid var(--cream-dark);
-    border-top-color: var(--gold);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    margin: 0 auto 12px;
-  }
-
+  .loading { text-align: center; padding: 60px; color: var(--muted); font-size: 14px; }
+  .spinner { width: 28px; height: 28px; border: 2px solid var(--cream-dark); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 12px; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── TOAST ── */
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    background: var(--ink);
-    color: var(--white);
-    padding: 12px 20px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transform: translateY(80px);
-    opacity: 0;
-    transition: all 0.25s cubic-bezier(.34,1.56,.64,1);
-    z-index: 999;
-    border-left: 3px solid var(--gold);
-  }
+  /* ── TRANSCRIPT MODAL ── */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(13,27,42,0.6); z-index: 200; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal { background: var(--white); border-radius: 16px; width: 560px; max-width: 95vw; max-height: 85vh; display: flex; flex-direction: column; transform: translateY(16px); transition: transform 0.2s; overflow: hidden; }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--ink); }
+  .modal-header h2 { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--white); }
+  .modal-close { background: none; border: none; color: rgba(255,255,255,0.6); font-size: 20px; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+  .modal-close:hover { color: var(--white); background: rgba(255,255,255,0.1); }
+  .modal-meta { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; gap: 20px; flex-wrap: wrap; background: var(--cream); }
+  .meta-item { font-size: 12px; color: var(--muted); }
+  .meta-item strong { color: var(--ink); display: block; font-size: 13px; }
+  .modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
+  .chat-bubble { margin-bottom: 14px; }
+  .bubble-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .bubble-label.client { color: #1d4ed8; }
+  .bubble-label.ander { color: #166534; }
+  .bubble-text { font-size: 13px; line-height: 1.6; color: var(--ink); background: var(--cream); border-radius: 10px; padding: 10px 14px; display: inline-block; max-width: 90%; }
+  .bubble-text.ander { background: #f0fdf4; }
 
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--ink); color: var(--white); padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; transform: translateY(80px); opacity: 0; transition: all 0.25s cubic-bezier(.34,1.56,.64,1); z-index: 999; border-left: 3px solid var(--gold); }
   .toast.show { transform: translateY(0); opacity: 1; }
-
-  /* ── URGENCY DOT ── */
-  .urgency-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 5px;
-  }
 </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
 <nav class="sidebar">
   <div class="sidebar-brand">
     <div class="logo-text">Ander CRM</div>
@@ -512,28 +120,20 @@
   </div>
   <div class="sidebar-nav">
     <div class="nav-label">Workspace</div>
-    <a href="/dashboard" class="nav-item active">
-      <span class="nav-icon">📋</span> All Leads
-    </a>
-    <a href="/" class="nav-item">
-      <span class="nav-icon">💬</span> Live Widget
-    </a>
+    <a href="/dashboard" class="nav-item active"><span>📋</span> All Leads</a>
+    <a href="/" class="nav-item"><span>💬</span> Live Widget</a>
   </div>
-  <div class="sidebar-footer">Powered by Ander · v1.0</div>
+  <div class="sidebar-footer">Powered by Ander · v2.0</div>
 </nav>
 
-<!-- MAIN -->
 <div class="main">
   <div class="topbar">
     <h1 class="topbar-title">Leads</h1>
-    <div class="topbar-right">
-      <button class="btn btn-ghost" onclick="loadData()">↻ Refresh</button>
-    </div>
+    <button class="btn btn-ghost" onclick="loadData()">↻ Refresh</button>
   </div>
 
   <div class="content">
-    <!-- STATS -->
-    <div class="stats-grid" id="statsGrid">
+    <div class="stats-grid">
       <div class="stat-card"><div class="stat-label">Total Leads</div><div class="stat-value" id="statTotal">—</div></div>
       <div class="stat-card"><div class="stat-label">New</div><div class="stat-value" id="statNew">—</div></div>
       <div class="stat-card"><div class="stat-label">High Priority</div><div class="stat-value" id="statHigh">—</div></div>
@@ -541,26 +141,25 @@
       <div class="stat-card"><div class="stat-label">Today</div><div class="stat-value" id="statToday">—</div></div>
     </div>
 
-    <!-- FILTERS -->
     <div class="filters-bar">
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <input class="search-input" id="searchInput" placeholder="Search by name, phone, area..." oninput="handleSearch()">
+        <input class="search-input" id="searchInput" placeholder="Search name, phone, email, area..." oninput="handleSearch()">
       </div>
       <div class="filter-tabs">
-        <button class="filter-tab active" data-status="all" onclick="setFilter('all', this)">All</button>
-        <button class="filter-tab" data-status="new" onclick="setFilter('new', this)">New</button>
-        <button class="filter-tab" data-status="contacted" onclick="setFilter('contacted', this)">Contacted</button>
-        <button class="filter-tab" data-status="converted" onclick="setFilter('converted', this)">Converted</button>
-        <button class="filter-tab" data-status="closed" onclick="setFilter('closed', this)">Closed</button>
+        <button class="filter-tab active" onclick="setFilter('all',this)">All</button>
+        <button class="filter-tab" onclick="setFilter('new',this)">New</button>
+        <button class="filter-tab" onclick="setFilter('contacted',this)">Contacted</button>
+        <button class="filter-tab" onclick="setFilter('converted',this)">Converted</button>
+        <button class="filter-tab" onclick="setFilter('closed',this)">Closed</button>
       </div>
     </div>
 
-    <!-- TABLE -->
     <div class="table-wrap">
       <div class="table-header">
         <div>Client</div>
         <div>Phone</div>
+        <div>Email</div>
         <div>Practice Area</div>
         <div>Score</div>
         <div>Status</div>
@@ -573,7 +172,18 @@
   </div>
 </div>
 
-<!-- TOAST -->
+<!-- Transcript Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalTitle">Conversation</h2>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-meta" id="modalMeta"></div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -605,78 +215,107 @@ async function loadLeads(status = 'all', search = '') {
     const res = await fetch(url);
     const data = await res.json();
     if (!data.success || data.intakes.length === 0) {
-      container.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">🌿</div>
-          <div class="empty-title">No leads yet</div>
-          <div class="empty-sub">Intakes will appear here as clients come through Ander.</div>
-        </div>`;
+      container.innerHTML = `<div class="empty-state"><div class="empty-icon">🌿</div><div class="empty-title">No leads yet</div><div class="empty-sub">Intakes will appear here as clients come through Ander.</div></div>`;
       return;
     }
     container.innerHTML = data.intakes.map((lead, i) => renderRow(lead, i)).join('');
   } catch(e) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Could not load leads</div><div class="empty-sub">Check server connection.</div></div>';
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Could not load leads</div></div>';
   }
 }
 
 function renderRow(lead, i) {
   const score = lead.score || 0;
   const scoreColor = score >= 8 ? '#ef4444' : score >= 5 ? '#f59e0b' : '#22c55e';
-  const scoreWidth = (score / 10) * 100;
   const urgencyColor = lead.urgency === 'urgent' ? '#ef4444' : '#22c55e';
   const time = new Date(lead.createdAt).toLocaleDateString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
-  const story = lead.story ? lead.story.substring(0, 60) + (lead.story.length > 60 ? '…' : '') : 'No details provided';
+  const hasTranscript = lead.transcript && lead.transcript.length > 0;
 
   return `
-  <div class="lead-row" style="animation-delay:${i * 0.04}s">
+  <div class="lead-row" style="animation-delay:${i*0.04}s" onclick="openTranscript('${lead._id}')">
     <div>
       <div class="lead-name">
-        <span class="urgency-dot" style="background:${urgencyColor}"></span>
-        ${esc(lead.firstName)}
+        <span class="urgency-dot" style="background:${urgencyColor}"></span>${esc(lead.firstName)}
       </div>
-      <div class="lead-story">${esc(story)}</div>
-      <div class="lead-time">${time}</div>
+      <div class="lead-sub">${time}</div>
     </div>
     <div>
-      ${lead.phone
-        ? `<div class="lead-phone"><a href="tel:${esc(lead.phone)}" style="color:var(--gold);text-decoration:none;">${esc(lead.phone)}</a></div>`
-        : '<div style="font-size:12px;color:var(--muted)">Not provided</div>'}
+      ${lead.phone ? `<div class="lead-phone"><a href="tel:${esc(lead.phone)}" style="color:var(--gold);text-decoration:none;" onclick="event.stopPropagation()">${esc(lead.phone)}</a></div>` : '<div class="lead-sub">—</div>'}
     </div>
     <div>
-      <span class="badge badge-area">${esc(lead.practiceArea || 'General')}</span>
+      ${lead.email ? `<div style="font-size:12px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px;"><a href="mailto:${esc(lead.email)}" style="color:var(--gold);text-decoration:none;" onclick="event.stopPropagation()">${esc(lead.email)}</a></div>` : '<div class="lead-sub">—</div>'}
     </div>
+    <div><span class="badge badge-area">${esc(lead.practiceArea || 'General')}</span></div>
     <div>
-      <div class="score-bar">
+      <div class="score-wrap">
         <span class="score-num" style="color:${scoreColor}">${score}</span>
-        <div class="score-track">
-          <div class="score-fill" style="width:${scoreWidth}%;background:${scoreColor}"></div>
-        </div>
+        <div class="score-track"><div class="score-fill" style="width:${score*10}%;background:${scoreColor}"></div></div>
       </div>
     </div>
-    <div>
-      <select class="status-select ${lead.status}" onchange="updateStatus('${lead._id}', this)">
-        <option value="new"       ${lead.status==='new'       ?'selected':''}>New</option>
-        <option value="contacted" ${lead.status==='contacted' ?'selected':''}>Contacted</option>
-        <option value="converted" ${lead.status==='converted' ?'selected':''}>Converted</option>
-        <option value="closed"    ${lead.status==='closed'    ?'selected':''}>Closed</option>
+    <div onclick="event.stopPropagation()">
+      <select class="status-select ${lead.status}" onchange="updateStatus('${lead._id}',this)">
+        <option value="new" ${lead.status==='new'?'selected':''}>New</option>
+        <option value="contacted" ${lead.status==='contacted'?'selected':''}>Contacted</option>
+        <option value="converted" ${lead.status==='converted'?'selected':''}>Converted</option>
+        <option value="closed" ${lead.status==='closed'?'selected':''}>Closed</option>
       </select>
     </div>
-    <div class="actions-cell">
+    <div class="actions-cell" onclick="event.stopPropagation()">
       ${lead.phone ? `<button class="icon-btn" title="Call" onclick="window.open('tel:${esc(lead.phone)}')">📞</button>` : ''}
+      ${hasTranscript ? `<button class="icon-btn" title="View transcript" onclick="openTranscript('${lead._id}')">💬</button>` : ''}
       <button class="icon-btn delete" title="Delete" onclick="deleteLead('${lead._id}')">🗑</button>
     </div>
   </div>`;
 }
 
-async function updateStatus(id, selectEl) {
-  const status = selectEl.value;
-  selectEl.className = `status-select ${status}`;
+async function openTranscript(id) {
   try {
-    await fetch(`/api/intakes/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status })
-    });
+    const res = await fetch(`/api/intakes/${id}`);
+    const data = await res.json();
+    if (!data.success) return;
+    const lead = data.intake;
+
+    document.getElementById('modalTitle').textContent = `${lead.firstName || 'Unknown'}'s Intake`;
+
+    const scoreBreakdown = lead.scoreBreakdown
+      ? Object.entries(lead.scoreBreakdown).map(([k,v]) => `<span style="font-size:11px;background:var(--cream-dark);border-radius:4px;padding:2px 7px;margin-right:4px;">+${v} ${k}</span>`).join('')
+      : '';
+
+    document.getElementById('modalMeta').innerHTML = `
+      <div class="meta-item"><strong>${lead.firstName || '—'}</strong>Name</div>
+      <div class="meta-item"><strong>${lead.phone || '—'}</strong>Phone</div>
+      <div class="meta-item"><strong>${lead.email || '—'}</strong>Email</div>
+      <div class="meta-item"><strong>${lead.practiceArea || '—'}</strong>Area</div>
+      <div class="meta-item"><strong>${lead.score}/10</strong>Score</div>
+      ${scoreBreakdown ? `<div style="width:100%;font-size:11px;color:var(--muted);padding-top:8px;">${scoreBreakdown}</div>` : ''}
+    `;
+
+    const transcript = lead.transcript || [];
+    if (transcript.length === 0) {
+      document.getElementById('modalBody').innerHTML = '<p style="color:var(--muted);font-size:13px;">No transcript available.</p>';
+    } else {
+      document.getElementById('modalBody').innerHTML = transcript.map(m => `
+        <div class="chat-bubble">
+          <div class="bubble-label ${m.role === 'user' ? 'client' : 'ander'}">${m.role === 'user' ? (lead.firstName || 'Client') : 'Ander'}</div>
+          <div class="bubble-text ${m.role === 'assistant' ? 'ander' : ''}">${esc(m.content)}</div>
+        </div>`).join('');
+    }
+
+    document.getElementById('modalOverlay').classList.add('open');
+  } catch(e) { console.error(e); }
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+async function updateStatus(id, selectEl) {
+  selectEl.className = `status-select ${selectEl.value}`;
+  try {
+    await fetch(`/api/intakes/${id}`, { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ status: selectEl.value }) });
     toast('✅ Status updated');
     loadStats();
   } catch(e) { toast('❌ Update failed'); }
@@ -700,15 +339,10 @@ function setFilter(status, el) {
 
 function handleSearch() {
   clearTimeout(searchDebounce);
-  searchDebounce = setTimeout(() => {
-    loadLeads(currentFilter, document.getElementById('searchInput').value);
-  }, 300);
+  searchDebounce = setTimeout(() => loadLeads(currentFilter, document.getElementById('searchInput').value), 300);
 }
 
-function loadData() {
-  loadStats();
-  loadLeads(currentFilter, document.getElementById('searchInput').value);
-}
+function loadData() { loadStats(); loadLeads(currentFilter, document.getElementById('searchInput').value); }
 
 function toast(msg) {
   const t = document.getElementById('toast');
@@ -722,7 +356,6 @@ function esc(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// Auto-refresh every 60 seconds
 loadData();
 setInterval(loadData, 60000);
 </script>

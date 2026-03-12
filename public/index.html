@@ -114,9 +114,13 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
 #ander-input { flex: 1; border: 1.5px solid #e5e0d8; border-radius: 8px; padding: 10px 14px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: #1a1a2e; background: #faf8f5; outline: none; resize: none; transition: border-color .2s; min-height: 40px; max-height: 100px; }
 #ander-input:focus { border-color: #8b5e3c; }
 #ander-input::placeholder { color: #aaa; }
+#ander-input:disabled { opacity: 0.5; cursor: not-allowed; }
 #ander-send { width: 38px; height: 38px; border-radius: 8px; background: #1a1a2e; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .2s; flex-shrink: 0; }
 #ander-send:hover { background: #8b5e3c; }
 #ander-send svg { width: 16px; height: 16px; fill: white; }
+
+.calendly-btn { display: block; text-align: center; background: #1a1a2e; color: #c9a070; padding: 13px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; margin: 4px 16px 12px; transition: background .2s; }
+.calendly-btn:hover { background: #8b5e3c; color: white; }
 
 @media (max-width: 768px) {
   nav { padding: 16px 24px; } .nav-links { display: none; }
@@ -239,7 +243,8 @@ const closeBtn = document.getElementById('ander-close-btn');
 const messagesEl = document.getElementById('ander-messages');
 const inputEl = document.getElementById('ander-input');
 const sendBtn = document.getElementById('ander-send');
-let state = {}, history = [], step = 0, isTyping = false, started = false;
+
+let sessionId = null, step = 0, isTyping = false, started = false, intakeDone = false;
 
 function openAnder(e) {
   if (e) e.preventDefault();
@@ -252,50 +257,128 @@ function openWidget() {
   setTimeout(() => widget.classList.add('open'), 10);
   if (!started) { started = true; startChat(); }
 }
-function closeWidget() { widget.classList.remove('open'); setTimeout(() => widget.style.display = 'none', 300); }
+
+function closeWidget() {
+  widget.classList.remove('open');
+  setTimeout(() => widget.style.display = 'none', 300);
+}
+
 toggle.addEventListener('click', () => widget.classList.contains('open') ? closeWidget() : openWidget());
 closeBtn.addEventListener('click', closeWidget);
+
 function scrollBottom() { messagesEl.scrollTop = messagesEl.scrollHeight; }
 
 function addMessage(text, role) {
-  const row = document.createElement('div'); row.className = 'msg-row ' + (role === 'user' ? 'user' : 'bot');
-  const av = document.createElement('div'); av.className = 'msg-av ' + (role === 'user' ? 'usr' : 'bot'); av.textContent = role === 'user' ? 'YOU' : 'A';
-  const bubble = document.createElement('div'); bubble.className = 'msg-bubble'; bubble.textContent = text;
-  row.appendChild(av); row.appendChild(bubble); messagesEl.appendChild(row); scrollBottom();
+  const row = document.createElement('div');
+  row.className = 'msg-row ' + (role === 'user' ? 'user' : 'bot');
+  const av = document.createElement('div');
+  av.className = 'msg-av ' + (role === 'user' ? 'usr' : 'bot');
+  av.textContent = role === 'user' ? 'YOU' : 'A';
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.textContent = text;
+  row.appendChild(av); row.appendChild(bubble);
+  messagesEl.appendChild(row);
+  scrollBottom();
+}
+
+function showCalendlyButton(link) {
+  const a = document.createElement('a');
+  a.href = link;
+  a.target = '_blank';
+  a.className = 'calendly-btn';
+  a.textContent = '📅 Schedule a Free Consultation';
+  messagesEl.appendChild(a);
+  scrollBottom();
+}
+
+function lockInput() {
+  inputEl.disabled = true;
+  inputEl.placeholder = 'Intake complete — thank you!';
+  sendBtn.disabled = true;
+  sendBtn.style.opacity = '0.35';
+  sendBtn.style.cursor = 'not-allowed';
 }
 
 function showTyping() {
-  const row = document.createElement('div'); row.className = 'msg-row bot'; row.id = 'typing-row';
-  const av = document.createElement('div'); av.className = 'msg-av bot'; av.textContent = 'A';
-  const bubble = document.createElement('div'); bubble.className = 'msg-bubble';
-  const ind = document.createElement('div'); ind.className = 'typing-indicator';
-  for (let i = 0; i < 3; i++) { const d = document.createElement('div'); d.className = 'typing-dot'; ind.appendChild(d); }
-  bubble.appendChild(ind); row.appendChild(av); row.appendChild(bubble); messagesEl.appendChild(row); scrollBottom();
+  const row = document.createElement('div');
+  row.className = 'msg-row bot'; row.id = 'typing-row';
+  const av = document.createElement('div');
+  av.className = 'msg-av bot'; av.textContent = 'A';
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  const ind = document.createElement('div');
+  ind.className = 'typing-indicator';
+  for (let i = 0; i < 3; i++) {
+    const d = document.createElement('div'); d.className = 'typing-dot'; ind.appendChild(d);
+  }
+  bubble.appendChild(ind); row.appendChild(av); row.appendChild(bubble);
+  messagesEl.appendChild(row);
+  scrollBottom();
 }
-function removeTyping() { const el = document.getElementById('typing-row'); if (el) el.remove(); }
+
+function removeTyping() {
+  const el = document.getElementById('typing-row');
+  if (el) el.remove();
+}
 
 async function startChat() {
   showTyping();
   try {
-    const res = await fetch('/api/start'); const data = await res.json();
-    removeTyping(); setTimeout(() => { addMessage(data.message, 'bot'); step = data.step; }, data.delay || 800);
-  } catch(e) { removeTyping(); addMessage("Hey there 👋 — I'm Ander, Henry Law Firm's AI intake assistant. What's your name?", 'bot'); }
+    const res = await fetch('/api/start');
+    const data = await res.json();
+    sessionId = data.sessionId;
+    step = data.step;
+    removeTyping();
+    setTimeout(() => addMessage(data.message, 'bot'), data.delay || 800);
+  } catch(e) {
+    removeTyping();
+    addMessage("Hey there 👋 — I'm Ander, Henry Law Firm's AI intake assistant. What's your name?", 'bot');
+  }
 }
 
 async function sendMessage() {
-  const text = inputEl.value.trim(); if (!text || isTyping) return;
+  const text = inputEl.value.trim();
+  if (!text || isTyping || intakeDone) return;
   inputEl.value = ''; inputEl.style.height = 'auto';
-  addMessage(text, 'user'); isTyping = true; sendBtn.disabled = true; showTyping();
+  addMessage(text, 'user');
+  isTyping = true; sendBtn.disabled = true;
+  showTyping();
   try {
-    const res = await fetch('/api/message', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ step, state, userMessage: text, history }) });
+    const res = await fetch('/api/message', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ step, userMessage: text, sessionId })
+    });
     const data = await res.json();
-    setTimeout(() => { removeTyping(); addMessage(data.message, 'bot'); state = data.state || state; history = data.history || history; step = data.step; isTyping = false; sendBtn.disabled = false; }, data.delay || 800);
-  } catch(e) { removeTyping(); addMessage("I'm sorry, something went wrong. Please try again.", 'bot'); isTyping = false; sendBtn.disabled = false; }
+    sessionId = data.sessionId || sessionId;
+    step = data.step;
+    setTimeout(() => {
+      removeTyping();
+      if (data.message) addMessage(data.message, 'bot');
+      if (data.done) {
+        intakeDone = true;
+        if (data.calendlyLink) showCalendlyButton(data.calendlyLink);
+        lockInput();
+      }
+      isTyping = false;
+      if (!data.done) sendBtn.disabled = false;
+    }, data.delay || 800);
+  } catch(e) {
+    removeTyping();
+    addMessage("I'm sorry, something went wrong. Please try again.", 'bot');
+    isTyping = false; sendBtn.disabled = false;
+  }
 }
 
 sendBtn.addEventListener('click', sendMessage);
-inputEl.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
-inputEl.addEventListener('input', () => { inputEl.style.height = 'auto'; inputEl.style.height = Math.min(inputEl.scrollHeight, 100) + 'px'; });
+inputEl.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+inputEl.addEventListener('input', () => {
+  inputEl.style.height = 'auto';
+  inputEl.style.height = Math.min(inputEl.scrollHeight, 100) + 'px';
+});
 </script>
 </body>
 </html>

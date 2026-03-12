@@ -3,6 +3,7 @@ const express = require('express');
 const { Resend } = require('resend');
 const Anthropic = require('@anthropic-ai/sdk');
 const mongoose = require('mongoose');
+const crypto = require('crypto');
 const app = express();
 
 app.use(express.json());
@@ -15,30 +16,55 @@ mongoose.connect(process.env.MONGODB_URI)
 
 // ─── Intake Schema ────────────────────────────────────────────────────────────
 const intakeSchema = new mongoose.Schema({
-  firstName:    { type: String, default: 'Unknown' },
-  phone:        { type: String, default: null },
-  practiceArea: { type: String, default: 'General' },
-  story:        { type: String, default: null },
-  urgency:      { type: String, default: 'standard' },
-  score:        { type: Number, default: 0 },
-  firmName:     { type: String, default: 'Henry Law Firm' },
-  createdAt:    { type: Date, default: Date.now },
-  status:       { type: String, default: 'new' } // new | contacted | converted | closed
+  sessionId:      { type: String, required: true, unique: true },
+  firstName:      { type: String, default: 'Unknown' },
+  email:          { type: String, default: null },
+  phone:          { type: String, default: null },
+  practiceArea:   { type: String, default: 'General' },
+  story:          { type: String, default: null },
+  urgency:        { type: String, default: 'standard' },
+  score:          { type: Number, default: 0 },
+  scoreBreakdown: { type: Object, default: {} },
+  firmName:       { type: String, default: 'Henry Law Firm' },
+  transcript:     { type: Array, default: [] },
+  createdAt:      { type: Date, default: Date.now },
+  completedAt:    { type: Date, default: null },
+  status:         { type: String, default: 'new' }
 });
 
 const Intake = mongoose.model('Intake', intakeSchema);
 
-// ─── Resend + Anthropic ───────────────────────────────────────────────────────
+// ─── Server-side session store ────────────────────────────────────────────────
+const sessions = new Map();
+
+function getSession(sessionId) {
+  if (!sessions.has(sessionId)) {
+    sessions.set(sessionId, {
+      sessionId,
+      firstName: null,
+      email: null,
+      phone: null,
+      practiceArea: null,
+      story: null,
+      urgency: null,
+      intakeComplete: false,
+      history: []
+    });
+  }
+  return sessions.get(sessionId);
+}
+
+// ─── Clients ──────────────────────────────────────────────────────────────────
 const resend = new Resend(process.env.RESEND_API_KEY);
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const CALENDLY_LINK = 'https://calendly.com/lhenry-lawfirm';
 
+// ─── Firm Context ─────────────────────────────────────────────────────────────
 const FIRM_CONTEXT = `
-You are Ander, an AI intake assistant for Henry Law Firm — a premier family law and estate planning firm in Oviedo, Florida.
+You are Ander, an AI intake assistant for Henry Law Firm in Orlando, Florida.
 
 ABOUT THE FIRM:
-- Name: Henry Law Firm
-- Attorney: LaMya Henry
-- Location: Orlando, Florida
+- Attorney: LaMya Henry — 22 years experience, former prosecutor
 - Practice focus: Consumer debt defense
 - Free consultations available
 
@@ -51,43 +77,34 @@ PRACTICE AREAS:
 6. Bank Levy Defense — responding fast to protect client funds from levies
 
 KEY LEGAL FACTS (Florida debt defense):
-- The Fair Debt Collection Practices Act (FDCPA) prohibits abusive, unfair, or deceptive collection practices
+- The FDCPA prohibits abusive, unfair, or deceptive collection practices
 - Collectors who violate the FDCPA may owe the debtor up to $1,000 in statutory damages plus attorney fees
-- Florida has a 5-year statute of limitations on written contracts (like credit cards)
+- Florida has a 5-year statute of limitations on written contracts like credit cards
 - Debt buyers often lack proper documentation — cases can be dismissed on procedural grounds
 - Wage garnishment in Florida is limited — head of household exemption may protect income
 - Many debt collection lawsuits go uncontested — having an attorney changes outcomes dramatically
 - Clients should NEVER ignore a debt lawsuit summons — a default judgment can be devastating
 
 YOUR PERSONALITY AND RULES:
-- You are warm, empathetic, and conversational — like a calm, knowledgeable friend
-- You NEVER give specific legal advice or tell someone what they should do legally
-- You CAN explain how things generally work, what processes look like, what rights they have
-- When someone asks a legal question, answer it in plain English — end with a gentle note that this is general info, not legal advice, and encourage a free consultation
-- You are NOT a lawyer and must never pretend to be
-- You are conducting an intake — your goal is to understand their situation and collect their name, what they need help with, and their phone number
-- Be human. React to what people say. If someone shares something painful or stressful, acknowledge it first
-- Never sound like a form — never list questions back to back without warmth
-- Keep responses concise — this is a chat interface, not an essay
-- Many clients are scared, embarrassed, or overwhelmed about debt — meet them with zero judgment
+- Warm, empathetic, conversational — like a calm knowledgeable friend
+- NEVER give specific legal advice
+- CAN explain how things generally work and what rights they have — always end with "this is general info, not legal advice"
+- NOT a lawyer, never pretend to be
+- React to emotions first — acknowledge before moving forward
+- Never list questions back to back — one thing at a time with warmth
+- Keep responses to 2-3 sentences MAX — this is a chat widget, not an essay
+- Zero judgment about debt situations
 `;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function classifyPracticeArea(text) {
   const t = text.toLowerCase();
-  if (t.includes('divorce') || t.includes('custody') || t.includes('child support') || t.includes('alimony') || t.includes('separation') || t.includes('prenup') || t.includes('spouse') || t.includes('husband') || t.includes('wife') || t.includes('visitation')) return 'Family Law';
-  if (t.includes('will') || t.includes('trust') || t.includes('estate') || t.includes('inherit') || t.includes('guardian') || t.includes('power of attorney') || t.includes('living will') || t.includes('beneficiary') || t.includes('special needs')) return 'Estate Planning';
-  if (t.includes('probate') || t.includes('deceased') || t.includes('passed away') || t.includes('died') || t.includes('death') || t.includes('executor')) return 'Probate';
-  if (t.includes('real estate') || t.includes('closing') || t.includes('property') || t.includes('house') || t.includes('home') || t.includes('mortgage') || t.includes('title')) return 'Real Estate';
-  if (t.includes('debt') || t.includes('garnish') || t.includes('credit card') || t.includes('collector') || t.includes('lawsuit') || t.includes('levy') || t.includes('fdcpa') || t.includes('summons')) return 'Debt Defense';
+  if (t.includes('divorce') || t.includes('custody') || t.includes('child support') || t.includes('alimony') || t.includes('spouse') || t.includes('husband') || t.includes('wife')) return 'Family Law';
+  if (t.includes('will') || t.includes('trust') || t.includes('estate') || t.includes('inherit') || t.includes('guardian') || t.includes('power of attorney')) return 'Estate Planning';
+  if (t.includes('probate') || t.includes('deceased') || t.includes('passed away') || t.includes('died') || t.includes('executor')) return 'Probate';
+  if (t.includes('real estate') || t.includes('closing') || t.includes('mortgage') || t.includes('title')) return 'Real Estate';
+  if (t.includes('debt') || t.includes('garnish') || t.includes('credit card') || t.includes('collector') || t.includes('lawsuit') || t.includes('levy') || t.includes('fdcpa') || t.includes('summons') || t.includes('repo') || t.includes('medical bill') || t.includes('lien') || t.includes('judgment')) return 'Debt Defense';
   return 'General';
-}
-
-function validate(key, value) {
-  switch (key) {
-    case 'phone': return /^[\d\s\-\(\)\+]{7,15}$/.test(value.trim());
-    default: return value.trim().length >= 2;
-  }
 }
 
 function typingDelay(message) {
@@ -99,56 +116,233 @@ function typingDelay(message) {
   return 1800;
 }
 
-function calcScore(state) {
-  let score = 2;
-  if (state.practiceArea && state.practiceArea !== 'General') score += 2;
-  if (state.urgency === 'urgent') score += 3;
-  if (state.phone) score += 2;
-  if (state.story && state.story.length > 50) score += 1;
-  return Math.min(score, 10);
+function calcScore(session) {
+  let score = 0;
+  const breakdown = {};
+  const story = (session.story || '').toLowerCase();
+
+  score += 2; breakdown.completedIntake = 2;
+  if (session.practiceArea && session.practiceArea !== 'General') { score += 2; breakdown.knownPracticeArea = 2; }
+  if (session.urgency === 'urgent') { score += 2; breakdown.urgency = 2; }
+  if (session.phone) { score += 1; breakdown.phoneProvided = 1; }
+  if (session.email) { score += 1; breakdown.emailProvided = 1; }
+  if (story.includes('court') || story.includes('summons') || story.includes('lawsuit') || story.includes('sued') || story.includes('judgment')) { score += 2; breakdown.legalActionMentioned = 2; }
+  if (story.includes('garnish') || story.includes('paycheck') || story.includes('wages')) { score += 2; breakdown.garnishmentMentioned = 2; }
+  if (/\$[\d,]+|\d+k|\d+,\d{3}/.test(story)) { score += 1; breakdown.amountMentioned = 1; }
+  if (session.story && session.story.length > 100) { score += 1; breakdown.detailedStory = 1; }
+
+  return { score: Math.min(score, 10), breakdown };
 }
 
-function generateSummary(state, score) {
-  const urgency = score >= 8 ? 'HIGH' : score >= 5 ? 'MODERATE' : 'LOW';
+function extractFields(session) {
+  const userMsgs = session.history.filter(m => m.role === 'user');
+  const allText = userMsgs.map(m => m.content).join(' ');
+
+  // NAME
+  if (!session.firstName) {
+    for (const msg of userMsgs) {
+      const t = msg.content.trim();
+      if (/^[A-Za-z'-]{2,25}$/.test(t)) { session.firstName = t; break; }
+      const nameMatch = t.match(/(?:my name is|i['']?m|it['']?s|call me)\s+([A-Za-z'-]{2,25})/i);
+      if (nameMatch) { session.firstName = nameMatch[1]; break; }
+    }
+  }
+
+  // EMAIL
+  if (!session.email) {
+    const emailMatch = allText.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);
+    if (emailMatch) session.email = emailMatch[0].toLowerCase();
+  }
+
+  // PHONE — strict 10 or 11 digits only
+  if (!session.phone) {
+    for (const msg of userMsgs) {
+      const digits = msg.content.replace(/\D/g, '');
+      if (digits.length === 10 || digits.length === 11) {
+        session.phone = msg.content.trim();
+        break;
+      }
+    }
+  }
+
+  // STORY — first message longer than 30 chars
+  if (!session.story) {
+    for (const msg of userMsgs) {
+      if (msg.content.trim().length > 30) {
+        session.story = msg.content.trim();
+        break;
+      }
+    }
+  }
+
+  // PRACTICE AREA
+  if (!session.practiceArea || session.practiceArea === 'General') {
+    const area = classifyPracticeArea(allText);
+    if (area !== 'General') session.practiceArea = area;
+  }
+
+  // URGENCY
+  if (!session.urgency) {
+    const u = allText.toLowerCase();
+    session.urgency = (u.includes('court') || u.includes('deadline') || u.includes('urgent') || u.includes('garnish') || u.includes('creditor') || u.includes('lawsuit') || u.includes('summons') || u.includes('repo') || u.includes('levy')) ? 'urgent' : 'standard';
+  }
+
+  console.log('📊 SESSION:', JSON.stringify({
+    firstName: session.firstName,
+    email: session.email,
+    phone: session.phone,
+    story: session.story ? session.story.substring(0, 40) + '...' : null,
+    practiceArea: session.practiceArea,
+    intakeComplete: session.intakeComplete
+  }));
+}
+
+function buildStateSummary(session) {
   return `
-NEW INTAKE — ANDER AI · HENRY LAW FIRM
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CURRENT INTAKE STATE:
+- First name: ${session.firstName ? 'YES — ' + session.firstName : 'NOT YET'}
+- Story/situation: ${session.story ? 'YES' : 'NOT YET'}
+- Email: ${session.email ? 'YES — ' + session.email : 'NOT YET'}
+- Phone: ${session.phone ? 'YES' : 'NOT YET'}
+- Practice area: ${session.practiceArea || 'NOT YET'}
 
-👤 CLIENT
-Name: ${state.firstName || 'Not provided'}
-Phone: ${state.phone || 'Not provided'}
+INTAKE COLLECTION ORDER:
+1. Name (if not collected)
+2. Their situation in their own words (if no story yet)
+3. Email address — say "just so the team can follow up with you by email too" (if no email)
+4. Phone number — say "no spam, LaMya will call you directly" (if no phone)
+5. Once phone is collected → DO NOT say goodbye or wrap up. The system handles the closing. Just warmly confirm their phone number.
 
-📋 PRACTICE AREA
-${state.practiceArea || 'Not determined'}
-
-💬 IN THEIR OWN WORDS
-"${state.story || 'Not provided'}"
-
-⏰ URGENCY
-${state.urgency === 'urgent' ? 'Time-sensitive' : 'Standard timeline'}
-
-⭐ LEAD SCORE: ${score}/10  |  PRIORITY: ${urgency}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-RECOMMENDED ACTION
-${score >= 7 ? `Strong lead. Recommend calling ${state.firstName} within the hour.` : score >= 4 ? 'Moderate lead. Follow up within 24 hours.' : 'Standard lead. Follow up when available.'}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Powered by Ander · Fern Stellar AI
-  `.trim();
+RULES:
+- NEVER ask for info already collected — check the state above
+- If they ask a legal question, answer it briefly (2 sentences) then continue the intake
+- 2-3 sentences MAX per response
+`;
 }
 
-async function saveIntake(state, score) {
+async function askClaude(session) {
+  const response = await anthropic.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 180,
+    system: FIRM_CONTEXT + '\n\n' + buildStateSummary(session),
+    messages: session.history
+  });
+  return response.content[0].text;
+}
+
+// ─── Firm Notification Email ──────────────────────────────────────────────────
+async function sendFirmNotification(session, score, breakdown) {
+  const urgencyLabel = score >= 8 ? '🔴 HIGH PRIORITY' : score >= 5 ? '🟡 MODERATE' : '🟢 STANDARD';
+  const transcriptHtml = session.history.map(m => `
+    <div style="margin-bottom:12px;">
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;color:${m.role === 'user' ? '#1d4ed8' : '#166534'};">
+        ${m.role === 'user' ? (session.firstName || 'Client') : 'Ander'}
+      </span>
+      <p style="margin:3px 0 0;font-size:13px;color:#0d1b2a;line-height:1.5;">${m.content}</p>
+    </div>`).join('');
+
+  const scoreRows = Object.entries(breakdown).map(([k, v]) =>
+    `<tr><td style="padding:4px 10px;font-size:12px;color:#6b7280;">${k}</td><td style="padding:4px 10px;font-size:12px;font-weight:600;color:#0d1b2a;">+${v}</td></tr>`
+  ).join('');
+
+  try {
+    await resend.emails.send({
+      from: 'Ander at Fern Stellar <onboarding@resend.dev>',
+      to: [process.env.FIRM_EMAIL],
+      subject: `${urgencyLabel} New Intake — ${session.firstName || 'Unknown'} | ${session.practiceArea || 'General'} | Score: ${score}/10`,
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:620px;margin:0 auto;background:#f5f0e8;padding:32px;">
+          <div style="background:#0d1b2a;padding:24px 28px;border-radius:12px 12px 0 0;">
+            <p style="color:#c9a84c;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:0 0 4px 0;">New Intake · Henry Law Firm</p>
+            <h1 style="color:#fff;font-size:20px;margin:0;display:inline-block;">Ander AI Intake</h1>
+            <span style="float:right;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:6px 14px;color:#e8c96a;font-size:20px;font-weight:700;">${score}/10</span>
+          </div>
+          <div style="background:#fff;padding:28px;border-radius:0 0 12px 12px;">
+            <div style="background:${score >= 8 ? '#fef2f2' : score >= 5 ? '#fffbeb' : '#f0fdf4'};border-left:4px solid ${score >= 8 ? '#ef4444' : score >= 5 ? '#f59e0b' : '#22c55e'};padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:24px;">
+              <p style="margin:0;font-size:13px;font-weight:600;color:#0d1b2a;">${urgencyLabel} — ${score >= 7 ? `Call ${session.firstName} within the hour.` : score >= 4 ? 'Follow up within 24 hours.' : 'Follow up when available.'}</p>
+            </div>
+            <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+              <tr style="background:#f8f7f5;"><td style="padding:10px 14px;font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase;width:120px;">Name</td><td style="padding:10px 14px;font-size:14px;color:#0d1b2a;">${session.firstName || 'Not provided'}</td></tr>
+              <tr><td style="padding:10px 14px;font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase;">Phone</td><td style="padding:10px 14px;font-size:14px;"><a href="tel:${session.phone}" style="color:#c9a84c;">${session.phone || 'Not provided'}</a></td></tr>
+              <tr style="background:#f8f7f5;"><td style="padding:10px 14px;font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase;">Email</td><td style="padding:10px 14px;font-size:14px;"><a href="mailto:${session.email}" style="color:#c9a84c;">${session.email || 'Not provided'}</a></td></tr>
+              <tr><td style="padding:10px 14px;font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase;">Practice Area</td><td style="padding:10px 14px;font-size:14px;color:#0d1b2a;">${session.practiceArea || 'General'}</td></tr>
+              <tr style="background:#f8f7f5;"><td style="padding:10px 14px;font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase;">Urgency</td><td style="padding:10px 14px;font-size:14px;color:#0d1b2a;">${session.urgency === 'urgent' ? '⚠️ Time-sensitive' : 'Standard'}</td></tr>
+            </table>
+            <div style="background:#f8f7f5;border-radius:10px;padding:18px 20px;margin-bottom:20px;">
+              <p style="font-size:11px;color:#6b7280;text-transform:uppercase;font-weight:600;margin:0 0 8px 0;">In Their Own Words</p>
+              <p style="font-size:14px;color:#0d1b2a;line-height:1.6;margin:0;font-style:italic;">"${session.story || 'Not provided'}"</p>
+            </div>
+            <div style="background:#f8f7f5;border-radius:10px;padding:18px 20px;margin-bottom:20px;">
+              <p style="font-size:11px;color:#6b7280;text-transform:uppercase;font-weight:600;margin:0 0 10px 0;">Score Breakdown</p>
+              <table style="width:100%;border-collapse:collapse;">${scoreRows}</table>
+            </div>
+            <div style="background:#f0fdf4;border-radius:10px;padding:18px 20px;margin-bottom:20px;">
+              <p style="font-size:11px;color:#166534;text-transform:uppercase;font-weight:600;margin:0 0 12px 0;">Full Conversation Transcript</p>
+              ${transcriptHtml}
+            </div>
+            <div style="text-align:center;padding-top:16px;border-top:1px solid rgba(0,0,0,.06);">
+              <p style="font-size:11px;color:#9ca3af;margin:0;">Powered by <strong style="color:#0d1b2a;">Ander</strong> · <strong style="color:#0d1b2a;">Fern Stellar</strong> AI Intake</p>
+            </div>
+          </div>
+        </div>`
+    });
+    console.log('✅ Firm notification sent for', session.firstName);
+  } catch (err) {
+    console.error('❌ Firm email failed:', JSON.stringify(err));
+  }
+}
+
+// ─── Client Confirmation Email ────────────────────────────────────────────────
+async function sendClientConfirmation(session) {
+  if (!session.email) return;
+  try {
+    await resend.emails.send({
+      from: 'Henry Law Firm via Ander <onboarding@resend.dev>',
+      to: [session.email],
+      subject: `${session.firstName}, we got your info — Henry Law Firm`,
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#f5f0e8;padding:32px;">
+          <div style="background:#0d1b2a;padding:24px 28px;border-radius:12px 12px 0 0;">
+            <p style="color:#c9a84c;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:0 0 4px 0;">Henry Law Firm · Orlando, FL</p>
+            <h1 style="color:#fff;font-size:20px;margin:0;">We've received your information</h1>
+          </div>
+          <div style="background:#fff;padding:28px;border-radius:0 0 12px 12px;">
+            <p style="font-size:15px;color:#0d1b2a;line-height:1.7;">Hi ${session.firstName},</p>
+            <p style="font-size:15px;color:#0d1b2a;line-height:1.7;">Thank you for reaching out to Henry Law Firm. Your intake has been received and LaMya will be in touch with you soon.</p>
+            <p style="font-size:15px;color:#0d1b2a;line-height:1.7;">If you'd like to lock in a time right now rather than waiting, you can schedule a free consultation directly here:</p>
+            <div style="text-align:center;margin:28px 0;">
+              <a href="${CALENDLY_LINK}" style="background:#0d1b2a;color:#e8c96a;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:15px;font-weight:600;display:inline-block;">📅 Schedule a Free Consultation</a>
+            </div>
+            <p style="font-size:13px;color:#6b7280;line-height:1.6;">This message was sent on behalf of Henry Law Firm by Ander, an AI intake assistant. Nothing in this email constitutes legal advice.</p>
+            <div style="text-align:center;padding-top:16px;border-top:1px solid rgba(0,0,0,.06);margin-top:16px;">
+              <p style="font-size:11px;color:#9ca3af;margin:0;">Powered by <strong style="color:#0d1b2a;">Ander</strong> · <strong style="color:#0d1b2a;">Fern Stellar</strong></p>
+            </div>
+          </div>
+        </div>`
+    });
+    console.log('✅ Client confirmation sent to', session.email);
+  } catch (err) {
+    console.error('❌ Client email failed:', JSON.stringify(err));
+  }
+}
+
+// ─── Save to MongoDB ──────────────────────────────────────────────────────────
+async function saveIntake(session, score, breakdown) {
   try {
     const intake = new Intake({
-      firstName:    state.firstName || 'Unknown',
-      phone:        state.phone || null,
-      practiceArea: state.practiceArea || 'General',
-      story:        state.story || null,
-      urgency:      state.urgency || 'standard',
+      sessionId:      session.sessionId,
+      firstName:      session.firstName || 'Unknown',
+      email:          session.email || null,
+      phone:          session.phone || null,
+      practiceArea:   session.practiceArea || 'General',
+      story:          session.story || null,
+      urgency:        session.urgency || 'standard',
       score,
-      firmName:     'Henry Law Firm',
-      status:       'new'
+      scoreBreakdown: breakdown,
+      firmName:       'Henry Law Firm',
+      transcript:     session.history,
+      completedAt:    new Date(),
+      status:         'new'
     });
     await intake.save();
     console.log('✅ Intake saved to MongoDB:', intake._id);
@@ -159,229 +353,96 @@ async function saveIntake(state, score) {
   }
 }
 
-async function sendNotification(state, score) {
-  const summary = generateSummary(state, score);
-  const urgencyLabel = score >= 8 ? '🔴 HIGH PRIORITY' : score >= 5 ? '🟡 MODERATE' : '🟢 STANDARD';
-  try {
-    const result = await resend.emails.send({
-      from: 'Ander at Fern Stellar <onboarding@resend.dev>',
-      to: [process.env.FIRM_EMAIL],
-      subject: `${urgencyLabel} New Intake — ${state.firstName || 'Unknown'} | ${state.practiceArea || 'General'} | Score: ${score}/10`,
-      text: summary,
-      html: `
-        <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#f5f0e8;padding:32px;">
-          <div style="background:#0d1b2a;padding:24px 28px;border-radius:12px 12px 0 0;">
-            <p style="color:#c9a84c;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:0 0 4px 0;">New Intake · Henry Law Firm</p>
-            <h1 style="color:#fff;font-size:20px;margin:0;display:inline-block;">Ander AI Intake</h1>
-            <span style="float:right;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:6px 14px;color:#e8c96a;font-size:20px;font-weight:700;">${score}/10</span>
-          </div>
-          <div style="background:#fff;padding:28px;border-radius:0 0 12px 12px;">
-            <div style="background:${score >= 8 ? '#fef2f2' : score >= 5 ? '#fffbeb' : '#f0fdf4'};border-left:4px solid ${score >= 8 ? '#ef4444' : score >= 5 ? '#f59e0b' : '#22c55e'};padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:24px;">
-              <p style="margin:0;font-size:13px;font-weight:600;color:#0d1b2a;">${urgencyLabel} — ${score >= 7 ? `Call ${state.firstName} within the hour.` : score >= 4 ? 'Follow up within 24 hours.' : 'Follow up when available.'}</p>
-            </div>
-            <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
-              <tr style="background:#f8f7f5;"><td style="padding:10px 14px;font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase;">Name</td><td style="padding:10px 14px;font-size:14px;color:#0d1b2a;">${state.firstName || 'Not provided'}</td></tr>
-              <tr><td style="padding:10px 14px;font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase;">Phone</td><td style="padding:10px 14px;font-size:14px;"><a href="tel:${state.phone}" style="color:#c9a84c;">${state.phone || 'Not provided'}</a></td></tr>
-              <tr style="background:#f8f7f5;"><td style="padding:10px 14px;font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase;">Practice Area</td><td style="padding:10px 14px;font-size:14px;color:#0d1b2a;">${state.practiceArea || 'Not determined'}</td></tr>
-              <tr><td style="padding:10px 14px;font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase;">Urgency</td><td style="padding:10px 14px;font-size:14px;color:#0d1b2a;">${state.urgency === 'urgent' ? '⚠️ Time-sensitive' : 'Standard'}</td></tr>
-            </table>
-            <div style="background:#f8f7f5;border-radius:10px;padding:18px 20px;margin-bottom:24px;">
-              <p style="font-size:11px;color:#6b7280;text-transform:uppercase;font-weight:600;margin:0 0 8px 0;">In Their Own Words</p>
-              <p style="font-size:14px;color:#0d1b2a;line-height:1.6;margin:0;font-style:italic;">"${state.story || 'Not provided'}"</p>
-            </div>
-            <div style="text-align:center;padding-top:16px;border-top:1px solid rgba(0,0,0,.06);">
-              <p style="font-size:11px;color:#9ca3af;margin:0;">Powered by <strong style="color:#0d1b2a;">Ander</strong> · <strong style="color:#0d1b2a;">Fern Stellar</strong> AI Intake</p>
-            </div>
-          </div>
-        </div>
-      `
-    });
-    console.log('✅ Intake email sent for', state.firstName, result);
-  } catch (err) {
-    console.error('❌ Email failed:', JSON.stringify(err));
-  }
-}
-
-async function askClaude(conversationHistory, state) {
-  const stateSummary = `
-CURRENT INTAKE STATE:
-- First name collected: ${state.firstName ? 'Yes — ' + state.firstName : 'No'}
-- Story/situation collected: ${state.story ? 'Yes' : 'No'}
-- Practice area identified: ${state.practiceArea || 'Not yet'}
-- Phone collected: ${state.phone ? 'Yes' : 'No'}
-- Intake complete: ${state.intakeComplete ? 'Yes' : 'No'}
-
-INTAKE GOALS (in order):
-1. If no first name yet — warmly ask for their name
-2. If no story yet — invite them to share what's going on in their own words
-3. If no practice area yet — gently clarify what kind of legal help they need
-4. If no urgency assessed yet — ask if there's any time sensitivity
-5. If no phone yet — ask for their best phone number (reassure no spam)
-6. Once phone is collected — give a warm closing message and set state.intakeComplete = true
-
-IMPORTANT: If the person asks a question at any point, answer it from your knowledge base first, then continue the intake naturally. Never ignore a question to push the intake forward.
-
-RESPONSE LENGTH: Keep every response to 2-3 sentences maximum. Be warm and human but CONCISE. This is a chat widget, not a consultation. Never write paragraphs. One thought, then move forward.
-`;
-
-  const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 180,
-    system: FIRM_CONTEXT + '\n\n' + stateSummary,
-    messages: conversationHistory
-  });
-
-  return response.content[0].text;
-}
-
-function extractState(conversationHistory, currentState) {
-  const userMsgs = conversationHistory.filter(m => m.role === 'user');
-  const allText = userMsgs.map(m => m.content).join(' ');
-
-  // NAME — grab the first short single-word reply (likely the name response)
-  if (!currentState.firstName) {
-    for (const msg of userMsgs) {
-      const t = msg.content.trim();
-      if (/^[A-Za-z'-]{2,25}$/.test(t)) {
-        currentState.firstName = t;
-        break;
-      }
-      // "My name is X" / "I'm X" / "It's X"
-      const nameMatch = t.match(/(?:my name is|i['']?m|it['']?s|call me)\s+([A-Za-z'-]{2,25})/i);
-      if (nameMatch) { currentState.firstName = nameMatch[1]; break; }
-    }
-  }
-
-  // PHONE — strict 10-digit US phone anywhere in any message
-  if (!currentState.phone) {
-    for (const msg of userMsgs) {
-      const digits = msg.content.replace(/\D/g, '');
-      if (digits.length === 10 || digits.length === 11) {
-        currentState.phone = msg.content.trim();
-        break;
-      }
-    }
-  }
-
-  // STORY — first message that's longer than 30 chars (real description, not just a name)
-  if (!currentState.story) {
-    for (const msg of userMsgs) {
-      if (msg.content.trim().length > 30) {
-        currentState.story = msg.content.trim();
-        break;
-      }
-    }
-  }
-
-  // PRACTICE AREA
-  if (!currentState.practiceArea || currentState.practiceArea === 'General') {
-    const area = classifyPracticeArea(allText);
-    if (area !== 'General') currentState.practiceArea = area;
-  }
-
-  // URGENCY
-  if (!currentState.urgency) {
-    const u = allText.toLowerCase();
-    currentState.urgency = (u.includes('court') || u.includes('deadline') || u.includes('urgent') || u.includes('soon') || u.includes('garnish') || u.includes('creditor') || u.includes('lawsuit') || u.includes('summons')) ? 'urgent' : 'standard';
-  }
-
-  console.log('📊 STATE:', JSON.stringify({
-    firstName: currentState.firstName || null,
-    phone: currentState.phone || null,
-    story: currentState.story ? currentState.story.substring(0, 40) + '...' : null,
-    practiceArea: currentState.practiceArea || null,
-    intakeComplete: currentState.intakeComplete || false
-  }));
-
-  return currentState;
-}
-
+// ─── Disclosure ───────────────────────────────────────────────────────────────
 const disclosureMessage = "Hey there 👋 — I'm Ander. Before we get started, just want to be upfront: I'm an AI, not a lawyer, and nothing I say is legal advice.\n\nI'm here to walk you through a quick intake so the right people at Henry Law Firm can take a look at your situation and reach out.\n\nWhenever you're ready, just say \"I understand\" and we'll jump in. 😊";
 
 const disclosureAccepted = (val) => ['i understand', 'ok', 'okay', 'yes', 'sure', 'got it', 'understood', 'ready', "let's go", 'lets go', 'go'].includes(val.trim().toLowerCase());
 
-// ─── Chat Routes ──────────────────────────────────────────────────────────────
+// ─── Chat Route ───────────────────────────────────────────────────────────────
 app.post('/api/message', async (req, res) => {
-  const { step, state, userMessage, history = [] } = req.body;
+  const { step, userMessage, sessionId } = req.body;
+
+  const sid = sessionId || crypto.randomUUID();
+  const session = getSession(sid);
 
   if (step === 0) {
     if (!disclosureAccepted(userMessage)) {
       return res.json({
-        done: false, step: 0,
+        done: false, step: 0, sessionId: sid,
         message: "No worries — just type \"I understand\" whenever you're comfortable and we'll get started! 😊",
-        type: 'text', options: [], state, delay: 800
+        type: 'text', options: [], delay: 800
       });
     }
     return res.json({
-      done: false, step: 1,
+      done: false, step: 1, sessionId: sid,
       message: "Great! First things first — what's your name?",
-      type: 'text', options: [], state, delay: 750
+      type: 'text', options: [], delay: 750
     });
   }
 
+  // Hard stop
+  if (session.intakeComplete) {
+    return res.json({ done: true, step, sessionId: sid, message: null, type: 'text', options: [], delay: 0 });
+  }
+
   try {
-    // Hard stop — if intake already complete, don't process any more messages
-    if (state.intakeComplete) {
-      return res.json({
-        done: true, step,
-        message: null,
-        type: 'text', options: [], state, delay: 0
-      });
-    }
+    session.history.push({ role: 'user', content: userMessage });
+    extractFields(session);
 
-    const conversationHistory = [...history, { role: 'user', content: userMessage }];
-    const updatedState = extractState(conversationHistory, { ...state });
+    // Complete when we have name + story + phone
+    if (session.phone && session.story && session.firstName && !session.intakeComplete) {
+      session.intakeComplete = true;
+      const { score, breakdown } = calcScore(session);
 
-    // Fire save + email the moment we have all three fields
-    if (updatedState.phone && updatedState.story && updatedState.firstName && !updatedState.intakeComplete) {
-      updatedState.intakeComplete = true;
-      const score = calcScore(updatedState);
-      // Save to MongoDB AND send email in parallel (don't await — let it run async)
       Promise.all([
-        saveIntake(updatedState, score),
-        sendNotification(updatedState, score)
-      ]).catch(err => console.error('❌ Save/notify failed:', err));
+        saveIntake(session, score, breakdown),
+        sendFirmNotification(session, score, breakdown),
+        sendClientConfirmation(session)
+      ]).catch(err => console.error('❌ Post-intake failed:', err));
 
-      // Return the closing message immediately — hard stop, no more Claude calls
-      const closingMessage = `You're all set, ${updatedState.firstName}! 🌿 I've passed your info along to the team at Henry Law Firm — someone will be reaching out to you soon. You've got this. 💛`;
+      const closingMessage = `You're all set, ${session.firstName}! 🌿 I've passed everything along to the Henry Law Firm team — LaMya will be reaching out to you soon.\n\nIf you'd like to lock in a time right now, here's her calendar: ${CALENDLY_LINK}\n\nYou've got this. 💛`;
+      session.history.push({ role: 'assistant', content: closingMessage });
+
       return res.json({
         done: true,
         step: step + 1,
+        sessionId: sid,
         message: closingMessage,
+        calendlyLink: CALENDLY_LINK,
         type: 'text',
         options: [],
-        state: updatedState,
-        history: [...conversationHistory, { role: 'assistant', content: closingMessage }],
         delay: typingDelay(closingMessage)
       });
     }
 
-    const anderResponse = await askClaude(conversationHistory, updatedState);
+    const anderResponse = await askClaude(session);
+    session.history.push({ role: 'assistant', content: anderResponse });
 
     return res.json({
       done: false,
       step: step + 1,
+      sessionId: sid,
       message: anderResponse,
       type: 'text',
       options: [],
-      state: updatedState,
-      history: [...conversationHistory, { role: 'assistant', content: anderResponse }],
       delay: typingDelay(anderResponse)
     });
 
   } catch (err) {
-    console.error('❌ Claude error:', err.message);
+    console.error('❌ Error:', err.message);
     return res.json({
-      done: false, step,
+      done: false, step, sessionId: sid,
       message: "I'm sorry, something went wrong on my end. Could you try that again?",
-      type: 'text', options: [], state, delay: 800
+      type: 'text', options: [], delay: 800
     });
   }
 });
 
 app.get('/api/start', (req, res) => {
+  const sessionId = crypto.randomUUID();
   res.json({
     step: 0,
+    sessionId,
     message: disclosureMessage,
     type: 'text',
     options: [],
@@ -390,7 +451,6 @@ app.get('/api/start', (req, res) => {
 });
 
 // ─── CRM API Routes ───────────────────────────────────────────────────────────
-// GET all intakes (newest first)
 app.get('/api/intakes', async (req, res) => {
   try {
     const { status, search } = req.query;
@@ -400,6 +460,7 @@ app.get('/api/intakes', async (req, res) => {
       query.$or = [
         { firstName: { $regex: search, $options: 'i' } },
         { phone: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
         { practiceArea: { $regex: search, $options: 'i' } },
         { story: { $regex: search, $options: 'i' } }
       ];
@@ -411,7 +472,6 @@ app.get('/api/intakes', async (req, res) => {
   }
 });
 
-// GET stats for dashboard header
 app.get('/api/intakes/stats', async (req, res) => {
   try {
     const total = await Intake.countDocuments();
@@ -427,23 +487,27 @@ app.get('/api/intakes/stats', async (req, res) => {
   }
 });
 
-// PATCH update intake status
-app.patch('/api/intakes/:id', async (req, res) => {
+app.get('/api/intakes/:id', async (req, res) => {
   try {
-    const { status } = req.body;
-    const intake = await Intake.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true }
-    );
-    if (!intake) return res.status(404).json({ success: false, error: 'Intake not found' });
+    const intake = await Intake.findById(req.params.id);
+    if (!intake) return res.status(404).json({ success: false, error: 'Not found' });
     res.json({ success: true, intake });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-// DELETE intake
+app.patch('/api/intakes/:id', async (req, res) => {
+  try {
+    const { status } = req.body;
+    const intake = await Intake.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    if (!intake) return res.status(404).json({ success: false, error: 'Not found' });
+    res.json({ success: true, intake });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.delete('/api/intakes/:id', async (req, res) => {
   try {
     await Intake.findByIdAndDelete(req.params.id);
@@ -453,12 +517,11 @@ app.delete('/api/intakes/:id', async (req, res) => {
   }
 });
 
-// Serve dashboard
 app.get('/dashboard', (req, res) => {
   res.sendFile(__dirname + '/public/dashboard.html');
 });
 
 app.listen(3000, () => {
-  console.log('🌿 Fern Stellar · Ander (Claude-powered) running on http://localhost:3000');
+  console.log('🌿 Fern Stellar · Ander running on http://localhost:3000');
 });
 
