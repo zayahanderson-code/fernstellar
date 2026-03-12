@@ -213,6 +213,11 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
   <p>© 2026 Henry Law Firm · Orlando, FL · Debt Defense Attorneys</p>
 </footer>
 
+<!-- ANDER PROACTIVE BUBBLE -->
+<div class="ander-proactive" id="ander-proactive" onclick="openWidget()">
+  👋 Have a debt question? I can help right now — free, confidential, no pressure.
+</div>
+
 <!-- ANDER WIDGET -->
 <button id="ander-toggle" aria-label="Chat with Ander">
   <div class="ander-pulse"></div>
@@ -252,7 +257,12 @@ function openAnder(e) {
   setTimeout(() => { inputEl.focus(); }, 400);
 }
 
+// Proactive bubble — show after 4 seconds, hide when widget opens
+const proactiveBubble = document.getElementById('ander-proactive');
+setTimeout(() => proactiveBubble.classList.add('show'), 4000);
+
 function openWidget() {
+  proactiveBubble.classList.remove('show');
   widget.style.display = 'flex';
   setTimeout(() => widget.classList.add('open'), 10);
   if (!started) { started = true; startChat(); }

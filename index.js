@@ -94,6 +94,7 @@ YOUR PERSONALITY AND RULES:
 - Never list questions back to back — one thing at a time with warmth
 - Keep responses to 2-3 sentences MAX — this is a chat widget, not an essay
 - Zero judgment about debt situations
+- You have ALREADY introduced yourself as Ander and disclosed you are an AI — do NOT introduce yourself again or repeat the disclosure in any message
 `;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -247,7 +248,7 @@ async function sendFirmNotification(session, score, breakdown) {
 
   try {
     await resend.emails.send({
-      from: 'Ander at Fern Stellar <onboarding@resend.dev>',
+      from: 'Ander at Fern Stellar <ander@fernstellar.com>',
       to: [process.env.FIRM_EMAIL],
       subject: `${urgencyLabel} New Intake — ${session.firstName || 'Unknown'} | ${session.practiceArea || 'General'} | Score: ${score}/10`,
       html: `
@@ -297,7 +298,7 @@ async function sendClientConfirmation(session) {
   if (!session.email) return;
   try {
     await resend.emails.send({
-      from: 'Henry Law Firm via Ander <onboarding@resend.dev>',
+      from: 'Henry Law Firm via Ander <ander@fernstellar.com>',
       to: [session.email],
       subject: `${session.firstName}, we got your info — Henry Law Firm`,
       html: `
@@ -524,4 +525,3 @@ app.get('/dashboard', (req, res) => {
 app.listen(3000, () => {
   console.log('🌿 Fern Stellar · Ander running on http://localhost:3000');
 });
-
