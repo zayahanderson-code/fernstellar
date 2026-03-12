@@ -220,11 +220,13 @@ INTAKE GOALS (in order):
 6. Once phone is collected — give a warm closing message and set state.intakeComplete = true
 
 IMPORTANT: If the person asks a question at any point, answer it from your knowledge base first, then continue the intake naturally. Never ignore a question to push the intake forward.
+
+RESPONSE LENGTH: Keep every response to 2-3 sentences maximum. Be warm and human but CONCISE. This is a chat widget, not a consultation. Never write paragraphs. One thought, then move forward.
 `;
 
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-20250514',
-    max_tokens: 400,
+    max_tokens: 180,
     system: FIRM_CONTEXT + '\n\n' + stateSummary,
     messages: conversationHistory
   });
@@ -293,29 +295,46 @@ app.post('/api/message', async (req, res) => {
   }
 
   try {
+    // Hard stop — if intake already complete, don't process any more messages
+    if (state.intakeComplete) {
+      return res.json({
+        done: true, step,
+        message: null,
+        type: 'text', options: [], state, delay: 0
+      });
+    }
+
     const conversationHistory = [...history, { role: 'user', content: userMessage }];
     const updatedState = extractState(conversationHistory, { ...state });
 
+    // Fire save + email the moment we have all three fields
     if (updatedState.phone && updatedState.story && updatedState.firstName && !updatedState.intakeComplete) {
       updatedState.intakeComplete = true;
       const score = calcScore(updatedState);
-      // Save to MongoDB AND send email in parallel
-      await Promise.all([
+      // Save to MongoDB AND send email in parallel (don't await — let it run async)
+      Promise.all([
         saveIntake(updatedState, score),
         sendNotification(updatedState, score)
-      ]);
+      ]).catch(err => console.error('❌ Save/notify failed:', err));
+
+      // Return the closing message immediately — hard stop, no more Claude calls
+      const closingMessage = `You're all set, ${updatedState.firstName}! 🌿 I've passed your info along to the team at Henry Law Firm — someone will be reaching out to you soon. You've got this. 💛`;
+      return res.json({
+        done: true,
+        step: step + 1,
+        message: closingMessage,
+        type: 'text',
+        options: [],
+        state: updatedState,
+        history: [...conversationHistory, { role: 'assistant', content: closingMessage }],
+        delay: typingDelay(closingMessage)
+      });
     }
 
     const anderResponse = await askClaude(conversationHistory, updatedState);
 
-    const isDone = updatedState.intakeComplete &&
-      (anderResponse.toLowerCase().includes('take care') ||
-       anderResponse.toLowerCase().includes('all set') ||
-       anderResponse.toLowerCase().includes('in touch') ||
-       anderResponse.toLowerCase().includes('you\'ve got this'));
-
     return res.json({
-      done: isDone,
+      done: false,
       step: step + 1,
       message: anderResponse,
       type: 'text',
