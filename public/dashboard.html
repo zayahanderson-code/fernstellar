@@ -14,10 +14,7 @@
   }
   body { font-family: 'Outfit', sans-serif; background: var(--cream); color: var(--ink); min-height: 100vh; }
 
-  .sidebar {
-    position: fixed; top: 0; left: 0; width: 220px; height: 100vh;
-    background: var(--ink); padding: 28px 0; display: flex; flex-direction: column; z-index: 100;
-  }
+  .sidebar { position: fixed; top: 0; left: 0; width: 220px; height: 100vh; background: var(--ink); padding: 28px 0; display: flex; flex-direction: column; z-index: 100; }
   .sidebar-brand { padding: 0 24px 28px; border-bottom: 1px solid rgba(255,255,255,0.08); }
   .sidebar-brand .logo-text { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--white); }
   .sidebar-brand .logo-sub { font-size: 10px; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
@@ -29,26 +26,30 @@
   .sidebar-footer { padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 11px; color: rgba(255,255,255,0.25); }
 
   .main { margin-left: 220px; min-height: 100vh; }
-  .topbar { background: var(--white); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+  .topbar { background: var(--white); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; gap: 12px; }
   .topbar-title { font-family: 'DM Serif Display', serif; font-size: 22px; }
+  .topbar-actions { display: flex; gap: 8px; align-items: center; }
   .btn { padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; font-family: 'Outfit', sans-serif; }
   .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
   .btn-ghost:hover { background: var(--cream); color: var(--ink); }
+  .btn-primary { background: var(--ink); color: var(--gold-light); }
+  .btn-primary:hover { background: #1e2e40; }
 
   .content { padding: 32px; }
-  .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 28px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-bottom: 28px; }
   .stat-card { background: var(--white); border-radius: 12px; padding: 20px; border: 1px solid var(--border); position: relative; overflow: hidden; }
   .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gold); opacity: 0; transition: opacity 0.2s; }
   .stat-card:hover::before { opacity: 1; }
+  .stat-card.overdue-card::before { opacity: 1; background: var(--red); }
   .stat-label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
   .stat-value { font-family: 'DM Serif Display', serif; font-size: 32px; color: var(--ink); line-height: 1; }
+  .stat-value.danger { color: var(--red); }
 
   .filters-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
   .search-wrap { position: relative; flex: 1; min-width: 200px; }
   .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; pointer-events: none; }
   .search-input { width: 100%; padding: 9px 12px 9px 36px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; background: var(--white); color: var(--ink); font-family: 'Outfit', sans-serif; outline: none; transition: border-color 0.15s; }
   .search-input:focus { border-color: var(--gold); }
-  .search-input::placeholder { color: var(--muted); }
   .filter-tabs { display: flex; gap: 4px; background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 3px; }
   .filter-tab { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; background: transparent; color: var(--muted); transition: all 0.15s; font-family: 'Outfit', sans-serif; }
   .filter-tab.active { background: var(--ink); color: var(--gold-light); }
@@ -60,11 +61,13 @@
   @keyframes rowIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
   .lead-row:last-child { border-bottom: none; }
   .lead-row:hover { background: var(--cream); }
+  .lead-row.overdue { border-left: 3px solid var(--red); }
   .lead-name { font-weight: 600; font-size: 14px; color: var(--ink); }
   .lead-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
   .lead-phone { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--ink); }
   .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
   .badge-area { background: var(--gold-dim); color: #8a6a1a; border: 1px solid rgba(201,168,76,0.3); }
+  .badge-overdue { background: #fef2f2; color: var(--red); border: 1px solid #fecaca; font-size: 10px; padding: 2px 6px; margin-left: 4px; }
   .score-wrap { display: flex; align-items: center; gap: 7px; }
   .score-num { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; min-width: 22px; }
   .score-track { flex: 1; height: 4px; background: var(--cream-dark); border-radius: 2px; overflow: hidden; }
@@ -87,25 +90,46 @@
   .spinner { width: 28px; height: 28px; border: 2px solid var(--cream-dark); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 12px; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── TRANSCRIPT MODAL ── */
+  /* ── MODAL ── */
   .modal-overlay { position: fixed; inset: 0; background: rgba(13,27,42,0.6); z-index: 200; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
   .modal-overlay.open { opacity: 1; pointer-events: all; }
-  .modal { background: var(--white); border-radius: 16px; width: 560px; max-width: 95vw; max-height: 85vh; display: flex; flex-direction: column; transform: translateY(16px); transition: transform 0.2s; overflow: hidden; }
+  .modal { background: var(--white); border-radius: 16px; width: 620px; max-width: 95vw; max-height: 90vh; display: flex; flex-direction: column; transform: translateY(16px); transition: transform 0.2s; overflow: hidden; }
   .modal-overlay.open .modal { transform: translateY(0); }
-  .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--ink); }
+  .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--ink); flex-shrink: 0; }
   .modal-header h2 { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--white); }
   .modal-close { background: none; border: none; color: rgba(255,255,255,0.6); font-size: 20px; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
   .modal-close:hover { color: var(--white); background: rgba(255,255,255,0.1); }
-  .modal-meta { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; gap: 20px; flex-wrap: wrap; background: var(--cream); }
+  .modal-meta { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; gap: 20px; flex-wrap: wrap; background: var(--cream); flex-shrink: 0; }
   .meta-item { font-size: 12px; color: var(--muted); }
   .meta-item strong { color: var(--ink); display: block; font-size: 13px; }
+  .modal-tabs { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; background: var(--white); }
+  .modal-tab { padding: 12px 20px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; background: transparent; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; font-family: 'Outfit', sans-serif; transition: all 0.15s; }
+  .modal-tab.active { color: var(--ink); border-bottom-color: var(--gold); }
   .modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
   .chat-bubble { margin-bottom: 14px; }
   .bubble-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
   .bubble-label.client { color: #1d4ed8; }
   .bubble-label.ander { color: #166534; }
   .bubble-text { font-size: 13px; line-height: 1.6; color: var(--ink); background: var(--cream); border-radius: 10px; padding: 10px 14px; display: inline-block; max-width: 90%; }
   .bubble-text.ander { background: #f0fdf4; }
+
+  /* Notes + follow-up */
+  .notes-section { margin-bottom: 20px; }
+  .notes-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 8px; }
+  .notes-textarea { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 13px; font-family: 'Outfit', sans-serif; color: var(--ink); resize: vertical; min-height: 80px; outline: none; transition: border-color 0.15s; background: var(--cream); }
+  .notes-textarea:focus { border-color: var(--gold); background: var(--white); }
+  .followup-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .followup-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); white-space: nowrap; }
+  .followup-input { border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 13px; font-family: 'Outfit', sans-serif; color: var(--ink); outline: none; background: var(--cream); transition: border-color 0.15s; }
+  .followup-input:focus { border-color: var(--gold); background: var(--white); }
+  .save-btn { background: var(--ink); color: var(--gold-light); border: none; border-radius: 8px; padding: 9px 20px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Outfit', sans-serif; transition: background 0.15s; }
+  .save-btn:hover { background: #1e2e40; }
+
+  .sentiment-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .sentiment-pill { background: #fffbeb; color: #92400e; border: 1px solid #fcd34d; border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 500; }
 
   .toast { position: fixed; bottom: 24px; right: 24px; background: var(--ink); color: var(--white); padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; transform: translateY(80px); opacity: 0; transition: all 0.25s cubic-bezier(.34,1.56,.64,1); z-index: 999; border-left: 3px solid var(--gold); }
   .toast.show { transform: translateY(0); opacity: 1; }
@@ -123,13 +147,16 @@
     <a href="/dashboard" class="nav-item active"><span>📋</span> All Leads</a>
     <a href="/" class="nav-item"><span>💬</span> Live Widget</a>
   </div>
-  <div class="sidebar-footer">Powered by Ander · v2.0</div>
+  <div class="sidebar-footer">Powered by Ander · v3.0</div>
 </nav>
 
 <div class="main">
   <div class="topbar">
     <h1 class="topbar-title">Leads</h1>
-    <button class="btn btn-ghost" onclick="loadData()">↻ Refresh</button>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost" onclick="loadData()">↻ Refresh</button>
+      <button class="btn btn-primary" onclick="exportCSV()">⬇ Export CSV</button>
+    </div>
   </div>
 
   <div class="content">
@@ -139,6 +166,7 @@
       <div class="stat-card"><div class="stat-label">High Priority</div><div class="stat-value" id="statHigh">—</div></div>
       <div class="stat-card"><div class="stat-label">Converted</div><div class="stat-value" id="statConverted">—</div></div>
       <div class="stat-card"><div class="stat-label">Today</div><div class="stat-value" id="statToday">—</div></div>
+      <div class="stat-card overdue-card"><div class="stat-label">⏰ Overdue Follow-ups</div><div class="stat-value danger" id="statOverdue">—</div></div>
     </div>
 
     <div class="filters-bar">
@@ -157,13 +185,7 @@
 
     <div class="table-wrap">
       <div class="table-header">
-        <div>Client</div>
-        <div>Phone</div>
-        <div>Email</div>
-        <div>Practice Area</div>
-        <div>Score</div>
-        <div>Status</div>
-        <div>Actions</div>
+        <div>Client</div><div>Phone</div><div>Email</div><div>Practice Area</div><div>Score</div><div>Status</div><div>Actions</div>
       </div>
       <div id="leadsContainer">
         <div class="loading"><div class="spinner"></div>Loading leads…</div>
@@ -172,15 +194,32 @@
   </div>
 </div>
 
-<!-- Transcript Modal -->
+<!-- Lead Modal -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
   <div class="modal">
     <div class="modal-header">
-      <h2 id="modalTitle">Conversation</h2>
+      <h2 id="modalTitle">Lead Details</h2>
       <button class="modal-close" onclick="closeModalDirect()">✕</button>
     </div>
     <div class="modal-meta" id="modalMeta"></div>
-    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" onclick="switchTab('transcript', this)">💬 Transcript</button>
+      <button class="modal-tab" onclick="switchTab('notes', this)">📝 Notes & Follow-up</button>
+    </div>
+    <div class="modal-body">
+      <div class="tab-panel active" id="tab-transcript"></div>
+      <div class="tab-panel" id="tab-notes">
+        <div class="notes-section">
+          <div class="notes-label">Internal Notes</div>
+          <textarea class="notes-textarea" id="notesField" placeholder="Add notes about this lead — what was discussed, what to prepare, etc."></textarea>
+        </div>
+        <div class="followup-row">
+          <span class="followup-label">⏰ Follow-up Date</span>
+          <input type="date" class="followup-input" id="followUpField">
+        </div>
+        <button class="save-btn" onclick="saveNotes()">Save Notes & Follow-up</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -189,6 +228,14 @@
 <script>
 let currentFilter = 'all';
 let searchDebounce;
+let currentLeadId = null;
+
+function switchTab(name, el) {
+  document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
 
 async function loadStats() {
   try {
@@ -201,6 +248,9 @@ async function loadStats() {
       document.getElementById('statHigh').textContent = s.highPriority;
       document.getElementById('statConverted').textContent = s.converted;
       document.getElementById('statToday').textContent = s.todayCount;
+      const overdue = s.overdueFollowUps || 0;
+      document.getElementById('statOverdue').textContent = overdue;
+      if (overdue > 0) document.getElementById('statOverdue').classList.add('danger');
     }
   } catch(e) { console.error(e); }
 }
@@ -215,7 +265,7 @@ async function loadLeads(status = 'all', search = '') {
     const res = await fetch(url);
     const data = await res.json();
     if (!data.success || data.intakes.length === 0) {
-      container.innerHTML = `<div class="empty-state"><div class="empty-icon">🌿</div><div class="empty-title">No leads yet</div><div class="empty-sub">Intakes will appear here as clients come through Ander.</div></div>`;
+      container.innerHTML = `<div class="empty-state"><div class="empty-icon">🌿</div><div class="empty-title">No leads yet</div></div>`;
       return;
     }
     container.innerHTML = data.intakes.map((lead, i) => renderRow(lead, i)).join('');
@@ -224,23 +274,33 @@ async function loadLeads(status = 'all', search = '') {
   }
 }
 
+function isOverdue(lead) {
+  if (!lead.followUpDate) return false;
+  return new Date(lead.followUpDate) < new Date() && !['converted','closed'].includes(lead.status);
+}
+
 function renderRow(lead, i) {
   const score = lead.score || 0;
   const scoreColor = score >= 8 ? '#ef4444' : score >= 5 ? '#f59e0b' : '#22c55e';
   const urgencyColor = lead.urgency === 'urgent' ? '#ef4444' : '#22c55e';
   const time = new Date(lead.createdAt).toLocaleDateString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
   const hasTranscript = lead.transcript && lead.transcript.length > 0;
+  const overdue = isOverdue(lead);
+  const followUpStr = lead.followUpDate ? new Date(lead.followUpDate).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
 
   return `
-  <div class="lead-row" style="animation-delay:${i*0.04}s" onclick="openTranscript('${lead._id}')">
+  <div class="lead-row${overdue?' overdue':''}" style="animation-delay:${i*0.04}s" onclick="openLeadModal('${lead._id}')">
     <div>
       <div class="lead-name">
         <span class="urgency-dot" style="background:${urgencyColor}"></span>${esc(lead.firstName)}
+        ${overdue ? '<span class="badge-overdue">⏰ Overdue</span>' : ''}
+        ${lead.notes ? '<span style="font-size:11px;color:var(--gold);margin-left:4px;" title="Has notes">📝</span>' : ''}
       </div>
-      <div class="lead-sub">${time}</div>
+      <div class="lead-sub">${time}${followUpStr ? ' · Follow-up: '+followUpStr : ''}</div>
     </div>
     <div>
       ${lead.phone ? `<div class="lead-phone"><a href="tel:${esc(lead.phone)}" style="color:var(--gold);text-decoration:none;" onclick="event.stopPropagation()">${esc(lead.phone)}</a></div>` : '<div class="lead-sub">—</div>'}
+      ${lead.debtAmount ? `<div class="lead-sub">${esc(lead.debtAmount)}</div>` : ''}
     </div>
     <div>
       ${lead.email ? `<div style="font-size:12px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px;"><a href="mailto:${esc(lead.email)}" style="color:var(--gold);text-decoration:none;" onclick="event.stopPropagation()">${esc(lead.email)}</a></div>` : '<div class="lead-sub">—</div>'}
@@ -262,13 +322,14 @@ function renderRow(lead, i) {
     </div>
     <div class="actions-cell" onclick="event.stopPropagation()">
       ${lead.phone ? `<button class="icon-btn" title="Call" onclick="window.open('tel:${esc(lead.phone)}')">📞</button>` : ''}
-      ${hasTranscript ? `<button class="icon-btn" title="View transcript" onclick="openTranscript('${lead._id}')">💬</button>` : ''}
+      ${hasTranscript ? `<button class="icon-btn" title="View details" onclick="openLeadModal('${lead._id}')">💬</button>` : ''}
       <button class="icon-btn delete" title="Delete" onclick="deleteLead('${lead._id}')">🗑</button>
     </div>
   </div>`;
 }
 
-async function openTranscript(id) {
+async function openLeadModal(id) {
+  currentLeadId = id;
   try {
     const res = await fetch(`/api/intakes/${id}`);
     const data = await res.json();
@@ -281,28 +342,54 @@ async function openTranscript(id) {
       ? Object.entries(lead.scoreBreakdown).map(([k,v]) => `<span style="font-size:11px;background:var(--cream-dark);border-radius:4px;padding:2px 7px;margin-right:4px;">+${v} ${k}</span>`).join('')
       : '';
 
+    const sentimentHtml = lead.sentimentFlags && lead.sentimentFlags.length > 0
+      ? `<div class="meta-item" style="width:100%;"><strong>Sentiment</strong><div class="sentiment-pills">${lead.sentimentFlags.map(f=>`<span class="sentiment-pill">${f}</span>`).join('')}</div></div>`
+      : '';
+
     document.getElementById('modalMeta').innerHTML = `
       <div class="meta-item"><strong>${lead.firstName || '—'}</strong>Name</div>
       <div class="meta-item"><strong>${lead.phone || '—'}</strong>Phone</div>
       <div class="meta-item"><strong>${lead.email || '—'}</strong>Email</div>
       <div class="meta-item"><strong>${lead.practiceArea || '—'}</strong>Area</div>
       <div class="meta-item"><strong>${lead.score}/10</strong>Score</div>
+      ${lead.debtAmount ? `<div class="meta-item"><strong>${esc(lead.debtAmount)}</strong>Debt Amount</div>` : ''}
       ${scoreBreakdown ? `<div style="width:100%;font-size:11px;color:var(--muted);padding-top:8px;">${scoreBreakdown}</div>` : ''}
+      ${sentimentHtml}
     `;
 
+    // Transcript tab
     const transcript = lead.transcript || [];
-    if (transcript.length === 0) {
-      document.getElementById('modalBody').innerHTML = '<p style="color:var(--muted);font-size:13px;">No transcript available.</p>';
-    } else {
-      document.getElementById('modalBody').innerHTML = transcript.map(m => `
+    document.getElementById('tab-transcript').innerHTML = transcript.length === 0
+      ? '<p style="color:var(--muted);font-size:13px;">No transcript available.</p>'
+      : transcript.map(m => `
         <div class="chat-bubble">
-          <div class="bubble-label ${m.role === 'user' ? 'client' : 'ander'}">${m.role === 'user' ? (lead.firstName || 'Client') : 'Ander'}</div>
-          <div class="bubble-text ${m.role === 'assistant' ? 'ander' : ''}">${esc(m.content)}</div>
+          <div class="bubble-label ${m.role==='user'?'client':'ander'}">${m.role==='user'?(lead.firstName||'Client'):'Ander'}</div>
+          <div class="bubble-text ${m.role==='assistant'?'ander':''}">${esc(m.content)}</div>
         </div>`).join('');
-    }
+
+    // Notes tab
+    document.getElementById('notesField').value = lead.notes || '';
+    document.getElementById('followUpField').value = lead.followUpDate
+      ? new Date(lead.followUpDate).toISOString().split('T')[0]
+      : '';
 
     document.getElementById('modalOverlay').classList.add('open');
   } catch(e) { console.error(e); }
+}
+
+async function saveNotes() {
+  if (!currentLeadId) return;
+  const notes = document.getElementById('notesField').value;
+  const followUpDate = document.getElementById('followUpField').value;
+  try {
+    await fetch(`/api/intakes/${currentLeadId}`, {
+      method: 'PATCH',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ notes, followUpDate: followUpDate || null })
+    });
+    toast('✅ Notes saved');
+    loadData();
+  } catch(e) { toast('❌ Save failed'); }
 }
 
 function closeModal(e) {
@@ -310,6 +397,7 @@ function closeModal(e) {
 }
 function closeModalDirect() {
   document.getElementById('modalOverlay').classList.remove('open');
+  currentLeadId = null;
 }
 
 async function updateStatus(id, selectEl) {
@@ -328,6 +416,11 @@ async function deleteLead(id) {
     toast('🗑 Lead deleted');
     loadData();
   } catch(e) { toast('❌ Delete failed'); }
+}
+
+function exportCSV() {
+  window.location.href = '/api/intakes/export/csv';
+  toast('⬇ Downloading CSV…');
 }
 
 function setFilter(status, el) {

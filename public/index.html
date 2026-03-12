@@ -48,92 +48,118 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 20px 60
 .section-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #8b5e3c; margin-bottom: 16px; }
 .section-title { font-family: 'Playfair Display', serif; font-size: clamp(30px, 3.5vw, 48px); font-weight: 700; line-height: 1.15; color: #1a1a2e; margin-bottom: 16px; }
 .section-title em { font-style: italic; color: #8b5e3c; }
-.section-sub { font-size: 16px; color: #666; line-height: 1.7; max-width: 520px; margin-bottom: 60px; }
+.section-sub { font-size: 15px; color: #666; line-height: 1.7; max-width: 540px; margin-bottom: 60px; }
 
-.practice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: #e8e0d8; border-radius: 12px; overflow: hidden; }
-.practice-card { background: white; padding: 40px 32px; transition: background .2s; }
-.practice-card:hover { background: #faf8f5; }
-.practice-icon { width: 44px; height: 44px; background: rgba(139,94,60,.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 20px; }
-.practice-card h3 { font-size: 17px; font-weight: 600; color: #1a1a2e; margin-bottom: 12px; }
-.practice-card p { font-size: 13.5px; line-height: 1.65; color: #666; }
+.practice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.practice-card { background: white; border: 1px solid rgba(0,0,0,.06); border-radius: 12px; padding: 36px 32px; transition: all .2s; position: relative; overflow: hidden; }
+.practice-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 0; background: #8b5e3c; transition: height .3s; }
+.practice-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,.08); }
+.practice-card:hover::before { height: 100%; }
+.practice-icon { font-size: 28px; margin-bottom: 20px; }
+.practice-card h3 { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: #1a1a2e; margin-bottom: 12px; }
+.practice-card p { font-size: 13px; line-height: 1.7; color: #666; }
 
-.why-section { background: #1a1a2e; padding: 100px 60px; }
+.bg-dark { background: #1a1a2e; }
+.bg-dark .section-eyebrow { color: #c9a070; }
+.bg-dark .section-title { color: white; }
+.bg-dark .section-title em { color: #c9a070; }
+.bg-dark .section-sub { color: rgba(255,255,255,.55); }
+.process-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; }
+.process-step { text-align: center; }
+.step-num { font-family: 'Playfair Display', serif; font-size: 64px; font-weight: 700; color: rgba(201,160,112,.15); line-height: 1; margin-bottom: 20px; }
+.step-title { font-size: 15px; font-weight: 600; color: white; margin-bottom: 8px; }
+.step-desc { font-size: 13px; color: rgba(255,255,255,.45); line-height: 1.6; }
+.step-arrow { display: flex; align-items: center; justify-content: center; font-size: 24px; color: rgba(201,160,112,.3); margin-top: 20px; }
+
 .why-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
-.why-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 32px 28px; transition: background .2s; }
-.why-card:hover { background: rgba(139,94,60,.08); }
-.why-num { font-family: 'Playfair Display', serif; font-size: 40px; color: rgba(201,160,112,.2); line-height: 1; margin-bottom: 16px; }
-.why-card h3 { font-size: 16px; font-weight: 600; color: white; margin-bottom: 10px; }
-.why-card p { font-size: 13.5px; line-height: 1.65; color: rgba(255,255,255,.6); }
+.why-card { background: white; border-radius: 12px; padding: 40px 36px; border: 1px solid rgba(0,0,0,.06); }
+.why-num { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 700; color: rgba(139,94,60,.12); line-height: 1; margin-bottom: 16px; }
+.why-card h3 { font-size: 17px; font-weight: 600; color: #1a1a2e; margin-bottom: 10px; }
+.why-card p { font-size: 13px; color: #666; line-height: 1.7; }
 
-.cta-section { background: #f0ebe3; padding: 100px 60px; text-align: center; }
-.cta-section p { font-size: 16px; color: #666; max-width: 460px; margin: 0 auto 40px; line-height: 1.7; }
+.cta-section { background: linear-gradient(135deg, #f0ebe3 0%, #e8ddd0 100%); padding: 100px 60px; text-align: center; }
+.cta-section .section-eyebrow { display: inline-block; margin-bottom: 20px; }
+.cta-section .section-title { margin: 0 auto 20px; }
+.cta-section p { color: #666; font-size: 15px; line-height: 1.7; max-width: 480px; margin: 0 auto 40px; }
 
-footer { background: #12121f; padding: 40px 60px; display: flex; align-items: center; justify-content: space-between; }
-.footer-logo { font-family: 'Playfair Display', serif; font-size: 18px; color: white; }
+footer { background: #1a1a2e; padding: 40px 60px; display: flex; align-items: center; justify-content: space-between; }
+.footer-logo { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: white; }
 .footer-logo span { color: #c9a070; }
 footer p { font-size: 12px; color: rgba(255,255,255,.3); }
 
-/* ANDER WIDGET */
-#ander-toggle { position: fixed; bottom: 28px; right: 28px; z-index: 999; width: 62px; height: 62px; border-radius: 50%; background: #1a1a2e; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 32px rgba(26,26,46,.4); transition: transform .2s, background .2s; }
-#ander-toggle:hover { transform: scale(1.08); background: #8b5e3c; }
-#ander-toggle svg { width: 28px; height: 28px; fill: white; }
-.ander-pulse { position: absolute; top: 4px; right: 4px; width: 13px; height: 13px; border-radius: 50%; background: #22c55e; animation: ander-ping 2s infinite; }
-@keyframes ander-ping { 0%,100% { box-shadow: 0 0 0 2px rgba(34,197,94,.3); } 50% { box-shadow: 0 0 0 7px rgba(34,197,94,.1); } }
+/* ─── ANDER WIDGET ─────────────────────────────────────────────────── */
+#ander-toggle { position: fixed; bottom: 28px; right: 28px; z-index: 998; width: 60px; height: 60px; border-radius: 50%; background: #1a1a2e; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 28px rgba(0,0,0,.22); transition: transform .2s, box-shadow .2s; }
+#ander-toggle:hover { transform: scale(1.06); box-shadow: 0 12px 32px rgba(0,0,0,.28); }
+#ander-toggle svg { width: 26px; height: 26px; fill: #c9a070; }
+.ander-pulse { position: absolute; top: -3px; right: -3px; width: 14px; height: 14px; background: #22c55e; border-radius: 50%; border: 2px solid white; }
 
-#ander-widget { position: fixed; bottom: 104px; right: 28px; z-index: 998; width: 375px; background: white; border-radius: 20px; box-shadow: 0 24px 64px rgba(0,0,0,.18); overflow: hidden; display: none; flex-direction: column; max-height: 590px; transform: translateY(16px); opacity: 0; transition: transform .3s ease, opacity .3s ease; }
-#ander-widget.open { display: flex; transform: translateY(0); opacity: 1; }
+#ander-widget { display: none; position: fixed; bottom: 104px; right: 28px; z-index: 999; width: 390px; max-height: 600px; border-radius: 20px; background: white; box-shadow: 0 20px 60px rgba(0,0,0,.18); flex-direction: column; overflow: hidden; transform: scale(0.92) translateY(16px); opacity: 0; transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .25s; transform-origin: bottom right; }
+#ander-widget.open { transform: scale(1) translateY(0); opacity: 1; }
 
-.ander-head { background: #1a1a2e; padding: 18px 20px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-.ander-avatar { width: 38px; height: 38px; border-radius: 50%; background: rgba(201,160,112,.2); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 16px; color: #c9a070; font-weight: 700; flex-shrink: 0; }
-.ander-head-info { flex: 1; }
-.ander-head-name { font-size: 14px; font-weight: 600; color: white; }
+.ander-head { background: #1a1a2e; padding: 16px 18px; display: flex; align-items: center; gap: 12px; border-radius: 20px 20px 0 0; }
+.ander-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg,#8b5e3c,#c9a070); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: white; flex-shrink: 0; }
+.ander-head-name { font-size: 13px; font-weight: 600; color: white; }
 .ander-head-sub { font-size: 11px; color: rgba(255,255,255,.5); display: flex; align-items: center; gap: 5px; margin-top: 2px; }
-.ander-online { width: 7px; height: 7px; background: #22c55e; border-radius: 50%; }
-.ander-badge { font-size: 9px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; background: rgba(201,160,112,.15); border: 1px solid rgba(201,160,112,.3); color: #c9a070; padding: 4px 10px; border-radius: 20px; }
-.ander-close { background: none; border: none; cursor: pointer; color: rgba(255,255,255,.4); font-size: 22px; line-height: 1; padding: 0 0 0 8px; transition: color .2s; }
+.ander-online { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; }
+.ander-badge { margin-left: auto; background: rgba(201,160,112,.18); border: 1px solid rgba(201,160,112,.35); border-radius: 4px; padding: 4px 9px; font-size: 10px; font-weight: 600; letter-spacing: 0.06em; color: #c9a070; text-transform: uppercase; }
+.ander-close { background: none; border: none; color: rgba(255,255,255,.45); font-size: 20px; cursor: pointer; padding: 4px; margin-left: 8px; border-radius: 4px; transition: color .15s; }
 .ander-close:hover { color: white; }
 
-.ander-messages { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 12px; background: #f9f7f4; }
+/* Progress bar */
+.ander-progress { background: rgba(255,255,255,.06); padding: 8px 18px; display: flex; gap: 6px; align-items: center; }
+.progress-step { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,.12); transition: background .4s; }
+.progress-step.done { background: #22c55e; }
+.progress-step.active { background: #c9a070; }
+.progress-label { font-size: 10px; color: rgba(255,255,255,.35); letter-spacing: 0.08em; white-space: nowrap; }
+
+.ander-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth; }
 .ander-messages::-webkit-scrollbar { width: 4px; }
-.ander-messages::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
-.msg-row { display: flex; gap: 8px; align-items: flex-end; }
+.ander-messages::-webkit-scrollbar-track { background: transparent; }
+.ander-messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,.1); border-radius: 2px; }
+
+.msg-row { display: flex; align-items: flex-end; gap: 8px; animation: msgIn .22s ease both; }
+@keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .msg-row.user { flex-direction: row-reverse; }
-.msg-av { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
-.msg-av.bot { background: #1a1a2e; color: #c9a070; font-family: 'Playfair Display', serif; font-size: 13px; }
-.msg-av.usr { background: #8b5e3c; color: white; font-size: 9px; }
-.msg-bubble { max-width: 82%; padding: 11px 15px; border-radius: 14px; font-size: 13px; line-height: 1.55; }
-.bot .msg-bubble { background: white; border: 1px solid rgba(0,0,0,.07); border-bottom-left-radius: 3px; color: #1a1a2e; }
-.user .msg-bubble { background: #1a1a2e; color: white; border-bottom-right-radius: 3px; }
-.typing-indicator { display: flex; gap: 4px; align-items: center; padding: 14px 16px; }
-.typing-dot { width: 7px; height: 7px; border-radius: 50%; background: #aaa; animation: typing-bounce .9s infinite; }
+.msg-av { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; flex-shrink: 0; }
+.msg-av.bot { background: #1a1a2e; color: #c9a070; }
+.msg-av.usr { background: #8b5e3c; color: white; }
+.msg-bubble { max-width: 80%; padding: 10px 13px; border-radius: 16px; font-size: 13px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
+.msg-row.bot .msg-bubble { background: #f3f0eb; color: #1a1a2e; border-bottom-left-radius: 4px; }
+.msg-row.user .msg-bubble { background: #1a1a2e; color: white; border-bottom-right-radius: 4px; }
+.msg-time { font-size: 10px; color: #aaa; margin-top: 3px; padding: 0 4px; text-align: right; }
+.msg-row.bot .msg-time { text-align: left; padding-left: 34px; }
+.msg-wrapper { display: flex; flex-direction: column; max-width: 82%; }
+.msg-row.user .msg-wrapper { align-items: flex-end; }
+
+.typing-indicator { display: flex; gap: 4px; align-items: center; padding: 4px 2px; }
+.typing-dot { width: 7px; height: 7px; border-radius: 50%; background: #aaa; animation: typingBounce 1.2s infinite; }
 .typing-dot:nth-child(2) { animation-delay: .15s; }
 .typing-dot:nth-child(3) { animation-delay: .3s; }
-@keyframes typing-bounce { 0%,80%,100% { transform: translateY(0); opacity: .5; } 40% { transform: translateY(-6px); opacity: 1; } }
+@keyframes typingBounce { 0%,60%,100% { transform: translateY(0); opacity:.4; } 30% { transform: translateY(-5px); opacity:1; } }
 
-.ander-input-area { padding: 14px 16px; border-top: 1px solid rgba(0,0,0,.07); display: flex; gap: 10px; align-items: center; background: white; flex-shrink: 0; }
-#ander-input { flex: 1; border: 1.5px solid #e5e0d8; border-radius: 8px; padding: 10px 14px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: #1a1a2e; background: #faf8f5; outline: none; resize: none; transition: border-color .2s; min-height: 40px; max-height: 100px; }
-#ander-input:focus { border-color: #8b5e3c; }
-#ander-input::placeholder { color: #aaa; }
-#ander-input:disabled { opacity: 0.5; cursor: not-allowed; }
-#ander-send { width: 38px; height: 38px; border-radius: 8px; background: #1a1a2e; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .2s; flex-shrink: 0; }
+.ander-input-area { border-top: 1px solid rgba(0,0,0,.07); padding: 12px 14px; display: flex; align-items: flex-end; gap: 8px; background: white; }
+#ander-input { flex: 1; border: 1px solid rgba(0,0,0,.1); border-radius: 12px; padding: 9px 12px; font-size: 13px; font-family: 'DM Sans', sans-serif; resize: none; outline: none; max-height: 100px; overflow-y: auto; line-height: 1.5; transition: border-color .2s; background: #fafafa; }
+#ander-input:focus { border-color: #8b5e3c; background: white; }
+.input-footer { display: flex; align-items: center; justify-content: flex-end; padding: 0 14px 8px; }
+.char-counter { font-size: 10px; color: #bbb; transition: color .2s; }
+.char-counter.warn { color: #f59e0b; }
+.char-counter.limit { color: #ef4444; }
+#ander-send { width: 36px; height: 36px; border-radius: 10px; background: #1a1a2e; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .2s; }
 #ander-send:hover { background: #8b5e3c; }
-#ander-send svg { width: 16px; height: 16px; fill: white; }
+#ander-send:disabled { opacity: .35; cursor: not-allowed; }
+#ander-send svg { width: 16px; height: 16px; fill: #c9a070; }
 
 .calendly-btn { display: block; text-align: center; background: #1a1a2e; color: #c9a070; padding: 13px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; margin: 4px 16px 12px; transition: background .2s; }
 .calendly-btn:hover { background: #8b5e3c; color: white; }
 
+/* Returning visitor banner */
+.returning-banner { background: linear-gradient(90deg,#1a1a2e,#2d2d4e); color: white; padding: 10px 16px; font-size: 12px; display: flex; align-items: center; gap: 8px; }
+.returning-banner span { color: #c9a070; }
+
+/* Proactive bubble */
 #ander-proactive { position: fixed; bottom: 104px; right: 100px; z-index: 997; background: white; border-radius: 12px; padding: 12px 16px; box-shadow: 0 8px 28px rgba(0,0,0,.14); font-size: 13px; color: #1a1a2e; max-width: 220px; line-height: 1.5; opacity: 0; transform: translateY(8px); transition: all 0.3s ease; pointer-events: none; border: 1px solid rgba(0,0,0,.07); }
 #ander-proactive.show { opacity: 1; transform: translateY(0); pointer-events: all; cursor: pointer; }
 #ander-proactive::after { content: ''; position: absolute; bottom: -7px; right: 16px; width: 12px; height: 12px; background: white; border-right: 1px solid rgba(0,0,0,.07); border-bottom: 1px solid rgba(0,0,0,.07); transform: rotate(45deg); }
-
-@media (max-width: 768px) {
-  nav { padding: 16px 24px; } .nav-links { display: none; }
-  .hero { padding: 100px 24px 60px; } .hero-inner { grid-template-columns: 1fr; } .hero-stats { display: none; }
-  .section { padding: 70px 24px; } .practice-grid, .why-grid { grid-template-columns: 1fr; }
-  .why-section { padding: 70px 24px; } .cta-section { padding: 70px 24px; }
-  footer { flex-direction: column; gap: 12px; text-align: center; padding: 32px 24px; }
-  #ander-widget { width: calc(100vw - 32px); right: 16px; }
-}
 </style>
 </head>
 <body>
@@ -142,35 +168,35 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
   <div class="nav-logo">Henry <span>Law Firm</span></div>
   <ul class="nav-links">
     <li><a href="#practice">Practice Areas</a></li>
+    <li><a href="#process">How It Works</a></li>
     <li><a href="#why">Why Us</a></li>
-    <li><a href="#contact">Contact</a></li>
   </ul>
   <a href="#contact" class="nav-cta" onclick="openAnder(event)">Free Consultation</a>
 </nav>
 
-<section class="hero">
+<section class="hero" id="home">
   <div class="hero-inner">
     <div>
-      <div class="hero-eyebrow">Debt Defense Attorneys · Orlando, FL</div>
-      <h1>You have rights.<br/>We help you <em>use them.</em></h1>
-      <p>Facing debt collectors, lawsuits, or wage garnishments? Henry Law Firm fights back on your behalf — protecting your income, your assets, and your peace of mind.</p>
+      <div class="hero-eyebrow">Orlando Debt Defense</div>
+      <h1>Debt collectors don't<br/>scare us.<br/><em>They should.</em></h1>
+      <p>Henry Law Firm defends Floridians from abusive collectors, wage garnishments, and credit card lawsuits — with 22 years of experience on your side.</p>
       <div class="hero-btns">
-        <a href="#contact" class="btn-dark" onclick="openAnder(event)">Free Consultation</a>
-        <a href="#practice" class="btn-outline">Our Practice</a>
+        <a href="#" class="btn-dark" onclick="openAnder(event)">Talk to Ander — Free</a>
+        <a href="tel:4075205576" class="btn-outline">Call (407) 205-8576</a>
       </div>
     </div>
     <div class="hero-stats">
       <div class="stat-item">
-        <div class="stat-num">500<span>+</span></div>
-        <div class="stat-label">Clients defended against<br/>aggressive debt collectors</div>
+        <div class="stat-num">22<span>+</span></div>
+        <div class="stat-label">Years protecting Florida consumers from aggressive debt collectors</div>
       </div>
       <div class="stat-divider"></div>
       <div class="stat-item">
-        <div class="stat-num">98<span>%</span></div>
-        <div class="stat-label">Client satisfaction rate<br/>across all cases</div>
+        <div class="stat-num">$<span>0</span></div>
+        <div class="stat-label">Cost for your initial consultation — no obligation</div>
       </div>
       <div class="stat-divider"></div>
-      <div class="stat-item"><div class="hero-badge">FL Bar Compliant AI Intake</div></div>
+      <div class="hero-badge">FL Bar Compliant · FDCPA Specialists</div>
     </div>
   </div>
 </section>
@@ -178,24 +204,54 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
 <section class="section" id="practice">
   <div class="section-inner">
     <div class="section-eyebrow">What We Handle</div>
-    <div class="section-title">Debt defense for <em>real people.</em></div>
-    <p class="section-sub">We handle the full spectrum of consumer debt defense — from the first collection letter to the courtroom.</p>
+    <h2 class="section-title">Your debt problem<br/><em>has a solution.</em></h2>
+    <p class="section-sub">We specialize in consumer debt defense across every stage — from first collector call to courtroom.</p>
     <div class="practice-grid">
-      <div class="practice-card"><div class="practice-icon">⚖️</div><h3>Debt Collection Defense</h3><p>Being sued by a debt collector? We defend you in court and challenge improper claims. Many cases are dismissed entirely.</p></div>
-      <div class="practice-card"><div class="practice-icon">🛡️</div><h3>FDCPA Violations</h3><p>Debt collectors who break the law may owe you money. We identify violations and pursue compensation on your behalf.</p></div>
-      <div class="practice-card"><div class="practice-icon">💳</div><h3>Credit Card Lawsuits</h3><p>Credit card companies file thousands of lawsuits. We answer on your behalf, negotiate settlements, or fight back in court.</p></div>
-      <div class="practice-card"><div class="practice-icon">🏠</div><h3>Wage Garnishment</h3><p>We can stop or reduce garnishments before they impact your paycheck. Act quickly — timing matters.</p></div>
-      <div class="practice-card"><div class="practice-icon">📄</div><h3>Debt Negotiation</h3><p>We negotiate directly with creditors to reduce what you owe and get you back on solid financial ground.</p></div>
-      <div class="practice-card"><div class="practice-icon">🔒</div><h3>Bank Levy Defense</h3><p>A levy can drain your bank account overnight. We respond fast to challenge improper levies and protect your funds.</p></div>
+      <div class="practice-card"><div class="practice-icon">⚖️</div><h3>Debt Collection Defense</h3><p>Sued by a debt collector? We answer the lawsuit, challenge their evidence, and fight for dismissal or settlement.</p></div>
+      <div class="practice-card"><div class="practice-icon">🛡️</div><h3>FDCPA Violations</h3><p>Collectors who break the law owe you money — up to $1,000 in damages plus attorney fees. We collect it.</p></div>
+      <div class="practice-card"><div class="practice-icon">💳</div><h3>Credit Card Lawsuits</h3><p>Capital One, Midland, Portfolio Recovery — we know their tactics and how to beat them in court.</p></div>
+      <div class="practice-card"><div class="practice-icon">💰</div><h3>Wage Garnishment</h3><p>Florida's head of household exemption may protect your income. We file fast to stop or reduce garnishments.</p></div>
+      <div class="practice-card"><div class="practice-icon">🤝</div><h3>Debt Negotiation</h3><p>Sometimes the right move is a settlement. We negotiate directly with creditors to reduce what you owe.</p></div>
+      <div class="practice-card"><div class="practice-icon">🏦</div><h3>Bank Levy Defense</h3><p>Account frozen? We act immediately to protect your funds and challenge unlawful levies.</p></div>
     </div>
   </div>
 </section>
 
-<section class="why-section" id="why">
+<section class="section bg-dark" id="process">
   <div class="section-inner">
-    <div class="section-eyebrow" style="color:#c9a070;">Why Henry Law</div>
-    <div class="section-title" style="color:white;">We fight for the <em style="color:#c9a070;">everyday person.</em></div>
-    <p class="section-sub" style="color:rgba(255,255,255,.6);margin-bottom:60px;">Debt collectors have lawyers. You should too.</p>
+    <div class="section-eyebrow">How It Works</div>
+    <h2 class="section-title">From first message<br/><em>to resolution.</em></h2>
+    <p class="section-sub" style="margin-bottom:60px;">Getting help is simple — no forms, no waiting rooms, no pressure.</p>
+    <div class="process-steps">
+      <div class="process-step">
+        <div class="step-num">01</div>
+        <div class="step-title">Chat with Ander</div>
+        <div class="step-desc">Our AI intake assistant gathers your info confidentially — available 24/7.</div>
+      </div>
+      <div class="process-step">
+        <div class="step-num">02</div>
+        <div class="step-title">LaMya Reviews</div>
+        <div class="step-desc">Attorney LaMya Henry personally reviews your situation and prioritizes your case.</div>
+      </div>
+      <div class="process-step">
+        <div class="step-num">03</div>
+        <div class="step-title">Free Consult</div>
+        <div class="step-desc">You speak directly with LaMya — no paralegal, no case manager. Just your attorney.</div>
+      </div>
+      <div class="process-step">
+        <div class="step-num">04</div>
+        <div class="step-title">We Fight</div>
+        <div class="step-desc">We take action immediately — responding to lawsuits, filing motions, and protecting your rights.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="why">
+  <div class="section-inner">
+    <div class="section-eyebrow">Why Henry Law Firm</div>
+    <h2 class="section-title">We fight for people,<br/><em>not creditors.</em></h2>
+    <p class="section-sub">Most law firms work with banks and collectors. We work for you.</p>
     <div class="why-grid">
       <div class="why-card"><div class="why-num">01</div><h3>Direct Attorney Access</h3><p>You'll speak directly with your attorney — not a paralegal, not a case manager. Every time.</p></div>
       <div class="why-card"><div class="why-num">02</div><h3>Free Initial Consultation</h3><p>We review your situation at no cost. You'll know exactly where you stand before spending a dime.</p></div>
@@ -209,7 +265,7 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
   <div class="section-eyebrow" style="display:flex;justify-content:center;">Get Started</div>
   <div class="section-title">Don't face this alone.<br/><em>We're here to help.</em></div>
   <p>Our AI intake assistant Ander is available right now — click the chat icon in the bottom right, or call us directly.</p>
-  <a href="tel:4075550100" class="btn-dark">Call (407) 555-0100</a>
+  <a href="tel:4072058576" class="btn-dark">Call (407) 205-8576</a>
 </section>
 
 <footer>
@@ -218,7 +274,7 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
 </footer>
 
 <!-- ANDER PROACTIVE BUBBLE -->
-<div class="ander-proactive" id="ander-proactive" onclick="openWidget()">
+<div id="ander-proactive" onclick="openWidget()">
   👋 Have a debt question? I can help right now — free, confidential, no pressure.
 </div>
 
@@ -238,30 +294,84 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
     <div class="ander-badge">FL Bar Compliant</div>
     <button class="ander-close" id="ander-close-btn">×</button>
   </div>
+  <!-- Intake progress bar -->
+  <div class="ander-progress" id="ander-progress" style="display:none;">
+    <div class="progress-step" id="prog-name"></div>
+    <div class="progress-step" id="prog-story"></div>
+    <div class="progress-step" id="prog-email"></div>
+    <div class="progress-step" id="prog-phone"></div>
+    <span class="progress-label">Intake Progress</span>
+  </div>
+  <div id="returning-banner" style="display:none;" class="returning-banner">
+    👋 Welcome back — <span id="returning-name">did you get a chance to connect with the team?</span>
+  </div>
   <div class="ander-messages" id="ander-messages"></div>
+  <div class="input-footer"><span class="char-counter" id="char-counter">500</span></div>
   <div class="ander-input-area">
-    <textarea id="ander-input" placeholder="Type your message..." rows="1"></textarea>
+    <textarea id="ander-input" placeholder="Type your message..." rows="1" maxlength="500"></textarea>
     <button id="ander-send"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
   </div>
 </div>
 
+<!-- Subtle pop sound via Web Audio API -->
 <script>
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+function playPopSound() {
+  try {
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(520, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.06, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.1);
+  } catch(e) {}
+}
+
+// Greeting based on time of day
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
+// Time formatting for message timestamps
+function getTimeStr() {
+  return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
 const toggle = document.getElementById('ander-toggle');
 const widget = document.getElementById('ander-widget');
 const closeBtn = document.getElementById('ander-close-btn');
 const messagesEl = document.getElementById('ander-messages');
 const inputEl = document.getElementById('ander-input');
 const sendBtn = document.getElementById('ander-send');
+const charCounter = document.getElementById('char-counter');
+const progressBar = document.getElementById('ander-progress');
 
 let sessionId = null, step = 0, isTyping = false, started = false, intakeDone = false;
+
+// Returning visitor detection
+const storedSession = localStorage.getItem('ander_session');
+const storedName = localStorage.getItem('ander_name');
+const storedTime = localStorage.getItem('ander_time');
+const isReturning = storedSession && storedTime && (Date.now() - parseInt(storedTime)) < 24 * 60 * 60 * 1000;
+
+if (isReturning && storedName) {
+  const banner = document.getElementById('returning-banner');
+  document.getElementById('returning-name').textContent = `${storedName} — did you get a chance to connect with the team?`;
+  banner.style.display = 'flex';
+}
 
 function openAnder(e) {
   if (e) e.preventDefault();
   openWidget();
-  setTimeout(() => { inputEl.focus(); }, 400);
+  setTimeout(() => inputEl.focus(), 400);
 }
 
-// Proactive bubble — show after 4 seconds, hide when widget opens
 const proactiveBubble = document.getElementById('ander-proactive');
 setTimeout(() => proactiveBubble.classList.add('show'), 4000);
 
@@ -280,9 +390,27 @@ function closeWidget() {
 toggle.addEventListener('click', () => widget.classList.contains('open') ? closeWidget() : openWidget());
 closeBtn.addEventListener('click', closeWidget);
 
-function scrollBottom() { messagesEl.scrollTop = messagesEl.scrollHeight; }
+function scrollBottom() {
+  setTimeout(() => { messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: 'smooth' }); }, 50);
+}
+
+function updateProgress(progress) {
+  if (!progress) return;
+  progressBar.style.display = 'flex';
+  const steps = ['name','story','email','phone'];
+  const doneCount = steps.filter(s => progress[s]).length;
+  steps.forEach((s, i) => {
+    const el = document.getElementById('prog-' + s);
+    if (progress[s]) { el.className = 'progress-step done'; }
+    else if (i === doneCount) { el.className = 'progress-step active'; }
+    else { el.className = 'progress-step'; }
+  });
+}
 
 function addMessage(text, role) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'msg-wrapper';
+
   const row = document.createElement('div');
   row.className = 'msg-row ' + (role === 'user' ? 'user' : 'bot');
   const av = document.createElement('div');
@@ -291,15 +419,29 @@ function addMessage(text, role) {
   const bubble = document.createElement('div');
   bubble.className = 'msg-bubble';
   bubble.textContent = text;
-  row.appendChild(av); row.appendChild(bubble);
-  messagesEl.appendChild(row);
+  row.appendChild(av);
+  row.appendChild(bubble);
+
+  const timeEl = document.createElement('div');
+  timeEl.className = 'msg-time';
+  timeEl.textContent = getTimeStr();
+
+  wrapper.appendChild(row);
+  wrapper.appendChild(timeEl);
+  messagesEl.appendChild(wrapper);
+
+  if (role === 'bot') playPopSound();
   scrollBottom();
+
+  // Save name to localStorage for returning visitor
+  if (role === 'user' && !storedName && text.length < 25 && /^[A-Za-z'-]+$/.test(text.trim())) {
+    localStorage.setItem('ander_name', text.trim());
+  }
 }
 
 function showCalendlyButton(link) {
   const a = document.createElement('a');
-  a.href = link;
-  a.target = '_blank';
+  a.href = link; a.target = '_blank';
   a.className = 'calendly-btn';
   a.textContent = '📅 Schedule a Free Consultation';
   messagesEl.appendChild(a);
@@ -307,11 +449,13 @@ function showCalendlyButton(link) {
 }
 
 function lockInput() {
+  intakeDone = true;
   inputEl.disabled = true;
   inputEl.placeholder = 'Intake complete — thank you!';
   sendBtn.disabled = true;
   sendBtn.style.opacity = '0.35';
   sendBtn.style.cursor = 'not-allowed';
+  charCounter.style.display = 'none';
 }
 
 function showTyping() {
@@ -323,9 +467,7 @@ function showTyping() {
   bubble.className = 'msg-bubble';
   const ind = document.createElement('div');
   ind.className = 'typing-indicator';
-  for (let i = 0; i < 3; i++) {
-    const d = document.createElement('div'); d.className = 'typing-dot'; ind.appendChild(d);
-  }
+  for (let i = 0; i < 3; i++) { const d = document.createElement('div'); d.className = 'typing-dot'; ind.appendChild(d); }
   bubble.appendChild(ind); row.appendChild(av); row.appendChild(bubble);
   messagesEl.appendChild(row);
   scrollBottom();
@@ -337,17 +479,24 @@ function removeTyping() {
 }
 
 async function startChat() {
+  // Inject time-aware greeting into first message
   showTyping();
   try {
     const res = await fetch('/api/start');
     const data = await res.json();
-    sessionId = data.sessionId;
-    step = data.step;
+    sessionId = data.sessionId; step = data.step;
+
+    // Save session for returning visitor detection
+    localStorage.setItem('ander_session', sessionId);
+    localStorage.setItem('ander_time', Date.now().toString());
+
     removeTyping();
-    setTimeout(() => addMessage(data.message, 'bot'), data.delay || 800);
+    // Prepend time-aware greeting to disclosure message
+    const greetedMsg = `${getGreeting()} 👋 — I'm Ander. Before we get started, just want to be upfront: I'm an AI, not a lawyer, and nothing I say is legal advice.\n\nI'm here to walk you through a quick intake so the right people at Henry Law Firm can take a look at your situation and reach out.\n\nWhenever you're ready, just say "I understand" and we'll jump in. 😊`;
+    setTimeout(() => addMessage(greetedMsg, 'bot'), data.delay || 800);
   } catch(e) {
     removeTyping();
-    addMessage("Hey there 👋 — I'm Ander, Henry Law Firm's AI intake assistant. What's your name?", 'bot');
+    addMessage(`${getGreeting()} 👋 — I'm Ander, Henry Law Firm's AI intake assistant. What's your name?`, 'bot');
   }
 }
 
@@ -355,25 +504,30 @@ async function sendMessage() {
   const text = inputEl.value.trim();
   if (!text || isTyping || intakeDone) return;
   inputEl.value = ''; inputEl.style.height = 'auto';
+  charCounter.textContent = '500';
+  charCounter.className = 'char-counter';
   addMessage(text, 'user');
   isTyping = true; sendBtn.disabled = true;
   showTyping();
   try {
     const res = await fetch('/api/message', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ step, userMessage: text, sessionId })
     });
     const data = await res.json();
-    sessionId = data.sessionId || sessionId;
-    step = data.step;
+    sessionId = data.sessionId || sessionId; step = data.step;
     setTimeout(() => {
       removeTyping();
       if (data.message) addMessage(data.message, 'bot');
+      if (data.progress) updateProgress(data.progress);
       if (data.done) {
-        intakeDone = true;
         if (data.calendlyLink) showCalendlyButton(data.calendlyLink);
         lockInput();
+        progressBar.style.display = 'none';
+        // Clear returning visitor on completion
+        localStorage.removeItem('ander_session');
+        localStorage.removeItem('ander_time');
+        localStorage.removeItem('ander_name');
       }
       isTyping = false;
       if (!data.done) sendBtn.disabled = false;
@@ -392,7 +546,24 @@ inputEl.addEventListener('keydown', (e) => {
 inputEl.addEventListener('input', () => {
   inputEl.style.height = 'auto';
   inputEl.style.height = Math.min(inputEl.scrollHeight, 100) + 'px';
+  const remaining = 500 - inputEl.value.length;
+  charCounter.textContent = remaining;
+  if (remaining <= 50) { charCounter.className = 'char-counter limit'; }
+  else if (remaining <= 100) { charCounter.className = 'char-counter warn'; }
+  else { charCounter.className = 'char-counter'; }
+});
+
+// Nav smooth scroll links
+document.querySelectorAll('.nav-links a').forEach(a => {
+  a.addEventListener('click', e => {
+    const href = a.getAttribute('href');
+    if (href.startsWith('#')) {
+      e.preventDefault();
+      document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
 });
 </script>
 </body>
 </html>
+
