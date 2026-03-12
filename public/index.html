@@ -122,6 +122,10 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
 .calendly-btn { display: block; text-align: center; background: #1a1a2e; color: #c9a070; padding: 13px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; margin: 4px 16px 12px; transition: background .2s; }
 .calendly-btn:hover { background: #8b5e3c; color: white; }
 
+#ander-proactive { position: fixed; bottom: 104px; right: 100px; z-index: 997; background: white; border-radius: 12px; padding: 12px 16px; box-shadow: 0 8px 28px rgba(0,0,0,.14); font-size: 13px; color: #1a1a2e; max-width: 220px; line-height: 1.5; opacity: 0; transform: translateY(8px); transition: all 0.3s ease; pointer-events: none; border: 1px solid rgba(0,0,0,.07); }
+#ander-proactive.show { opacity: 1; transform: translateY(0); pointer-events: all; cursor: pointer; }
+#ander-proactive::after { content: ''; position: absolute; bottom: -7px; right: 16px; width: 12px; height: 12px; background: white; border-right: 1px solid rgba(0,0,0,.07); border-bottom: 1px solid rgba(0,0,0,.07); transform: rotate(45deg); }
+
 @media (max-width: 768px) {
   nav { padding: 16px 24px; } .nav-links { display: none; }
   .hero { padding: 100px 24px 60px; } .hero-inner { grid-template-columns: 1fr; } .hero-stats { display: none; }
