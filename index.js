@@ -2,11 +2,33 @@ require('dotenv').config();
 const express = require('express');
 const { Resend } = require('resend');
 const Anthropic = require('@anthropic-ai/sdk');
+const mongoose = require('mongoose');
 const app = express();
 
 app.use(express.json());
 app.use(express.static('public'));
 
+// ─── MongoDB Connection ───────────────────────────────────────────────────────
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('🍃 MongoDB connected — Ander CRM ready'))
+  .catch(err => console.error('❌ MongoDB connection failed:', err));
+
+// ─── Intake Schema ────────────────────────────────────────────────────────────
+const intakeSchema = new mongoose.Schema({
+  firstName:    { type: String, default: 'Unknown' },
+  phone:        { type: String, default: null },
+  practiceArea: { type: String, default: 'General' },
+  story:        { type: String, default: null },
+  urgency:      { type: String, default: 'standard' },
+  score:        { type: Number, default: 0 },
+  firmName:     { type: String, default: 'Henry Law Firm' },
+  createdAt:    { type: Date, default: Date.now },
+  status:       { type: String, default: 'new' } // new | contacted | converted | closed
+});
+
+const Intake = mongoose.model('Intake', intakeSchema);
+
+// ─── Resend + Anthropic ───────────────────────────────────────────────────────
 const resend = new Resend(process.env.RESEND_API_KEY);
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -50,12 +72,14 @@ YOUR PERSONALITY AND RULES:
 - Many clients are scared, embarrassed, or overwhelmed about debt — meet them with zero judgment
 `;
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 function classifyPracticeArea(text) {
   const t = text.toLowerCase();
   if (t.includes('divorce') || t.includes('custody') || t.includes('child support') || t.includes('alimony') || t.includes('separation') || t.includes('prenup') || t.includes('spouse') || t.includes('husband') || t.includes('wife') || t.includes('visitation')) return 'Family Law';
   if (t.includes('will') || t.includes('trust') || t.includes('estate') || t.includes('inherit') || t.includes('guardian') || t.includes('power of attorney') || t.includes('living will') || t.includes('beneficiary') || t.includes('special needs')) return 'Estate Planning';
   if (t.includes('probate') || t.includes('deceased') || t.includes('passed away') || t.includes('died') || t.includes('death') || t.includes('executor')) return 'Probate';
   if (t.includes('real estate') || t.includes('closing') || t.includes('property') || t.includes('house') || t.includes('home') || t.includes('mortgage') || t.includes('title')) return 'Real Estate';
+  if (t.includes('debt') || t.includes('garnish') || t.includes('credit card') || t.includes('collector') || t.includes('lawsuit') || t.includes('levy') || t.includes('fdcpa') || t.includes('summons')) return 'Debt Defense';
   return 'General';
 }
 
@@ -87,7 +111,7 @@ function calcScore(state) {
 function generateSummary(state, score) {
   const urgency = score >= 8 ? 'HIGH' : score >= 5 ? 'MODERATE' : 'LOW';
   return `
-NEW INTAKE — ANDER AI · VOLLRATH LAW
+NEW INTAKE — ANDER AI · HENRY LAW FIRM
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 CLIENT
@@ -114,6 +138,27 @@ Powered by Ander · Fern Stellar AI
   `.trim();
 }
 
+async function saveIntake(state, score) {
+  try {
+    const intake = new Intake({
+      firstName:    state.firstName || 'Unknown',
+      phone:        state.phone || null,
+      practiceArea: state.practiceArea || 'General',
+      story:        state.story || null,
+      urgency:      state.urgency || 'standard',
+      score,
+      firmName:     'Henry Law Firm',
+      status:       'new'
+    });
+    await intake.save();
+    console.log('✅ Intake saved to MongoDB:', intake._id);
+    return intake;
+  } catch (err) {
+    console.error('❌ MongoDB save failed:', err.message);
+    return null;
+  }
+}
+
 async function sendNotification(state, score) {
   const summary = generateSummary(state, score);
   const urgencyLabel = score >= 8 ? '🔴 HIGH PRIORITY' : score >= 5 ? '🟡 MODERATE' : '🟢 STANDARD';
@@ -126,7 +171,7 @@ async function sendNotification(state, score) {
       html: `
         <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#f5f0e8;padding:32px;">
           <div style="background:#0d1b2a;padding:24px 28px;border-radius:12px 12px 0 0;">
-            <p style="color:#c9a84c;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:0 0 4px 0;">New Intake · Vollrath Law</p>
+            <p style="color:#c9a84c;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:0 0 4px 0;">New Intake · Henry Law Firm</p>
             <h1 style="color:#fff;font-size:20px;margin:0;display:inline-block;">Ander AI Intake</h1>
             <span style="float:right;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:6px 14px;color:#e8c96a;font-size:20px;font-weight:700;">${score}/10</span>
           </div>
@@ -228,6 +273,7 @@ const disclosureMessage = "Hey there 👋 — I'm Ander. Before we get started, 
 
 const disclosureAccepted = (val) => ['i understand', 'ok', 'okay', 'yes', 'sure', 'got it', 'understood', 'ready', "let's go", 'lets go', 'go'].includes(val.trim().toLowerCase());
 
+// ─── Chat Routes ──────────────────────────────────────────────────────────────
 app.post('/api/message', async (req, res) => {
   const { step, state, userMessage, history = [] } = req.body;
 
@@ -253,7 +299,11 @@ app.post('/api/message', async (req, res) => {
     if (updatedState.phone && updatedState.story && updatedState.firstName && !updatedState.intakeComplete) {
       updatedState.intakeComplete = true;
       const score = calcScore(updatedState);
-      sendNotification(updatedState, score);
+      // Save to MongoDB AND send email in parallel
+      await Promise.all([
+        saveIntake(updatedState, score),
+        sendNotification(updatedState, score)
+      ]);
     }
 
     const anderResponse = await askClaude(conversationHistory, updatedState);
@@ -293,6 +343,75 @@ app.get('/api/start', (req, res) => {
     options: [],
     delay: typingDelay(disclosureMessage)
   });
+});
+
+// ─── CRM API Routes ───────────────────────────────────────────────────────────
+// GET all intakes (newest first)
+app.get('/api/intakes', async (req, res) => {
+  try {
+    const { status, search } = req.query;
+    let query = {};
+    if (status && status !== 'all') query.status = status;
+    if (search) {
+      query.$or = [
+        { firstName: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } },
+        { practiceArea: { $regex: search, $options: 'i' } },
+        { story: { $regex: search, $options: 'i' } }
+      ];
+    }
+    const intakes = await Intake.find(query).sort({ createdAt: -1 });
+    res.json({ success: true, intakes, total: intakes.length });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET stats for dashboard header
+app.get('/api/intakes/stats', async (req, res) => {
+  try {
+    const total = await Intake.countDocuments();
+    const newLeads = await Intake.countDocuments({ status: 'new' });
+    const highPriority = await Intake.countDocuments({ score: { $gte: 8 } });
+    const converted = await Intake.countDocuments({ status: 'converted' });
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayCount = await Intake.countDocuments({ createdAt: { $gte: today } });
+    res.json({ success: true, stats: { total, newLeads, highPriority, converted, todayCount } });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// PATCH update intake status
+app.patch('/api/intakes/:id', async (req, res) => {
+  try {
+    const { status } = req.body;
+    const intake = await Intake.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+    if (!intake) return res.status(404).json({ success: false, error: 'Intake not found' });
+    res.json({ success: true, intake });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// DELETE intake
+app.delete('/api/intakes/:id', async (req, res) => {
+  try {
+    await Intake.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Serve dashboard
+app.get('/dashboard', (req, res) => {
+  res.sendFile(__dirname + '/public/dashboard.html');
 });
 
 app.listen(3000, () => {
