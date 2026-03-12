@@ -235,38 +235,63 @@ RESPONSE LENGTH: Keep every response to 2-3 sentences maximum. Be warm and human
 }
 
 function extractState(conversationHistory, currentState) {
-  const allText = conversationHistory.filter(m => m.role === 'user').map(m => m.content).join(' ');
+  const userMsgs = conversationHistory.filter(m => m.role === 'user');
+  const allText = userMsgs.map(m => m.content).join(' ');
 
+  // NAME — grab the first short single-word reply (likely the name response)
   if (!currentState.firstName) {
-    const msgs = conversationHistory.filter(m => m.role === 'user');
-    if (msgs.length >= 2) {
-      const secondMsg = msgs[1].content.trim();
-      const nameMatch = secondMsg.match(/^[A-Za-z'-]{2,20}$/);
-      if (nameMatch) currentState.firstName = secondMsg.trim();
+    for (const msg of userMsgs) {
+      const t = msg.content.trim();
+      if (/^[A-Za-z'-]{2,25}$/.test(t)) {
+        currentState.firstName = t;
+        break;
+      }
+      // "My name is X" / "I'm X" / "It's X"
+      const nameMatch = t.match(/(?:my name is|i['']?m|it['']?s|call me)\s+([A-Za-z'-]{2,25})/i);
+      if (nameMatch) { currentState.firstName = nameMatch[1]; break; }
     }
   }
 
+  // PHONE — strict 10-digit US phone anywhere in any message
   if (!currentState.phone) {
-    const phoneMatch = allText.match(/[\d\s\-\(\)\+]{7,15}/);
-    if (phoneMatch && validate('phone', phoneMatch[0])) {
-      currentState.phone = phoneMatch[0].trim();
+    for (const msg of userMsgs) {
+      const digits = msg.content.replace(/\D/g, '');
+      if (digits.length === 10 || digits.length === 11) {
+        currentState.phone = msg.content.trim();
+        break;
+      }
     }
   }
 
+  // STORY — first message that's longer than 30 chars (real description, not just a name)
   if (!currentState.story) {
-    const msgs = conversationHistory.filter(m => m.role === 'user');
-    if (msgs.length >= 3) currentState.story = msgs[2].content;
+    for (const msg of userMsgs) {
+      if (msg.content.trim().length > 30) {
+        currentState.story = msg.content.trim();
+        break;
+      }
+    }
   }
 
+  // PRACTICE AREA
   if (!currentState.practiceArea || currentState.practiceArea === 'General') {
     const area = classifyPracticeArea(allText);
     if (area !== 'General') currentState.practiceArea = area;
   }
 
+  // URGENCY
   if (!currentState.urgency) {
     const u = allText.toLowerCase();
-    currentState.urgency = (u.includes('court') || u.includes('deadline') || u.includes('urgent') || u.includes('soon') || u.includes('health') || u.includes('sick') || u.includes('creditor')) ? 'urgent' : 'standard';
+    currentState.urgency = (u.includes('court') || u.includes('deadline') || u.includes('urgent') || u.includes('soon') || u.includes('garnish') || u.includes('creditor') || u.includes('lawsuit') || u.includes('summons')) ? 'urgent' : 'standard';
   }
+
+  console.log('📊 STATE:', JSON.stringify({
+    firstName: currentState.firstName || null,
+    phone: currentState.phone || null,
+    story: currentState.story ? currentState.story.substring(0, 40) + '...' : null,
+    practiceArea: currentState.practiceArea || null,
+    intakeComplete: currentState.intakeComplete || false
+  }));
 
   return currentState;
 }
@@ -436,3 +461,4 @@ app.get('/dashboard', (req, res) => {
 app.listen(3000, () => {
   console.log('🌿 Fern Stellar · Ander (Claude-powered) running on http://localhost:3000');
 });
+
