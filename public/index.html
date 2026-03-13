@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Henry Law Firm — Debt Defense Attorneys</title>
+<title>The Henry Law Firm — Debt Defense Attorneys</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -69,7 +69,6 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 20px 60
 .step-num { font-family: 'Playfair Display', serif; font-size: 64px; font-weight: 700; color: rgba(201,160,112,.15); line-height: 1; margin-bottom: 20px; }
 .step-title { font-size: 15px; font-weight: 600; color: white; margin-bottom: 8px; }
 .step-desc { font-size: 13px; color: rgba(255,255,255,.45); line-height: 1.6; }
-.step-arrow { display: flex; align-items: center; justify-content: center; font-size: 24px; color: rgba(201,160,112,.3); margin-top: 20px; }
 
 .why-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
 .why-card { background: white; border-radius: 12px; padding: 40px 36px; border: 1px solid rgba(0,0,0,.06); }
@@ -87,32 +86,42 @@ footer { background: #1a1a2e; padding: 40px 60px; display: flex; align-items: ce
 .footer-logo span { color: #c9a070; }
 footer p { font-size: 12px; color: rgba(255,255,255,.3); }
 
-/* ─── ANDER WIDGET ─────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   ANDER WIDGET V2 — Enhanced with Quick Replies, Doc Upload, Spanish Toggle
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 #ander-toggle { position: fixed; bottom: 28px; right: 28px; z-index: 998; width: 60px; height: 60px; border-radius: 50%; background: #1a1a2e; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 28px rgba(0,0,0,.22); transition: transform .2s, box-shadow .2s; }
 #ander-toggle:hover { transform: scale(1.06); box-shadow: 0 12px 32px rgba(0,0,0,.28); }
 #ander-toggle svg { width: 26px; height: 26px; fill: #c9a070; }
 .ander-pulse { position: absolute; top: -3px; right: -3px; width: 14px; height: 14px; background: #22c55e; border-radius: 50%; border: 2px solid white; }
 
-#ander-widget { display: none; position: fixed; bottom: 104px; right: 28px; z-index: 999; width: 390px; max-height: 600px; border-radius: 20px; background: white; box-shadow: 0 20px 60px rgba(0,0,0,.18); flex-direction: column; overflow: hidden; transform: scale(0.92) translateY(16px); opacity: 0; transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .25s; transform-origin: bottom right; }
+#ander-widget { display: none; position: fixed; bottom: 104px; right: 28px; z-index: 999; width: 400px; max-height: 620px; border-radius: 20px; background: white; box-shadow: 0 20px 60px rgba(0,0,0,.18); flex-direction: column; overflow: hidden; transform: scale(0.92) translateY(16px); opacity: 0; transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .25s; transform-origin: bottom right; }
 #ander-widget.open { transform: scale(1) translateY(0); opacity: 1; }
 
 .ander-head { background: #1a1a2e; padding: 16px 18px; display: flex; align-items: center; gap: 12px; border-radius: 20px 20px 0 0; }
 .ander-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg,#8b5e3c,#c9a070); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: white; flex-shrink: 0; }
+.ander-head-info { flex: 1; }
 .ander-head-name { font-size: 13px; font-weight: 600; color: white; }
 .ander-head-sub { font-size: 11px; color: rgba(255,255,255,.5); display: flex; align-items: center; gap: 5px; margin-top: 2px; }
 .ander-online { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; }
-.ander-badge { margin-left: auto; background: rgba(201,160,112,.18); border: 1px solid rgba(201,160,112,.35); border-radius: 4px; padding: 4px 9px; font-size: 10px; font-weight: 600; letter-spacing: 0.06em; color: #c9a070; text-transform: uppercase; }
+.ander-badge { background: rgba(201,160,112,.18); border: 1px solid rgba(201,160,112,.35); border-radius: 4px; padding: 4px 9px; font-size: 10px; font-weight: 600; letter-spacing: 0.06em; color: #c9a070; text-transform: uppercase; }
 .ander-close { background: none; border: none; color: rgba(255,255,255,.45); font-size: 20px; cursor: pointer; padding: 4px; margin-left: 8px; border-radius: 4px; transition: color .15s; }
 .ander-close:hover { color: white; }
 
+/* Language toggle */
+.lang-toggle { display: flex; gap: 4px; margin-left: auto; margin-right: 8px; }
+.lang-btn { background: rgba(255,255,255,.1); border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; color: rgba(255,255,255,.5); cursor: pointer; transition: all .15s; }
+.lang-btn.active { background: rgba(201,160,112,.3); color: #c9a070; }
+.lang-btn:hover:not(.active) { color: white; }
+
 /* Progress bar */
-.ander-progress { background: rgba(255,255,255,.06); padding: 8px 18px; display: flex; gap: 6px; align-items: center; }
-.progress-step { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,.12); transition: background .4s; }
+.ander-progress { background: rgba(26,26,46,.03); padding: 10px 18px; display: flex; gap: 6px; align-items: center; border-bottom: 1px solid rgba(0,0,0,.05); }
+.progress-step { flex: 1; height: 4px; border-radius: 2px; background: rgba(0,0,0,.08); transition: background .4s; }
 .progress-step.done { background: #22c55e; }
 .progress-step.active { background: #c9a070; }
-.progress-label { font-size: 10px; color: rgba(255,255,255,.35); letter-spacing: 0.08em; white-space: nowrap; }
+.progress-label { font-size: 10px; color: #999; letter-spacing: 0.08em; white-space: nowrap; margin-left: 8px; }
 
-.ander-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth; }
+.ander-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth; min-height: 280px; }
 .ander-messages::-webkit-scrollbar { width: 4px; }
 .ander-messages::-webkit-scrollbar-track { background: transparent; }
 .ander-messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,.1); border-radius: 2px; }
@@ -137,6 +146,24 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
 .typing-dot:nth-child(3) { animation-delay: .3s; }
 @keyframes typingBounce { 0%,60%,100% { transform: translateY(0); opacity:.4; } 30% { transform: translateY(-5px); opacity:1; } }
 
+/* Quick reply chips */
+.quick-replies { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 16px 12px; }
+.quick-chip { background: white; border: 1.5px solid #e5e0d8; border-radius: 20px; padding: 7px 14px; font-size: 12px; font-weight: 500; color: #1a1a2e; cursor: pointer; transition: all .15s; }
+.quick-chip:hover { border-color: #8b5e3c; background: rgba(139,94,60,.06); }
+.quick-chip:active { transform: scale(0.96); }
+
+/* Document upload area */
+.doc-upload-area { padding: 0 16px 12px; display: none; }
+.doc-upload-area.show { display: block; }
+.doc-upload-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px; border: 2px dashed rgba(139,94,60,.3); border-radius: 10px; background: rgba(139,94,60,.04); color: #8b5e3c; font-size: 12px; font-weight: 500; cursor: pointer; transition: all .15s; }
+.doc-upload-btn:hover { border-color: #8b5e3c; background: rgba(139,94,60,.08); }
+.doc-upload-btn svg { width: 18px; height: 18px; }
+.doc-upload-info { font-size: 10px; color: #999; text-align: center; margin-top: 6px; }
+.doc-upload-info strong { color: #22c55e; }
+.uploaded-doc { display: flex; align-items: center; gap: 8px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 8px 12px; margin-top: 8px; }
+.uploaded-doc svg { width: 16px; height: 16px; color: #22c55e; }
+.uploaded-doc span { font-size: 12px; color: #166534; flex: 1; }
+
 .ander-input-area { border-top: 1px solid rgba(0,0,0,.07); padding: 12px 14px; display: flex; align-items: flex-end; gap: 8px; background: white; }
 #ander-input { flex: 1; border: 1px solid rgba(0,0,0,.1); border-radius: 12px; padding: 9px 12px; font-size: 13px; font-family: 'DM Sans', sans-serif; resize: none; outline: none; max-height: 100px; overflow-y: auto; line-height: 1.5; transition: border-color .2s; background: #fafafa; }
 #ander-input:focus { border-color: #8b5e3c; background: white; }
@@ -149,6 +176,11 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
 #ander-send:disabled { opacity: .35; cursor: not-allowed; }
 #ander-send svg { width: 16px; height: 16px; fill: #c9a070; }
 
+/* Upload button in input area */
+#upload-trigger { width: 36px; height: 36px; border-radius: 10px; background: transparent; border: 1px solid rgba(0,0,0,.1); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .2s; }
+#upload-trigger:hover { border-color: #8b5e3c; background: rgba(139,94,60,.06); }
+#upload-trigger svg { width: 16px; height: 16px; stroke: #8b5e3c; fill: none; }
+
 .calendly-btn { display: block; text-align: center; background: #1a1a2e; color: #c9a070; padding: 13px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; margin: 4px 16px 12px; transition: background .2s; }
 .calendly-btn:hover { background: #8b5e3c; color: white; }
 
@@ -160,14 +192,34 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
 #ander-proactive { position: fixed; bottom: 104px; right: 100px; z-index: 997; background: white; border-radius: 12px; padding: 12px 16px; box-shadow: 0 8px 28px rgba(0,0,0,.14); font-size: 13px; color: #1a1a2e; max-width: 220px; line-height: 1.5; opacity: 0; transform: translateY(8px); transition: all 0.3s ease; pointer-events: none; border: 1px solid rgba(0,0,0,.07); }
 #ander-proactive.show { opacity: 1; transform: translateY(0); pointer-events: all; cursor: pointer; }
 #ander-proactive::after { content: ''; position: absolute; bottom: -7px; right: 16px; width: 12px; height: 12px; background: white; border-right: 1px solid rgba(0,0,0,.07); border-bottom: 1px solid rgba(0,0,0,.07); transform: rotate(45deg); }
+
+/* Confidentiality notice */
+.confidentiality-notice { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 10px 14px; margin: 8px 16px; font-size: 11px; color: #166534; display: flex; align-items: flex-start; gap: 8px; }
+.confidentiality-notice svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+  #ander-widget { width: calc(100vw - 20px); right: 10px; bottom: 80px; max-height: 80vh; border-radius: 16px; }
+  #ander-toggle { bottom: 16px; right: 16px; width: 54px; height: 54px; }
+  #ander-proactive { display: none; }
+  .practice-grid { grid-template-columns: 1fr; }
+  .process-steps { grid-template-columns: repeat(2, 1fr); }
+  .why-grid { grid-template-columns: 1fr; }
+  nav { padding: 16px 20px; }
+  .nav-links { display: none; }
+  .hero { padding: 100px 20px 60px; }
+  .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+  .section { padding: 60px 20px; }
+  footer { flex-direction: column; gap: 12px; text-align: center; padding: 30px 20px; }
+}
 </style>
 </head>
 <body>
 
 <nav>
-  <div class="nav-logo">Henry <span>Law Firm</span></div>
+  <div class="nav-logo">The Henry <span>Law Firm</span></div>
   <ul class="nav-links">
-    <li><a href="#practice">Practice Areas</a></li>
+    <li><a href="#practice">What We Handle</a></li>
     <li><a href="#process">How It Works</a></li>
     <li><a href="#why">Why Us</a></li>
   </ul>
@@ -178,16 +230,16 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
   <div class="hero-inner">
     <div>
       <div class="hero-eyebrow">Orlando Debt Defense</div>
-      <h1>Debt collectors don't<br/>scare us.<br/><em>They should.</em></h1>
-      <p>Henry Law Firm defends Floridians from abusive collectors, wage garnishments, and credit card lawsuits — with 22 years of experience on your side.</p>
+      <h1>End the stress<br/>and worry.<br/><em>We're here to help.</em></h1>
+      <p>The Henry Law Firm helps Floridians regain peace after financial setbacks — with 25 years of legal experience fighting debt collectors, garnishments, and creditor lawsuits on your side.</p>
       <div class="hero-btns">
         <a href="#" class="btn-dark" onclick="openAnder(event)">Talk to Ander — Free</a>
-        <a href="tel:4075205576" class="btn-outline">Call (407) 205-8576</a>
+        <a href="tel:4072058576" class="btn-outline">Call (407) 205-8576</a>
       </div>
     </div>
     <div class="hero-stats">
       <div class="stat-item">
-        <div class="stat-num">22<span>+</span></div>
+        <div class="stat-num">25<span>+</span></div>
         <div class="stat-label">Years protecting Florida consumers from aggressive debt collectors</div>
       </div>
       <div class="stat-divider"></div>
@@ -196,7 +248,7 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
         <div class="stat-label">Cost for your initial consultation — no obligation</div>
       </div>
       <div class="stat-divider"></div>
-      <div class="hero-badge">FL Bar Compliant · FDCPA Specialists</div>
+      <div class="hero-badge">FL Bar Compliant · Consumer Debt Specialists</div>
     </div>
   </div>
 </section>
@@ -207,12 +259,12 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
     <h2 class="section-title">Your debt problem<br/><em>has a solution.</em></h2>
     <p class="section-sub">We specialize in consumer debt defense across every stage — from first collector call to courtroom.</p>
     <div class="practice-grid">
-      <div class="practice-card"><div class="practice-icon">⚖️</div><h3>Debt Collection Defense</h3><p>Sued by a debt collector? We answer the lawsuit, challenge their evidence, and fight for dismissal or settlement.</p></div>
-      <div class="practice-card"><div class="practice-icon">🛡️</div><h3>FDCPA Violations</h3><p>Collectors who break the law owe you money — up to $1,000 in damages plus attorney fees. We collect it.</p></div>
-      <div class="practice-card"><div class="practice-icon">💳</div><h3>Credit Card Lawsuits</h3><p>Capital One, Midland, Portfolio Recovery — we know their tactics and how to beat them in court.</p></div>
+      <div class="practice-card"><div class="practice-icon">💳</div><h3>Credit Card Debt</h3><p>Sued for an unpaid balance? We answer the lawsuit, challenge their evidence, and fight for dismissal or settlement.</p></div>
+      <div class="practice-card"><div class="practice-icon">🚗</div><h3>Auto Loan & Repossession</h3><p>Facing repo or an auto loan lawsuit? We protect your rights and negotiate on your behalf.</p></div>
+      <div class="practice-card"><div class="practice-icon">🏥</div><h3>Medical Bills</h3><p>Medical debt can be overwhelming. We help negotiate, defend lawsuits, and protect your credit.</p></div>
       <div class="practice-card"><div class="practice-icon">💰</div><h3>Wage Garnishment</h3><p>Florida's head of household exemption may protect your income. We file fast to stop or reduce garnishments.</p></div>
-      <div class="practice-card"><div class="practice-icon">🤝</div><h3>Debt Negotiation</h3><p>Sometimes the right move is a settlement. We negotiate directly with creditors to reduce what you owe.</p></div>
-      <div class="practice-card"><div class="practice-icon">🏦</div><h3>Bank Levy Defense</h3><p>Account frozen? We act immediately to protect your funds and challenge unlawful levies.</p></div>
+      <div class="practice-card"><div class="practice-icon">⚖️</div><h3>Default Judgments</h3><p>Missed your court date? We can help you fight back and potentially vacate the judgment.</p></div>
+      <div class="practice-card"><div class="practice-icon">🏠</div><h3>Judgment Liens</h3><p>Creditors placing liens on your property? We challenge improper liens and protect your assets.</p></div>
     </div>
   </div>
 </section>
@@ -231,12 +283,12 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
       <div class="process-step">
         <div class="step-num">02</div>
         <div class="step-title">LaMya Reviews</div>
-        <div class="step-desc">Attorney LaMya Henry personally reviews your situation and prioritizes your case.</div>
+        <div class="step-desc">Attorney LaMya Henry personally reviews your situation within 24 hours.</div>
       </div>
       <div class="process-step">
         <div class="step-num">03</div>
         <div class="step-title">Free Consult</div>
-        <div class="step-desc">You speak directly with LaMya — no paralegal, no case manager. Just your attorney.</div>
+        <div class="step-desc">You speak directly with LaMya for 10 minutes — no paralegal, no case manager.</div>
       </div>
       <div class="process-step">
         <div class="step-num">04</div>
@@ -249,7 +301,7 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
 
 <section class="section" id="why">
   <div class="section-inner">
-    <div class="section-eyebrow">Why Henry Law Firm</div>
+    <div class="section-eyebrow">Why The Henry Law Firm</div>
     <h2 class="section-title">We fight for people,<br/><em>not creditors.</em></h2>
     <p class="section-sub">Most law firms work with banks and collectors. We work for you.</p>
     <div class="why-grid">
@@ -269,8 +321,8 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
 </section>
 
 <footer>
-  <div class="footer-logo">Henry <span>Law Firm</span></div>
-  <p>© 2026 Henry Law Firm · Orlando, FL · Debt Defense Attorneys</p>
+  <div class="footer-logo">The Henry <span>Law Firm</span></div>
+  <p>© 2025 The Henry Law Firm · Orlando, FL · Debt Defense Attorneys</p>
 </footer>
 
 <!-- ANDER PROACTIVE BUBBLE -->
@@ -278,7 +330,7 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
   👋 Have a debt question? I can help right now — free, confidential, no pressure.
 </div>
 
-<!-- ANDER WIDGET -->
+<!-- ANDER WIDGET V2 -->
 <button id="ander-toggle" aria-label="Chat with Ander">
   <div class="ander-pulse"></div>
   <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
@@ -288,30 +340,59 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
   <div class="ander-head">
     <div class="ander-avatar">A</div>
     <div class="ander-head-info">
-      <div class="ander-head-name">Ander · Henry Law Firm</div>
+      <div class="ander-head-name">Ander · The Henry Law Firm</div>
       <div class="ander-head-sub"><div class="ander-online"></div>Available now · Confidential</div>
     </div>
-    <div class="ander-badge">FL Bar Compliant</div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="lang-en" onclick="setLanguage('en')">EN</button>
+      <button class="lang-btn" id="lang-es" onclick="setLanguage('es')">ES</button>
+    </div>
+    <div class="ander-badge">FL Bar</div>
     <button class="ander-close" id="ander-close-btn">×</button>
   </div>
+  
   <!-- Intake progress bar -->
   <div class="ander-progress" id="ander-progress" style="display:none;">
     <div class="progress-step" id="prog-name"></div>
     <div class="progress-step" id="prog-story"></div>
+    <div class="progress-step" id="prog-caseInfo"></div>
     <div class="progress-step" id="prog-email"></div>
     <div class="progress-step" id="prog-phone"></div>
-    <span class="progress-label">Intake Progress</span>
+    <span class="progress-label" id="progress-label">Intake Progress</span>
   </div>
+  
   <div id="returning-banner" style="display:none;" class="returning-banner">
     👋 Welcome back — <span id="returning-name">did you get a chance to connect with the team?</span>
   </div>
+  
   <div class="ander-messages" id="ander-messages"></div>
+  
+  <!-- Quick reply chips -->
+  <div class="quick-replies" id="quick-replies" style="display:none;"></div>
+  
+  <!-- Document upload area (hidden by default) -->
+  <div class="doc-upload-area" id="doc-upload-area">
+    <label class="doc-upload-btn" for="doc-input">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <span id="upload-label">Upload court papers or debt letter (optional)</span>
+    </label>
+    <input type="file" id="doc-input" accept=".pdf,.jpg,.jpeg,.png,.heic,.webp" style="display:none;">
+    <div class="doc-upload-info">🔒 <strong>Secure & confidential</strong> — only LaMya will see this</div>
+    <div id="uploaded-docs"></div>
+  </div>
+  
   <div class="input-footer"><span class="char-counter" id="char-counter">500</span></div>
   <div class="ander-input-area">
+    <button id="upload-trigger" title="Upload document">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+    </button>
     <textarea id="ander-input" placeholder="Type your message..." rows="1" maxlength="500"></textarea>
     <button id="ander-send"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
   </div>
 </div>
+
+<!-- Hidden file input -->
+<input type="file" id="hidden-file-input" accept=".pdf,.jpg,.jpeg,.png,.heic,.webp" style="display:none;">
 
 <!-- Subtle pop sound via Web Audio API -->
 <script>
@@ -330,9 +411,67 @@ function playPopSound() {
   } catch(e) {}
 }
 
+// Language and translations
+let currentLang = 'en';
+const translations = {
+  en: {
+    placeholder: 'Type your message...',
+    charCounter: '500',
+    uploadLabel: 'Upload court papers or debt letter (optional)',
+    uploadInfo: '🔒 Secure & confidential — only LaMya will see this',
+    progressLabel: 'Intake Progress',
+    proactive: '👋 Have a debt question? I can help right now — free, confidential, no pressure.',
+    quickReplies: {
+      understand: 'I understand',
+      creditCard: 'Credit card debt',
+      garnishment: 'Wage garnishment',
+      lawsuit: 'Being sued',
+      collector: 'Debt collector calls',
+      other: 'Something else'
+    }
+  },
+  es: {
+    placeholder: 'Escribe tu mensaje...',
+    charCounter: '500',
+    uploadLabel: 'Subir documentos legales o carta de deuda (opcional)',
+    uploadInfo: '🔒 Seguro y confidencial — solo LaMya lo verá',
+    progressLabel: 'Progreso',
+    proactive: '👋 ¿Tienes una pregunta sobre deudas? Puedo ayudarte ahora — gratis, confidencial, sin presión.',
+    quickReplies: {
+      understand: 'Entiendo',
+      creditCard: 'Deuda de tarjeta',
+      garnishment: 'Embargo de salario',
+      lawsuit: 'Me están demandando',
+      collector: 'Llamadas de cobradores',
+      other: 'Otra cosa'
+    }
+  }
+};
+
+function setLanguage(lang) {
+  currentLang = lang;
+  document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+  document.getElementById('lang-es').classList.toggle('active', lang === 'es');
+  
+  const t = translations[lang];
+  inputEl.placeholder = t.placeholder;
+  document.getElementById('upload-label').textContent = t.uploadLabel;
+  document.querySelector('.doc-upload-info').innerHTML = t.uploadInfo;
+  document.getElementById('progress-label').textContent = t.progressLabel;
+  proactiveBubble.innerHTML = t.proactive;
+  
+  // Update quick replies if visible
+  updateQuickReplies();
+}
+
 // Greeting based on time of day
 function getGreeting() {
   const h = new Date().getHours();
+  if (currentLang === 'es') {
+    if (h < 12) return 'Buenos días';
+    if (h < 17) return 'Buenas tardes';
+    return 'Buenas noches';
+  }
   if (h < 12) return 'Good morning';
   if (h < 17) return 'Good afternoon';
   return 'Good evening';
@@ -351,8 +490,16 @@ const inputEl = document.getElementById('ander-input');
 const sendBtn = document.getElementById('ander-send');
 const charCounter = document.getElementById('char-counter');
 const progressBar = document.getElementById('ander-progress');
+const quickRepliesEl = document.getElementById('quick-replies');
+const docUploadArea = document.getElementById('doc-upload-area');
+const uploadTrigger = document.getElementById('upload-trigger');
+const docInput = document.getElementById('doc-input');
+const hiddenFileInput = document.getElementById('hidden-file-input');
+const proactiveBubble = document.getElementById('ander-proactive');
 
 let sessionId = null, step = 0, isTyping = false, started = false, intakeDone = false;
+let showingQuickReplies = false;
+let uploadedDocs = [];
 
 // Returning visitor detection
 const storedSession = localStorage.getItem('ander_session');
@@ -362,7 +509,10 @@ const isReturning = storedSession && storedTime && (Date.now() - parseInt(stored
 
 if (isReturning && storedName) {
   const banner = document.getElementById('returning-banner');
-  document.getElementById('returning-name').textContent = `${storedName} — did you get a chance to connect with the team?`;
+  const greeting = currentLang === 'es' 
+    ? `${storedName} — ¿pudiste conectar con el equipo?`
+    : `${storedName} — did you get a chance to connect with the team?`;
+  document.getElementById('returning-name').textContent = greeting;
   banner.style.display = 'flex';
 }
 
@@ -372,7 +522,6 @@ function openAnder(e) {
   setTimeout(() => inputEl.focus(), 400);
 }
 
-const proactiveBubble = document.getElementById('ander-proactive');
 setTimeout(() => proactiveBubble.classList.add('show'), 4000);
 
 function openWidget() {
@@ -397,7 +546,7 @@ function scrollBottom() {
 function updateProgress(progress) {
   if (!progress) return;
   progressBar.style.display = 'flex';
-  const steps = ['name','story','email','phone'];
+  const steps = ['name', 'story', 'caseInfo', 'email', 'phone'];
   const doneCount = steps.filter(s => progress[s]).length;
   steps.forEach((s, i) => {
     const el = document.getElementById('prog-' + s);
@@ -443,7 +592,7 @@ function showCalendlyButton(link) {
   const a = document.createElement('a');
   a.href = link; a.target = '_blank';
   a.className = 'calendly-btn';
-  a.textContent = '📅 Schedule a Free Consultation';
+  a.textContent = currentLang === 'es' ? '📅 Reservar Consulta Gratuita' : '📅 Schedule a Free Consultation';
   messagesEl.appendChild(a);
   scrollBottom();
 }
@@ -451,11 +600,12 @@ function showCalendlyButton(link) {
 function lockInput() {
   intakeDone = true;
   inputEl.disabled = true;
-  inputEl.placeholder = 'Intake complete — thank you!';
+  inputEl.placeholder = currentLang === 'es' ? 'Admisión completa — ¡gracias!' : 'Intake complete — thank you!';
   sendBtn.disabled = true;
   sendBtn.style.opacity = '0.35';
   sendBtn.style.cursor = 'not-allowed';
   charCounter.style.display = 'none';
+  quickRepliesEl.style.display = 'none';
 }
 
 function showTyping() {
@@ -478,11 +628,101 @@ function removeTyping() {
   if (el) el.remove();
 }
 
+// Quick reply chips
+function showQuickReplies(type) {
+  const t = translations[currentLang].quickReplies;
+  let chips = [];
+  
+  if (type === 'disclosure') {
+    chips = [{ text: t.understand, value: t.understand }];
+  } else if (type === 'problem') {
+    chips = [
+      { text: t.creditCard, value: t.creditCard },
+      { text: t.garnishment, value: t.garnishment },
+      { text: t.lawsuit, value: t.lawsuit },
+      { text: t.collector, value: t.collector },
+      { text: t.other, value: t.other }
+    ];
+  }
+  
+  if (chips.length === 0) {
+    quickRepliesEl.style.display = 'none';
+    return;
+  }
+  
+  quickRepliesEl.innerHTML = '';
+  chips.forEach(chip => {
+    const btn = document.createElement('button');
+    btn.className = 'quick-chip';
+    btn.textContent = chip.text;
+    btn.onclick = () => {
+      quickRepliesEl.style.display = 'none';
+      inputEl.value = chip.value;
+      sendMessage();
+    };
+    quickRepliesEl.appendChild(btn);
+  });
+  quickRepliesEl.style.display = 'flex';
+  showingQuickReplies = true;
+}
+
+function updateQuickReplies() {
+  if (!showingQuickReplies) return;
+  // Re-render current quick replies in new language
+  if (step === 0) showQuickReplies('disclosure');
+  else if (step === 1) showQuickReplies('problem');
+}
+
+// Document upload
+uploadTrigger.addEventListener('click', () => {
+  docUploadArea.classList.toggle('show');
+});
+
+docInput.addEventListener('change', handleFileUpload);
+hiddenFileInput.addEventListener('change', handleFileUpload);
+
+async function handleFileUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  const formData = new FormData();
+  formData.append('document', file);
+  formData.append('sessionId', sessionId);
+  
+  try {
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData
+    });
+    const data = await res.json();
+    
+    if (data.success) {
+      uploadedDocs.push(data.filename);
+      const docsEl = document.getElementById('uploaded-docs');
+      const docEl = document.createElement('div');
+      docEl.className = 'uploaded-doc';
+      docEl.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>${file.name}</span>
+      `;
+      docsEl.appendChild(docEl);
+      
+      // Add a message about the upload
+      addMessage(currentLang === 'es' 
+        ? `Documento subido: ${file.name}` 
+        : `Document uploaded: ${file.name}`, 'user');
+    }
+  } catch (err) {
+    console.error('Upload failed:', err);
+  }
+  
+  e.target.value = '';
+}
+
 async function startChat() {
-  // Inject time-aware greeting into first message
   showTyping();
   try {
-    const res = await fetch('/api/start');
+    const res = await fetch(`/api/start?lang=${currentLang}`);
     const data = await res.json();
     sessionId = data.sessionId; step = data.step;
 
@@ -492,11 +732,17 @@ async function startChat() {
 
     removeTyping();
     // Prepend time-aware greeting to disclosure message
-    const greetedMsg = `${getGreeting()} 👋 — I'm Ander. Before we get started, just want to be upfront: I'm an AI, not a lawyer, and nothing I say is legal advice.\n\nI'm here to walk you through a quick intake so the right people at Henry Law Firm can take a look at your situation and reach out.\n\nWhenever you're ready, just say "I understand" and we'll jump in. 😊`;
-    setTimeout(() => addMessage(greetedMsg, 'bot'), data.delay || 800);
+    const greetedMsg = `${getGreeting()} ${data.message}`;
+    setTimeout(() => {
+      addMessage(greetedMsg, 'bot');
+      showQuickReplies('disclosure');
+    }, data.delay || 800);
   } catch(e) {
     removeTyping();
-    addMessage(`${getGreeting()} 👋 — I'm Ander, Henry Law Firm's AI intake assistant. What's your name?`, 'bot');
+    const fallback = currentLang === 'es'
+      ? `${getGreeting()} 👋 — Soy Ander, el asistente de admisión de The Henry Law Firm. ¿Cómo te llamas?`
+      : `${getGreeting()} 👋 — I'm Ander, The Henry Law Firm's AI intake assistant. What's your name?`;
+    addMessage(fallback, 'bot');
   }
 }
 
@@ -506,20 +752,37 @@ async function sendMessage() {
   inputEl.value = ''; inputEl.style.height = 'auto';
   charCounter.textContent = '500';
   charCounter.className = 'char-counter';
+  quickRepliesEl.style.display = 'none';
+  showingQuickReplies = false;
   addMessage(text, 'user');
   isTyping = true; sendBtn.disabled = true;
   showTyping();
+  
   try {
     const res = await fetch('/api/message', {
       method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ step, userMessage: text, sessionId })
+      body: JSON.stringify({ step, userMessage: text, sessionId, language: currentLang })
     });
     const data = await res.json();
     sessionId = data.sessionId || sessionId; step = data.step;
+    
     setTimeout(() => {
       removeTyping();
       if (data.message) addMessage(data.message, 'bot');
       if (data.progress) updateProgress(data.progress);
+      
+      // Show quick replies based on step
+      if (!data.done) {
+        if (step === 1) {
+          // Just accepted disclosure, show problem type chips
+          setTimeout(() => showQuickReplies('problem'), 300);
+        }
+        // Show document upload after story is collected
+        if (data.progress && data.progress.story && !data.progress.email) {
+          docUploadArea.classList.add('show');
+        }
+      }
+      
       if (data.done) {
         if (data.calendlyLink) showCalendlyButton(data.calendlyLink);
         lockInput();
@@ -534,7 +797,10 @@ async function sendMessage() {
     }, data.delay || 800);
   } catch(e) {
     removeTyping();
-    addMessage("I'm sorry, something went wrong. Please try again.", 'bot');
+    const errorMsg = currentLang === 'es'
+      ? 'Lo siento, algo salió mal. Por favor intenta de nuevo.'
+      : "I'm sorry, something went wrong. Please try again.";
+    addMessage(errorMsg, 'bot');
     isTyping = false; sendBtn.disabled = false;
   }
 }
@@ -566,4 +832,3 @@ document.querySelectorAll('.nav-links a').forEach(a => {
 </script>
 </body>
 </html>
-
