@@ -449,6 +449,7 @@ const translations = {
 };
 
 function setLanguage(lang) {
+  const previousLang = currentLang;
   currentLang = lang;
   document.getElementById('lang-en').classList.toggle('active', lang === 'en');
   document.getElementById('lang-es').classList.toggle('active', lang === 'es');
@@ -462,6 +463,30 @@ function setLanguage(lang) {
   
   // Update quick replies if visible
   updateQuickReplies();
+  
+  // If language changed and we're still on the disclosure step, reload the disclosure message
+  if (previousLang !== lang && step === 0 && started) {
+    // Clear messages and restart with new language
+    messagesEl.innerHTML = '';
+    showTyping();
+    
+    fetch(`/api/start?lang=${lang}`)
+      .then(res => res.json())
+      .then(data => {
+        removeTyping();
+        const greetedMsg = `${getGreeting()} ${data.message}`;
+        addMessage(greetedMsg, 'bot');
+        showQuickReplies('disclosure');
+      })
+      .catch(() => {
+        removeTyping();
+        const fallback = lang === 'es'
+          ? `${getGreeting()} 👋 — Soy Ander, el asistente de admisión de The Henry Law Firm. Por favor di "Entiendo" para comenzar.`
+          : `${getGreeting()} 👋 — I'm Ander, The Henry Law Firm's AI intake assistant. Please say "I understand" to begin.`;
+        addMessage(fallback, 'bot');
+        showQuickReplies('disclosure');
+      });
+  }
 }
 
 // Greeting based on time of day
@@ -773,10 +798,9 @@ async function sendMessage() {
       
       // Show quick replies based on step
       if (!data.done) {
-        if (step === 1) {
-          // Just accepted disclosure, show problem type chips
-          setTimeout(() => showQuickReplies('problem'), 300);
-        }
+        // Don't automatically show quick replies - let the backend control the flow
+        // The backend will ask for name, then story naturally through conversation
+        
         // Show document upload after story is collected
         if (data.progress && data.progress.story && !data.progress.email) {
           docUploadArea.classList.add('show');
@@ -832,3 +856,4 @@ document.querySelectorAll('.nav-links a').forEach(a => {
 </script>
 </body>
 </html>
+
