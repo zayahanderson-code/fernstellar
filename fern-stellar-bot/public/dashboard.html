@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ander · Lead Inbox</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #0d1b2a; --gold: #c9a84c; --gold-light: #e8c96a; --gold-dim: rgba(201,168,76,0.15);
+    --cream: #f5f0e8; --cream-dark: #ede8df; --white: #ffffff; --muted: #6b7280;
+    --border: rgba(13,27,42,0.10); --red: #ef4444; --amber: #f59e0b; --green: #22c55e; --blue: #3b82f6;
+  }
+  body { font-family: 'Outfit', sans-serif; background: var(--cream); color: var(--ink); min-height: 100vh; }
+
+  .topbar { background: var(--ink); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+  .topbar-brand { display: flex; align-items: center; gap: 12px; }
+  .topbar-logo { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--white); }
+  .topbar-logo span { color: var(--gold); }
+  .topbar-sub { font-size: 11px; color: rgba(255,255,255,0.4); letter-spacing: 1px; }
+  .topbar-actions { display: flex; gap: 10px; align-items: center; }
+  .btn { padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; font-family: 'Outfit', sans-serif; text-decoration: none; }
+  .btn-ghost { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); }
+  .btn-ghost:hover { background: rgba(255,255,255,0.15); color: white; }
+
+  .content { max-width: 900px; margin: 0 auto; padding: 32px 24px; }
+  
+  .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+  .summary-card { background: var(--white); border-radius: 12px; padding: 20px 24px; border: 1px solid var(--border); }
+  .summary-card.urgent { border-left: 4px solid var(--amber); }
+  .summary-label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .summary-value { font-family: 'DM Serif Display', serif; font-size: 36px; color: var(--ink); }
+  .summary-value.warning { color: var(--amber); }
+
+  .hour-section { background: var(--white); border-radius: 12px; border: 1px solid var(--border); padding: 20px 24px; margin-bottom: 32px; }
+  .hour-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .hour-title { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .hour-insight { font-size: 12px; color: var(--muted); background: #fef3c7; border: 1px solid #fcd34d; border-radius: 6px; padding: 5px 10px; }
+  .hour-insight strong { color: #92400e; }
+  .hour-chart { display: flex; align-items: flex-end; gap: 2px; height: 50px; }
+  .hour-bar { flex: 1; border-radius: 2px 2px 0 0; min-width: 6px; transition: all 0.3s; }
+  .hour-bar.business { background: #cbd5e1; }
+  .hour-bar.after-hours { background: var(--gold); }
+  .hour-labels { display: flex; justify-content: space-between; margin-top: 6px; font-size: 9px; color: var(--muted); }
+
+  .tabs { display: flex; gap: 4px; margin-bottom: 20px; }
+  .tab { padding: 8px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; background: var(--white); color: var(--muted); transition: all 0.15s; font-family: 'Outfit', sans-serif; border: 1px solid var(--border); }
+  .tab.active { background: var(--ink); color: var(--gold-light); border-color: var(--ink); }
+  .tab:hover:not(.active) { background: var(--cream-dark); color: var(--ink); }
+  .tab .count { background: rgba(0,0,0,0.1); padding: 2px 8px; border-radius: 10px; font-size: 11px; margin-left: 6px; }
+  .tab.active .count { background: rgba(255,255,255,0.2); }
+
+  .leads-list { display: flex; flex-direction: column; gap: 12px; }
+  
+  .lead-card { background: var(--white); border-radius: 12px; border: 1px solid var(--border); padding: 20px 24px; display: flex; align-items: center; gap: 20px; transition: all 0.15s; cursor: pointer; position: relative; }
+  .lead-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); transform: translateY(-1px); }
+  .lead-card.court-soon { border-left: 4px solid var(--amber); background: linear-gradient(90deg, rgba(251,191,36,0.04), transparent); }
+  .lead-card.done { opacity: 0.5; }
+  
+  .lead-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), #b8942f); display: flex; align-items: center; justify-content: center; font-family: 'DM Serif Display', serif; font-size: 18px; color: white; flex-shrink: 0; }
+  
+  .lead-info { flex: 1; min-width: 0; }
+  .lead-name { font-weight: 600; font-size: 16px; color: var(--ink); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .lead-meta { font-size: 13px; color: var(--muted); margin-top: 4px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .lead-meta a { color: var(--blue); text-decoration: none; }
+  .lead-meta a:hover { text-decoration: underline; }
+  
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+  .badge-area { background: var(--gold-dim); color: #8a6a1a; }
+  .badge-court { background: #fef3c7; color: #92400e; }
+  .badge-new { background: #dbeafe; color: #1e40af; }
+  
+  .lead-contact { text-align: right; flex-shrink: 0; }
+  .lead-phone { font-family: 'DM Mono', monospace; font-size: 14px; color: var(--ink); font-weight: 500; }
+  .lead-phone a { color: var(--ink); text-decoration: none; }
+  .lead-phone a:hover { color: var(--blue); }
+  .lead-time { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  
+  .lead-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .action-btn { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border); background: var(--white); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.15s; }
+  .action-btn:hover { background: var(--cream); }
+  .action-btn.done-btn:hover { background: #f0fdf4; border-color: var(--green); }
+  .action-btn.done-btn.is-done { background: #f0fdf4; border-color: var(--green); color: var(--green); }
+  
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--ink); margin-bottom: 8px; }
+  
+  .loading { text-align: center; padding: 60px; color: var(--muted); }
+  .spinner { width: 24px; height: 24px; border: 2px solid var(--cream-dark); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 12px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(13,27,42,0.6); z-index: 200; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  
+  .prep-modal { background: var(--white); border-radius: 16px; width: 480px; max-width: 95vw; max-height: 90vh; overflow-y: auto; transform: translateY(16px); transition: transform 0.2s; }
+  .modal-overlay.open .prep-modal { transform: translateY(0); }
+  
+  .prep-header { background: var(--ink); padding: 24px; border-radius: 16px 16px 0 0; display: flex; align-items: center; gap: 16px; }
+  .prep-avatar-lg { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), #b8942f); display: flex; align-items: center; justify-content: center; font-family: 'DM Serif Display', serif; font-size: 22px; color: white; flex-shrink: 0; }
+  .prep-header-info { flex: 1; }
+  .prep-name { font-family: 'DM Serif Display', serif; font-size: 24px; color: white; }
+  .prep-time { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+  .prep-close { background: none; border: none; color: rgba(255,255,255,0.5); font-size: 24px; cursor: pointer; padding: 4px; border-radius: 6px; align-self: flex-start; }
+  .prep-close:hover { color: white; }
+  
+  .prep-urgency { padding: 12px 24px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .prep-urgency.high { background: #fef2f2; color: #b91c1c; }
+  .prep-urgency.medium { background: #fffbeb; color: #92400e; }
+  .prep-urgency.low { background: #f0fdf4; color: #166534; }
+  
+  .prep-body { padding: 24px; }
+  
+  .prep-section { margin-bottom: 20px; }
+  .prep-section:last-child { margin-bottom: 0; }
+  .prep-label { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  
+  .prep-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .prep-field { background: var(--cream); border-radius: 8px; padding: 12px 14px; }
+  .prep-field.full { grid-column: 1 / -1; }
+  .prep-field.highlight { background: #fef3c7; border: 1px solid #fcd34d; }
+  .prep-field-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 4px; }
+  .prep-field-value { font-size: 14px; color: var(--ink); font-weight: 500; }
+  .prep-field-value.mono { font-family: 'DM Mono', monospace; }
+  .prep-field-value a { color: var(--ink); text-decoration: none; }
+  .prep-field-value a:hover { color: var(--blue); }
+  
+  .prep-story { background: var(--cream); border-radius: 8px; padding: 16px; font-size: 14px; line-height: 1.6; color: var(--ink); border-left: 3px solid var(--gold); }
+  
+  .prep-sentiment { display: flex; gap: 6px; flex-wrap: wrap; }
+  .prep-sentiment-tag { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+  
+  .prep-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 12px; }
+  .prep-footer .btn { flex: 1; padding: 14px; font-size: 14px; text-align: center; border-radius: 10px; }
+  .btn-call { background: var(--ink); color: var(--gold-light); text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn-call:hover { background: #1e2e40; }
+  .btn-done { background: var(--green); color: white; }
+  .btn-done:hover { background: #16a34a; }
+
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--ink); color: var(--white); padding: 12px 20px; border-radius: 8px; font-size: 13px; opacity: 0; transform: translateY(10px); transition: all 0.25s; z-index: 300; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 640px) {
+    .topbar { padding: 14px 16px; }
+    .content { padding: 20px 16px; }
+    .summary { grid-template-columns: 1fr; gap: 12px; }
+    .lead-card { flex-wrap: wrap; padding: 16px; }
+    .lead-contact { width: 100%; text-align: left; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .lead-actions { position: absolute; top: 16px; right: 16px; }
+    .prep-modal { border-radius: 16px 16px 0 0; max-height: 95vh; position: fixed; bottom: 0; width: 100%; max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-brand">
+    <div>
+      <div class="topbar-logo">Ander <span>Inbox</span></div>
+      <div class="topbar-sub">The Henry Law Firm</div>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn btn-ghost" onclick="loadData()">↻ Refresh</button>
+    <button class="btn btn-ghost" onclick="exportCSV()">⬇ Export</button>
+  </div>
+</header>
+
+<main class="content">
+  <div class="summary">
+    <div class="summary-card">
+      <div class="summary-label">New Leads</div>
+      <div class="summary-value" id="stat-new">—</div>
+    </div>
+    <div class="summary-card urgent">
+      <div class="summary-label">Court This Week</div>
+      <div class="summary-value warning" id="stat-court">—</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Total</div>
+      <div class="summary-value" id="stat-total">—</div>
+    </div>
+  </div>
+
+  <div class="hour-section">
+    <div class="hour-header">
+      <div class="hour-title">When people reach out</div>
+      <div class="hour-insight"><strong id="after-hours-pct">38%</strong> after hours</div>
+    </div>
+    <div class="hour-chart" id="hour-chart"></div>
+    <div class="hour-labels">
+      <span>12am</span>
+      <span>9am</span>
+      <span>5pm</span>
+      <span>12am</span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="setFilter('new', this)">New <span class="count" id="count-new">0</span></button>
+    <button class="tab" onclick="setFilter('done', this)">Done <span class="count" id="count-done">0</span></button>
+    <button class="tab" onclick="setFilter('all', this)">All</button>
+  </div>
+
+  <div class="leads-list" id="leads-list">
+    <div class="loading"><div class="spinner"></div>Loading...</div>
+  </div>
+</main>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="prep-modal" onclick="event.stopPropagation()">
+    <div class="prep-header">
+      <div class="prep-avatar-lg" id="prep-avatar">?</div>
+      <div class="prep-header-info">
+        <div class="prep-name" id="prep-name">Loading...</div>
+        <div class="prep-time" id="prep-time">Just now</div>
+      </div>
+      <button class="prep-close" onclick="closeModalDirect()">×</button>
+    </div>
+    
+    <div class="prep-urgency medium" id="prep-urgency">
+      <span id="prep-urgency-text">New Lead</span>
+    </div>
+    
+    <div class="prep-body">
+      <div class="prep-section">
+        <div class="prep-grid">
+          <div class="prep-field">
+            <div class="prep-field-label">Phone</div>
+            <div class="prep-field-value mono" id="prep-phone">—</div>
+          </div>
+          <div class="prep-field">
+            <div class="prep-field-label">Email</div>
+            <div class="prep-field-value" id="prep-email">—</div>
+          </div>
+          <div class="prep-field">
+            <div class="prep-field-label">Practice Area</div>
+            <div class="prep-field-value" id="prep-area">—</div>
+          </div>
+          <div class="prep-field">
+            <div class="prep-field-label">Debt Amount</div>
+            <div class="prep-field-value mono" id="prep-debt">—</div>
+          </div>
+          <div class="prep-field highlight" id="prep-court-field" style="display:none;">
+            <div class="prep-field-label">⚠️ Court Date</div>
+            <div class="prep-field-value" id="prep-court">—</div>
+          </div>
+          <div class="prep-field" id="prep-case-field" style="display:none;">
+            <div class="prep-field-label">Case #</div>
+            <div class="prep-field-value mono" id="prep-case">—</div>
+          </div>
+          <div class="prep-field" id="prep-county-field" style="display:none;">
+            <div class="prep-field-label">County</div>
+            <div class="prep-field-value" id="prep-county">—</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="prep-section">
+        <div class="prep-label">Their Situation</div>
+        <div class="prep-story" id="prep-story">—</div>
+      </div>
+      
+      <div class="prep-section" id="prep-sentiment-section" style="display:none;">
+        <div class="prep-label">How They're Feeling</div>
+        <div class="prep-sentiment" id="prep-sentiment"></div>
+      </div>
+    </div>
+    
+    <div class="prep-footer">
+      <a href="#" class="btn btn-call" id="prep-call-btn">📞 Call</a>
+      <button class="btn btn-done" onclick="markDoneFromModal()">✓ Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let currentFilter = 'new';
+let currentLeadId = null;
+let allLeads = [];
+
+const sampleHourData = [2, 1, 1, 0, 1, 2, 3, 5, 8, 12, 14, 11, 10, 9, 11, 13, 10, 8, 7, 9, 6, 5, 4, 3];
+
+function renderHourChart(hourData) {
+  const container = document.getElementById('hour-chart');
+  const maxVal = Math.max(...hourData, 1);
+  const total = hourData.reduce((a, b) => a + b, 0);
+  const afterHours = hourData.slice(0, 9).reduce((a, b) => a + b, 0) + hourData.slice(17).reduce((a, b) => a + b, 0);
+  const afterHoursPct = total > 0 ? Math.round((afterHours / total) * 100) : 0;
+  document.getElementById('after-hours-pct').textContent = afterHoursPct + '%';
+  container.innerHTML = hourData.map((val, i) => {
+    const height = Math.max((val / maxVal * 45) + 5, 5);
+    const isBusinessHours = i >= 9 && i < 17;
+    return `<div class="hour-bar ${isBusinessHours ? 'business' : 'after-hours'}" style="height:${height}px;"></div>`;
+  }).join('');
+}
+
+function timeAgo(date) {
+  const now = new Date();
+  const diffMs = now - new Date(date);
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays > 0) return `${diffDays}d ago`;
+  if (diffHours > 0) return `${diffHours}h ago`;
+  if (diffMins > 0) return `${diffMins}m ago`;
+  return 'Just now';
+}
+
+async function loadStats() {
+  try {
+    const res = await fetch('/api/intakes/stats');
+    const data = await res.json();
+    if (!data.success) return;
+    document.getElementById('stat-new').textContent = data.stats.newLeads;
+    document.getElementById('stat-court').textContent = data.stats.upcomingCourt || 0;
+    document.getElementById('stat-total').textContent = data.stats.total;
+    document.getElementById('count-new').textContent = data.stats.newLeads;
+    document.getElementById('count-done').textContent = (data.stats.total - data.stats.newLeads) || 0;
+  } catch(e) { console.error(e); }
+}
+
+async function loadLeads() {
+  const list = document.getElementById('leads-list');
+  list.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
+  try {
+    const res = await fetch('/api/intakes');
+    const data = await res.json();
+    if (!data.success || data.intakes.length === 0) {
+      list.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">No leads yet</div><p>Leads will appear here when someone uses Ander.</p></div>';
+      renderHourChart(sampleHourData);
+      return;
+    }
+    allLeads = data.intakes;
+    const hourCounts = new Array(24).fill(0);
+    allLeads.forEach(lead => { hourCounts[new Date(lead.createdAt).getHours()]++; });
+    renderHourChart(hourCounts.some(c => c > 0) ? hourCounts : sampleHourData);
+    renderLeads();
+  } catch(e) { 
+    console.error(e); 
+    list.innerHTML = '<div class="empty-state">Error loading leads.</div>'; 
+  }
+}
+
+function renderLeads() {
+  const list = document.getElementById('leads-list');
+  let filtered = allLeads;
+  if (currentFilter === 'new') filtered = allLeads.filter(l => l.status === 'new');
+  else if (currentFilter === 'done') filtered = allLeads.filter(l => l.status !== 'new');
+  
+  if (filtered.length === 0) {
+    const msg = currentFilter === 'new' ? 'All caught up! No new leads.' : 'No leads here.';
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">✨</div><div class="empty-title">${msg}</div></div>`;
+    return;
+  }
+  
+  list.innerHTML = filtered.map(lead => {
+    const initial = (lead.firstName || '?')[0].toUpperCase();
+    const isDone = lead.status !== 'new';
+    let courtBadge = '';
+    let courtClass = '';
+    if (lead.courtDate) {
+      const daysUntil = Math.ceil((new Date(lead.courtDate) - new Date()) / 86400000);
+      if (daysUntil <= 7 && daysUntil >= 0) {
+        courtBadge = `<span class="badge badge-court">⚠️ Court in ${daysUntil}d</span>`;
+        courtClass = 'court-soon';
+      }
+    }
+    return `
+      <div class="lead-card ${courtClass} ${isDone ? 'done' : ''}" onclick="openLead('${lead._id}')">
+        <div class="lead-avatar">${initial}</div>
+        <div class="lead-info">
+          <div class="lead-name">
+            ${esc(lead.firstName || 'Unknown')}
+            ${!isDone ? '<span class="badge badge-new">NEW</span>' : ''}
+            ${courtBadge}
+          </div>
+          <div class="lead-meta">
+            <span class="badge badge-area">${esc(lead.practiceArea || 'General')}</span>
+            ${lead.debtAmount ? `<span>$${(lead.debtAmount / 100).toLocaleString()}</span>` : ''}
+            ${lead.county ? `<span>${esc(lead.county)} County</span>` : ''}
+          </div>
+        </div>
+        <div class="lead-contact">
+          <div class="lead-phone">${lead.phone ? `<a href="tel:${lead.phone}" onclick="event.stopPropagation()">${esc(lead.phone)}</a>` : '—'}</div>
+          <div class="lead-time">${timeAgo(lead.createdAt)}</div>
+        </div>
+        <div class="lead-actions" onclick="event.stopPropagation()">
+          <button class="action-btn done-btn ${isDone ? 'is-done' : ''}" onclick="toggleDone('${lead._id}', event)" title="${isDone ? 'Mark as new' : 'Mark as done'}">
+            ${isDone ? '✓' : '○'}
+          </button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function openLead(id) {
+  currentLeadId = id;
+  const lead = allLeads.find(l => l._id === id);
+  if (!lead) return;
+  
+  document.getElementById('prep-avatar').textContent = (lead.firstName || '?')[0].toUpperCase();
+  document.getElementById('prep-name').textContent = lead.firstName || 'Unknown';
+  document.getElementById('prep-time').textContent = timeAgo(lead.createdAt);
+  
+  const urgencyEl = document.getElementById('prep-urgency');
+  const urgencyText = document.getElementById('prep-urgency-text');
+  const hasUrgentCourt = lead.courtDate && Math.ceil((new Date(lead.courtDate) - new Date()) / 86400000) <= 7;
+  
+  if (hasUrgentCourt) {
+    urgencyEl.className = 'prep-urgency high';
+    urgencyText.textContent = '⚠️ Court date this week';
+  } else if (lead.status === 'new') {
+    urgencyEl.className = 'prep-urgency medium';
+    urgencyText.textContent = 'New lead';
+  } else {
+    urgencyEl.className = 'prep-urgency low';
+    urgencyText.textContent = 'Handled';
+  }
+  
+  document.getElementById('prep-phone').innerHTML = lead.phone ? `<a href="tel:${lead.phone}">${lead.phone}</a>` : '—';
+  document.getElementById('prep-email').innerHTML = lead.email ? `<a href="mailto:${lead.email}">${lead.email}</a>` : '—';
+  document.getElementById('prep-area').textContent = lead.practiceArea || 'General';
+  document.getElementById('prep-debt').textContent = lead.debtAmount ? '$' + (lead.debtAmount / 100).toLocaleString() : '—';
+  
+  if (lead.courtDate) {
+    const courtDate = new Date(lead.courtDate);
+    const daysUntil = Math.ceil((courtDate - new Date()) / 86400000);
+    document.getElementById('prep-court-field').style.display = 'block';
+    document.getElementById('prep-court').textContent = courtDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ` (${daysUntil} days)`;
+  } else { document.getElementById('prep-court-field').style.display = 'none'; }
+  
+  if (lead.caseNumber) {
+    document.getElementById('prep-case-field').style.display = 'block';
+    document.getElementById('prep-case').textContent = lead.caseNumber;
+  } else { document.getElementById('prep-case-field').style.display = 'none'; }
+  
+  if (lead.county) {
+    document.getElementById('prep-county-field').style.display = 'block';
+    document.getElementById('prep-county').textContent = lead.county + ' County';
+  } else { document.getElementById('prep-county-field').style.display = 'none'; }
+  
+  document.getElementById('prep-story').textContent = lead.story || 'No details provided.';
+  
+  if (lead.sentimentFlags && lead.sentimentFlags.length > 0) {
+    document.getElementById('prep-sentiment-section').style.display = 'block';
+    document.getElementById('prep-sentiment').innerHTML = lead.sentimentFlags.map(s => `<span class="prep-sentiment-tag">${s}</span>`).join('');
+  } else { document.getElementById('prep-sentiment-section').style.display = 'none'; }
+  
+  document.getElementById('prep-call-btn').href = lead.phone ? `tel:${lead.phone}` : '#';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal(e) { if (e.target === document.getElementById('modalOverlay')) closeModalDirect(); }
+function closeModalDirect() { document.getElementById('modalOverlay').classList.remove('open'); currentLeadId = null; }
+
+async function toggleDone(id, e) {
+  if (e) e.stopPropagation();
+  const lead = allLeads.find(l => l._id === id);
+  if (!lead) return;
+  const newStatus = lead.status === 'new' ? 'contacted' : 'new';
+  try {
+    await fetch(`/api/intakes/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: newStatus }) });
+    lead.status = newStatus;
+    renderLeads();
+    loadStats();
+    toast(newStatus === 'new' ? 'Marked as new' : '✓ Done');
+  } catch(e) { toast('Error updating'); }
+}
+
+async function markDoneFromModal() { if (!currentLeadId) return; await toggleDone(currentLeadId); closeModalDirect(); }
+
+function setFilter(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderLeads();
+}
+
+function exportCSV() { window.location.href = '/api/intakes/export/csv'; toast('⬇ Downloading...'); }
+function loadData() { loadStats(); loadLeads(); }
+function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
+function esc(str) { if (!str) return ''; return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+loadData();
+renderHourChart(sampleHourData);
+setInterval(loadData, 60000);
+</script>
+</body>
+</html>
+
