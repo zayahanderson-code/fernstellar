@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const { Resend } = require('resend');
 const Anthropic = require('@anthropic-ai/sdk');
 const mongoose = require('mongoose');
@@ -11,6 +12,47 @@ const app = express();
 
 app.use(express.json());
 app.use(express.static('public'));
+
+// ─── RATE LIMITING ──────────────────────────────────────────────────────────
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const chatLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 20, // Limit chat to 20 messages per minute per IP
+  message: 'Please slow down, you are sending messages too quickly.',
+});
+
+app.use('/api/', apiLimiter);
+app.use('/api/message', chatLimiter);
+
+// ─── BASIC AUTHENTICATION FOR DASHBOARD ─────────────────────────────────────
+const DASHBOARD_PASSWORD = process.env.DASHBOARD_PASSWORD || 'change-this-password';
+
+function requireAuth(req, res, next) {
+  const authHeader = req.headers.authorization;
+  
+  if (!authHeader || !authHeader.startsWith('Basic ')) {
+    res.setHeader('WWW-Authenticate', 'Basic realm="Ander Dashboard"');
+    return res.status(401).send('Authentication required');
+  }
+  
+  const base64Credentials = authHeader.split(' ')[1];
+  const credentials = Buffer.from(base64Credentials, 'base64').toString('utf-8');
+  const [username, password] = credentials.split(':');
+  
+  if (password === DASHBOARD_PASSWORD) {
+    next();
+  } else {
+    res.setHeader('WWW-Authenticate', 'Basic realm="Ander Dashboard"');
+    return res.status(401).send('Invalid credentials');
+  }
+}
 
 // ─── SECURE DOCUMENT UPLOAD SETUP ───────────────────────────────────────────
 const uploadDir = path.join(__dirname, 'secure-uploads');
@@ -208,9 +250,11 @@ function normalizeDebtAmount(text) {
   if (!text) return null;
   const t = text.toLowerCase().replace(/,/g, '');
   
-  // Match patterns like "$12,000", "12k", "12000", "about 5000", "around $3k"
+  // Match patterns like "$12,000", "12k", "12000", "about 5000", "around $3k", "I owe 5000"
   const patterns = [
+    /(?:owe|debt|balance|amount)(?:\s+is|\s+of)?\s*(?:about|around|roughly|maybe|like)?\s*\$?([\d.]+)\s*k\b/i,  // "I owe 12k"
     /\$?([\d.]+)\s*k\b/i,                    // "12k" or "$12k"
+    /(?:owe|debt|balance|amount)(?:\s+is|\s+of)?\s*(?:about|around|roughly|maybe|like)?\s*\$?([\d,]+(?:\.\d{2})?)/i,  // "owe $12,000"
     /\$?([\d,]+(?:\.\d{2})?)/,               // "$12,000" or "12000"
     /(?:about|around|roughly|maybe|like)\s*\$?([\d,]+)/i  // "about 5000"
   ];
@@ -219,6 +263,8 @@ function normalizeDebtAmount(text) {
     const match = t.match(pattern);
     if (match) {
       let amount = parseFloat(match[1].replace(/,/g, ''));
+      // Skip if amount is suspiciously small (like year "2024") or huge
+      if (amount < 50 || amount > 10000000) continue;
       if (t.includes('k') && amount < 1000) amount *= 1000;
       return Math.round(amount * 100); // Store in cents
     }
@@ -431,13 +477,19 @@ function extractFields(session) {
   const allText = userMsgs.map(m => m.content).join(' ');
   const latestMsg = userMsgs.length > 0 ? userMsgs[userMsgs.length - 1].content : '';
   
-  // First name
+  // First name - check most recent message first for direct answers
   if (!session.firstName) {
-    for (const msg of userMsgs) {
-      const t = msg.content.trim();
-      if (/^[A-Za-z'-]{2,25}$/.test(t)) { session.firstName = t; break; }
-      const nm = t.match(/(?:my name is|i['']?m|it['']?s|call me|this is)\s+([A-Za-z'-]{2,25})/i);
-      if (nm) { session.firstName = nm[1]; break; }
+    // Check if the latest message is just a name (after being asked "what's your name?")
+    const latestText = latestMsg.trim();
+    if (latestText && /^[A-Za-z'-]{2,25}$/.test(latestText)) {
+      session.firstName = latestText;
+    } else {
+      // Otherwise check for patterns in all messages
+      for (const msg of userMsgs) {
+        const t = msg.content.trim();
+        const nm = t.match(/(?:my name is|i['']?m|it['']?s|call me|this is)\s+([A-Za-z'-]{2,25})/i);
+        if (nm) { session.firstName = nm[1]; break; }
+      }
     }
   }
   
@@ -474,6 +526,7 @@ function extractFields(session) {
     if (amount) {
       session.debtAmount = amount;
       session.debtAmountRaw = allText.match(/\$?[\d,]+(?:\.\d{2})?k?/i)?.[0] || null;
+      console.log(`💰 Debt amount detected: ${formatDebtAmount(amount)} (${amount} cents) from text: "${session.debtAmountRaw}"`);
     }
   }
   
@@ -970,7 +1023,7 @@ async function syncToPracticePanther(intake) {
 }
 
 // Manual CRM sync endpoint (for dashboard)
-app.post('/api/intakes/:id/sync-crm', async (req, res) => {
+app.post('/api/intakes/:id/sync-crm', requireAuth, async (req, res) => {
   const { provider } = req.body;
   if (!provider) {
     return res.status(400).json({ success: false, error: 'CRM provider required' });
@@ -996,7 +1049,7 @@ app.post('/api/intakes/:id/sync-crm', async (req, res) => {
 
 // ─── DASHBOARD API ROUTES ───────────────────────────────────────────────────
 
-app.get('/api/intakes', async (req, res) => {
+app.get('/api/intakes', requireAuth, async (req, res) => {
   try {
     const { status, search, urgency } = req.query;
     let query = {};
@@ -1024,7 +1077,7 @@ app.get('/api/intakes', async (req, res) => {
   }
 });
 
-app.get('/api/intakes/stats', async (req, res) => {
+app.get('/api/intakes/stats', requireAuth, async (req, res) => {
   try {
     const total = await Intake.countDocuments();
     const newLeads = await Intake.countDocuments({ status: 'new' });
@@ -1068,7 +1121,7 @@ app.get('/api/intakes/stats', async (req, res) => {
   }
 });
 
-app.get('/api/intakes/export/csv', async (req, res) => {
+app.get('/api/intakes/export/csv', requireAuth, async (req, res) => {
   try {
     const intakes = await Intake.find().sort({ createdAt: -1 });
     const headers = ['Date', 'Name', 'Phone', 'Email', 'Practice Area', 'Score', 'Urgency', 'Debt Amount', 'Court Date', 'Case Number', 'County', 'Sentiment', 'Status', 'Notes', 'Story'];
@@ -1098,7 +1151,7 @@ app.get('/api/intakes/export/csv', async (req, res) => {
   }
 });
 
-app.get('/api/intakes/:id', async (req, res) => {
+app.get('/api/intakes/:id', requireAuth, async (req, res) => {
   try {
     const intake = await Intake.findById(req.params.id);
     if (!intake) return res.status(404).json({ success: false, error: 'Not found' });
@@ -1108,7 +1161,7 @@ app.get('/api/intakes/:id', async (req, res) => {
   }
 });
 
-app.patch('/api/intakes/:id', async (req, res) => {
+app.patch('/api/intakes/:id', requireAuth, async (req, res) => {
   try {
     const { status, notes, followUpDate } = req.body;
     const update = {};
@@ -1124,7 +1177,7 @@ app.patch('/api/intakes/:id', async (req, res) => {
   }
 });
 
-app.delete('/api/intakes/:id', async (req, res) => {
+app.delete('/api/intakes/:id', requireAuth, async (req, res) => {
   try {
     await Intake.findByIdAndDelete(req.params.id);
     res.json({ success: true });
@@ -1133,7 +1186,7 @@ app.delete('/api/intakes/:id', async (req, res) => {
   }
 });
 
-app.get('/dashboard', (req, res) => {
+app.get('/dashboard', requireAuth, (req, res) => {
   res.sendFile(__dirname + '/public/dashboard.html');
 });
 

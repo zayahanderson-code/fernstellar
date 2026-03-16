@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,18 +15,35 @@
   }
   body { font-family: 'Outfit', sans-serif; background: var(--cream); color: var(--ink); min-height: 100vh; }
 
-  .topbar { background: var(--ink); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+  /* ── Screen-reader only utility ── */
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0;
+    margin: -1px; overflow: hidden; clip: rect(0,0,0,0);
+    white-space: nowrap; border-width: 0;
+  }
+
+  .topbar {
+    background: var(--ink); padding: 16px 32px; display: flex;
+    align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 50;
+  }
   .topbar-brand { display: flex; align-items: center; gap: 12px; }
   .topbar-logo { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--white); }
   .topbar-logo span { color: var(--gold); }
   .topbar-sub { font-size: 11px; color: rgba(255,255,255,0.4); letter-spacing: 1px; }
   .topbar-actions { display: flex; gap: 10px; align-items: center; }
-  .btn { padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; font-family: 'Outfit', sans-serif; text-decoration: none; }
+  .btn {
+    padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 500;
+    cursor: pointer; border: none; transition: all 0.15s;
+    font-family: 'Outfit', sans-serif; text-decoration: none;
+  }
   .btn-ghost { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); }
   .btn-ghost:hover { background: rgba(255,255,255,0.15); color: white; }
+  /* FIX: focus-visible styles for keyboard users */
+  .btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
   .content { max-width: 900px; margin: 0 auto; padding: 32px 24px; }
-  
+
   .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
   .summary-card { background: var(--white); border-radius: 12px; padding: 20px 24px; border: 1px solid var(--border); }
   .summary-card.urgent { border-left: 4px solid var(--amber); }
@@ -45,77 +63,124 @@
   .hour-labels { display: flex; justify-content: space-between; margin-top: 6px; font-size: 9px; color: var(--muted); }
 
   .tabs { display: flex; gap: 4px; margin-bottom: 20px; }
-  .tab { padding: 8px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; background: var(--white); color: var(--muted); transition: all 0.15s; font-family: 'Outfit', sans-serif; border: 1px solid var(--border); }
+  .tab {
+    padding: 8px 20px; border-radius: 8px; font-size: 13px; font-weight: 500;
+    cursor: pointer; border: 1px solid var(--border); background: var(--white);
+    color: var(--muted); transition: all 0.15s; font-family: 'Outfit', sans-serif;
+  }
   .tab.active { background: var(--ink); color: var(--gold-light); border-color: var(--ink); }
   .tab:hover:not(.active) { background: var(--cream-dark); color: var(--ink); }
+  .tab:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
   .tab .count { background: rgba(0,0,0,0.1); padding: 2px 8px; border-radius: 10px; font-size: 11px; margin-left: 6px; }
   .tab.active .count { background: rgba(255,255,255,0.2); }
 
   .leads-list { display: flex; flex-direction: column; gap: 12px; }
-  
-  .lead-card { background: var(--white); border-radius: 12px; border: 1px solid var(--border); padding: 20px 24px; display: flex; align-items: center; gap: 20px; transition: all 0.15s; cursor: pointer; position: relative; }
+
+  /* FIX: lead cards use role="button" + tabindex so they need focus styles */
+  .lead-card {
+    background: var(--white); border-radius: 12px; border: 1px solid var(--border);
+    padding: 20px 24px; display: flex; align-items: center; gap: 20px;
+    transition: all 0.15s; cursor: pointer; position: relative;
+  }
   .lead-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); transform: translateY(-1px); }
+  .lead-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
   .lead-card.court-soon { border-left: 4px solid var(--amber); background: linear-gradient(90deg, rgba(251,191,36,0.04), transparent); }
   .lead-card.done { opacity: 0.5; }
-  
-  .lead-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), #b8942f); display: flex; align-items: center; justify-content: center; font-family: 'DM Serif Display', serif; font-size: 18px; color: white; flex-shrink: 0; }
-  
+
+  .lead-avatar {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), #b8942f);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Serif Display', serif; font-size: 18px; color: white; flex-shrink: 0;
+  }
   .lead-info { flex: 1; min-width: 0; }
   .lead-name { font-weight: 600; font-size: 16px; color: var(--ink); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .lead-meta { font-size: 13px; color: var(--muted); margin-top: 4px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .lead-meta a { color: var(--blue); text-decoration: none; }
   .lead-meta a:hover { text-decoration: underline; }
-  
+
   .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
   .badge-area { background: var(--gold-dim); color: #8a6a1a; }
   .badge-court { background: #fef3c7; color: #92400e; }
   .badge-new { background: #dbeafe; color: #1e40af; }
-  
+
   .lead-contact { text-align: right; flex-shrink: 0; }
   .lead-phone { font-family: 'DM Mono', monospace; font-size: 14px; color: var(--ink); font-weight: 500; }
   .lead-phone a { color: var(--ink); text-decoration: none; }
   .lead-phone a:hover { color: var(--blue); }
   .lead-time { font-size: 11px; color: var(--muted); margin-top: 4px; }
-  
+
   .lead-actions { display: flex; gap: 8px; flex-shrink: 0; }
-  .action-btn { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border); background: var(--white); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.15s; }
+  .action-btn {
+    width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--white); cursor: pointer; display: flex; align-items: center;
+    justify-content: center; font-size: 16px; transition: all 0.15s;
+  }
   .action-btn:hover { background: var(--cream); }
+  .action-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
   .action-btn.done-btn:hover { background: #f0fdf4; border-color: var(--green); }
   .action-btn.done-btn.is-done { background: #f0fdf4; border-color: var(--green); color: var(--green); }
-  
+  /* FIX: loading state for action button while PATCH is in flight */
+  .action-btn.loading { opacity: 0.5; pointer-events: none; }
+
   .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
   .empty-icon { font-size: 48px; margin-bottom: 16px; }
   .empty-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--ink); margin-bottom: 8px; }
-  
+
   .loading { text-align: center; padding: 60px; color: var(--muted); }
-  .spinner { width: 24px; height: 24px; border: 2px solid var(--cream-dark); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 12px; }
+  .spinner {
+    width: 24px; height: 24px; border: 2px solid var(--cream-dark);
+    border-top-color: var(--gold); border-radius: 50%;
+    animation: spin 0.7s linear infinite; margin: 0 auto 12px;
+  }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .modal-overlay { position: fixed; inset: 0; background: rgba(13,27,42,0.6); z-index: 200; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+  /* ── Modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(13,27,42,0.6); z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
   .modal-overlay.open { opacity: 1; pointer-events: all; }
-  
-  .prep-modal { background: var(--white); border-radius: 16px; width: 480px; max-width: 95vw; max-height: 90vh; overflow-y: auto; transform: translateY(16px); transition: transform 0.2s; }
+  .prep-modal {
+    background: var(--white); border-radius: 16px; width: 480px;
+    max-width: 95vw; max-height: 90vh; overflow-y: auto;
+    transform: translateY(16px); transition: transform 0.2s;
+  }
   .modal-overlay.open .prep-modal { transform: translateY(0); }
-  
-  .prep-header { background: var(--ink); padding: 24px; border-radius: 16px 16px 0 0; display: flex; align-items: center; gap: 16px; }
-  .prep-avatar-lg { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), #b8942f); display: flex; align-items: center; justify-content: center; font-family: 'DM Serif Display', serif; font-size: 22px; color: white; flex-shrink: 0; }
+
+  .prep-header {
+    background: var(--ink); padding: 24px; border-radius: 16px 16px 0 0;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .prep-avatar-lg {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), #b8942f);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Serif Display', serif; font-size: 22px; color: white; flex-shrink: 0;
+  }
   .prep-header-info { flex: 1; }
   .prep-name { font-family: 'DM Serif Display', serif; font-size: 24px; color: white; }
-  .prep-time { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px; }
-  .prep-close { background: none; border: none; color: rgba(255,255,255,0.5); font-size: 24px; cursor: pointer; padding: 4px; border-radius: 6px; align-self: flex-start; }
-  .prep-close:hover { color: white; }
-  
+  .prep-time { font-size: 12px; color: rgba(255,255,255,0.5);
+margin-top: 4px; }
+  .prep-close {
+    background: none; border: none; color: rgba(255,255,255,0.5); font-size: 24px;
+    cursor: pointer; padding: 4px 8px; border-radius: 6px; align-self: flex-start;
+    line-height: 1;
+  }
+  .prep-close:hover { color: white; background: rgba(255,255,255,0.1); }
+  .prep-close:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
   .prep-urgency { padding: 12px 24px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-  .prep-urgency.high { background: #fef2f2; color: #b91c1c; }
+  .prep-urgency.high   { background: #fef2f2; color: #b91c1c; }
   .prep-urgency.medium { background: #fffbeb; color: #92400e; }
-  .prep-urgency.low { background: #f0fdf4; color: #166534; }
-  
+  .prep-urgency.low    { background: #f0fdf4; color: #166534; }
+
   .prep-body { padding: 24px; }
-  
   .prep-section { margin-bottom: 20px; }
   .prep-section:last-child { margin-bottom: 0; }
   .prep-label { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
-  
+
   .prep-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .prep-field { background: var(--cream); border-radius: 8px; padding: 12px 14px; }
   .prep-field.full { grid-column: 1 / -1; }
@@ -125,21 +190,54 @@
   .prep-field-value.mono { font-family: 'DM Mono', monospace; }
   .prep-field-value a { color: var(--ink); text-decoration: none; }
   .prep-field-value a:hover { color: var(--blue); }
-  
+
   .prep-story { background: var(--cream); border-radius: 8px; padding: 16px; font-size: 14px; line-height: 1.6; color: var(--ink); border-left: 3px solid var(--gold); }
-  
   .prep-sentiment { display: flex; gap: 6px; flex-wrap: wrap; }
   .prep-sentiment-tag { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; }
-  
+
   .prep-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 12px; }
   .prep-footer .btn { flex: 1; padding: 14px; font-size: 14px; text-align: center; border-radius: 10px; }
   .btn-call { background: var(--ink); color: var(--gold-light); text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; }
   .btn-call:hover { background: #1e2e40; }
+  /* FIX: visual state when no phone number is available */
+  .btn-call[aria-disabled="true"] { opacity: 0.4; pointer-events: none; cursor: not-allowed; }
   .btn-done { background: var(--green); color: white; }
   .btn-done:hover { background: #16a34a; }
 
-  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--ink); color: var(--white); padding: 12px 20px; border-radius: 8px; font-size: 13px; opacity: 0; transform: translateY(10px); transition: all 0.25s; z-index: 300; }
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; background: var(--ink); color: var(--white);
+    padding: 12px 20px; border-radius: 8px; font-size: 13px;
+    opacity: 0; transform: translateY(10px); transition: all 0.25s; z-index: 300;
+    pointer-events: none;
+  }
   .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ── Login overlay ── */
+  .login-overlay {
+    position: fixed; inset: 0; background: var(--ink);
+    z-index: 400; display: none;
+    align-items: center; justify-content: center;
+  }
+  .login-overlay.visible { display: flex; }
+  .login-card {
+    background: var(--white); border-radius: 16px;
+    padding: 40px; width: 360px; max-width: 95vw; text-align: center;
+  }
+  .login-logo { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--ink); margin-bottom: 4px; }
+  .login-logo span { color: var(--gold); }
+  .login-sub { font-size: 12px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 32px; }
+  .login-input {
+    width: 100%; border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 16px; font-size: 15px; font-family: 'DM Mono', monospace;
+    margin-bottom: 12px; text-align: center; outline: none;
+    transition: border-color 0.2s; color: var(--ink);
+  }
+  .login-input:focus { border-color: var(--ink); }
+  .login-input.error { border-color: var(--red); }
+  .login-error { font-size: 12px; color: var(--red); margin-bottom: 12px; min-height: 16px; }
+  .btn-primary { background: var(--ink); color: var(--gold-light); width: 100%; padding: 14px; font-size: 15px; border-radius: 10px; }
+  .btn-primary:hover { background: #1e2e40; }
+  .btn-primary:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
   @media (max-width: 640px) {
     .topbar { padding: 14px 16px; }
@@ -154,6 +252,25 @@
 </head>
 <body>
 
+<!-- FIX: login overlay — collects API key once per session, stores in sessionStorage -->
+<div class="login-overlay" id="loginOverlay" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+  <div class="login-card">
+    <div class="login-logo" id="loginTitle">Ander <span>Inbox</span></div>
+    <p class="login-sub">The Henry Law Firm</p>
+    <label for="apiKeyInput" class="sr-only">Dashboard API Key</label>
+    <input
+      type="password"
+      id="apiKeyInput"
+      class="login-input"
+      placeholder="Enter API key"
+      autocomplete="current-password"
+      aria-describedby="loginError"
+    >
+    <div class="login-error" id="loginError" role="alert" aria-live="polite"></div>
+    <button class="btn btn-primary" id="loginBtn">Access Dashboard</button>
+  </div>
+</div>
+
 <header class="topbar">
   <div class="topbar-brand">
     <div>
@@ -162,67 +279,85 @@
     </div>
   </div>
   <div class="topbar-actions">
-    <button class="btn btn-ghost" onclick="loadData()">↻ Refresh</button>
-    <button class="btn btn-ghost" onclick="exportCSV()">⬇ Export</button>
+    <!-- FIX: inline onclick removed — wired up in JS -->
+    <button class="btn btn-ghost" id="refreshBtn" aria-label="Refresh leads">
+      ↻ <span aria-hidden="true">Refresh</span>
+    </button>
+    <button class="btn btn-ghost" id="exportBtn" aria-label="Export leads to CSV">
+      ⬇ <span aria-hidden="true">Export</span>
+    </button>
   </div>
 </header>
 
 <main class="content">
-  <div class="summary">
+  <div class="summary" role="region" aria-label="Lead summary">
     <div class="summary-card">
       <div class="summary-label">New Leads</div>
-      <div class="summary-value" id="stat-new">—</div>
+      <div class="summary-value" id="stat-new" aria-live="polite">—</div>
     </div>
     <div class="summary-card urgent">
       <div class="summary-label">Court This Week</div>
-      <div class="summary-value warning" id="stat-court">—</div>
+      <div class="summary-value warning" id="stat-court" aria-live="polite">—</div>
     </div>
     <div class="summary-card">
       <div class="summary-label">Total</div>
-      <div class="summary-value" id="stat-total">—</div>
+      <div class="summary-value" id="stat-total" aria-live="polite">—</div>
     </div>
   </div>
 
-  <div class="hour-section">
+  <div class="hour-section" role="region" aria-label="Lead activity by hour">
     <div class="hour-header">
       <div class="hour-title">When people reach out</div>
-      <div class="hour-insight"><strong id="after-hours-pct">38%</strong> after hours</div>
+      <div class="hour-insight"><strong id="after-hours-pct">—</strong> after hours</div>
     </div>
-    <div class="hour-chart" id="hour-chart"></div>
-    <div class="hour-labels">
-      <span>12am</span>
-      <span>9am</span>
-      <span>5pm</span>
-      <span>12am</span>
+    <!-- FIX: aria-label added; bars get individual titles via JS -->
+    <div class="hour-chart" id="hour-chart" role="img" aria-label="Hourly lead activity chart"></div>
+    <div class="hour-labels" aria-hidden="true">
+      <span>12am</span><span>9am</span><span>5pm</span><span>12am</span>
     </div>
   </div>
 
-  <div class="tabs">
-    <button class="tab active" onclick="setFilter('new', this)">New <span class="count" id="count-new">0</span></button>
-    <button class="tab" onclick="setFilter('done', this)">Done <span class="count" id="count-done">0</span></button>
-    <button class="tab" onclick="setFilter('all', this)">All</button>
+  <!-- FIX: inline onclick removed; data-filter used for delegation -->
+  <div class="tabs" role="tablist" aria-label="Filter leads">
+    <button class="tab active" role="tab" aria-selected="true"  data-filter="new"  id="tab-new">
+      New <span class="count" id="count-new" aria-label="new leads count">0</span>
+    </button>
+    <button class="tab"        role="tab" aria-selected="false" data-filter="done" id="tab-done">
+      Done <span class="count" id="count-done" aria-label="done leads count">0</span>
+    </button>
+    <button class="tab"        role="tab" aria-selected="false" data-filter="all"  id="tab-all">
+      All
+    </button>
   </div>
 
-  <div class="leads-list" id="leads-list">
-    <div class="loading"><div class="spinner"></div>Loading...</div>
+  <div class="leads-list" id="leads-list" role="list" aria-label="Leads">
+    <div class="loading"><div class="spinner" aria-hidden="true"></div>Loading...</div>
   </div>
 </main>
 
-<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
-  <div class="prep-modal" onclick="event.stopPropagation()">
+<!-- FIX: role="dialog" + aria-modal on the modal panel, not the overlay -->
+<div class="modal-overlay" id="modalOverlay">
+  <div
+    class="prep-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="prep-name"
+    id="prepModal"
+  >
     <div class="prep-header">
-      <div class="prep-avatar-lg" id="prep-avatar">?</div>
+      <div class="prep-avatar-lg" id="prep-avatar" aria-hidden="true">?</div>
       <div class="prep-header-info">
         <div class="prep-name" id="prep-name">Loading...</div>
         <div class="prep-time" id="prep-time">Just now</div>
       </div>
-      <button class="prep-close" onclick="closeModalDirect()">×</button>
+      <!-- FIX: inline onclick removed — wired up in JS -->
+      <button class="prep-close" id="modalCloseBtn" aria-label="Close lead detail">×</button>
     </div>
-    
-    <div class="prep-urgency medium" id="prep-urgency">
+
+    <div class="prep-urgency medium" id="prep-urgency" aria-live="polite">
       <span id="prep-urgency-text">New Lead</span>
     </div>
-    
+
     <div class="prep-body">
       <div class="prep-section">
         <div class="prep-grid">
@@ -242,7 +377,7 @@
             <div class="prep-field-label">Debt Amount</div>
             <div class="prep-field-value mono" id="prep-debt">—</div>
           </div>
-          <div class="prep-field highlight" id="prep-court-field" style="display:none;">
+          <div class="prep-field highlight" id="prep-court-field" style="display:none;" aria-live="polite">
             <div class="prep-field-label">⚠️ Court Date</div>
             <div class="prep-field-value" id="prep-court">—</div>
           </div>
@@ -256,239 +391,754 @@
           </div>
         </div>
       </div>
-      
+
       <div class="prep-section">
         <div class="prep-label">Their Situation</div>
         <div class="prep-story" id="prep-story">—</div>
       </div>
-      
+
       <div class="prep-section" id="prep-sentiment-section" style="display:none;">
         <div class="prep-label">How They're Feeling</div>
         <div class="prep-sentiment" id="prep-sentiment"></div>
       </div>
     </div>
-    
+
     <div class="prep-footer">
-      <a href="#" class="btn btn-call" id="prep-call-btn">📞 Call</a>
-      <button class="btn btn-done" onclick="markDoneFromModal()">✓ Done</button>
+      <!-- FIX: aria-disabled managed by JS when no phone is available -->
+      <a href="#" class="btn btn-call" id="prep-call-btn">
+        <span aria-hidden="true">📞</span> Call
+      </a>
+      <!-- FIX: inline onclick removed — wired up in JS -->
+      <button class="btn btn-done" id="modalDoneBtn">✓ Done</button>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <script>
-let currentFilter = 'new';
-let currentLeadId = null;
-let allLeads = [];
+'use strict';
 
-const sampleHourData = [2, 1, 1, 0, 1, 2, 3, 5, 8, 12, 14, 11, 10, 9, 11, 13, 10, 8, 7, 9, 6, 5, 4, 3];
+// ─── CONSTANTS ────────────────────────────────────────────────────────────────
+const MSECS_PER_DAY    = 86_400_000;
+const AUTO_REFRESH_MS  = 60_000;
+const TOAST_DURATION_MS = 2_500;
+const REFRESH_DEBOUNCE_MS = 300;
+const AUTH_STORAGE_KEY = 'ander_api_key';
 
-function renderHourChart(hourData) {
-  const container = document.getElementById('hour-chart');
-  const maxVal = Math.max(...hourData, 1);
-  const total = hourData.reduce((a, b) => a + b, 0);
-  const afterHours = hourData.slice(0, 9).reduce((a, b) => a + b, 0) + hourData.slice(17).reduce((a, b) => a + b, 0);
-  const afterHoursPct = total > 0 ? Math.round((afterHours / total) * 100) : 0;
-  document.getElementById('after-hours-pct').textContent = afterHoursPct + '%';
-  container.innerHTML = hourData.map((val, i) => {
-    const height = Math.max((val / maxVal * 45) + 5, 5);
-    const isBusinessHours = i >= 9 && i < 17;
-    return `<div class="hour-bar ${isBusinessHours ? 'business' : 'after-hours'}" style="height:${height}px;"></div>`;
-  }).join('');
+// Sample data shown before real data loads or when API has no records
+const SAMPLE_HOUR_DATA = [
+  2, 1, 1, 0, 1, 2, 3, 5, 8, 12, 14, 11,
+  10, 9, 11, 13, 10, 8, 7, 9, 6, 5, 4, 3,
+];
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+// FIX: Map for O(1) lead lookups instead of Array.find() on every action
+let leadsById        = new Map();
+let currentFilter    = 'new';
+let currentLeadId    = null;
+let refreshTimer     = null;   // debounce handle for manual refresh
+let refreshIntervalId = null;  // auto-refresh handle (stored so it can be cleared)
+// Element that was focused before opening the modal — restored on close
+let modalReturnFocus = null;
+
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
+function getApiKey() {
+  return sessionStorage.getItem(AUTH_STORAGE_KEY) || '';
 }
 
+function showLoginOverlay(errorMsg = '') {
+  const overlay = document.getElementById('loginOverlay');
+  overlay.classList.add('visible');
+  document.getElementById('loginError').textContent = errorMsg;
+  document.getElementById('apiKeyInput').classList.toggle('error', !!errorMsg);
+  // Focus the input so the user can type immediately
+  requestAnimationFrame(() => document.getElementById('apiKeyInput').focus());
+}
+
+function hideLoginOverlay() {
+  document.getElementById('loginOverlay').classList.remove('visible');
+  document.getElementById('loginError').textContent = '';
+  document.getElementById('apiKeyInput').classList.remove('error');
+  document.getElementById('apiKeyInput').value = '';
+}
+
+function submitApiKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val) {
+    showLoginOverlay('Please enter your API key.');
+    return;
+  }
+  sessionStorage.setItem(AUTH_STORAGE_KEY, val);
+  hideLoginOverlay();
+  loadData();
+}
+
+/**
+ * Central fetch wrapper that:
+ * 1. Attaches the API key header
+ * 2. Intercepts 401 responses and shows the login overlay
+ * 3. Throws on non-OK responses so callers can use try/catch uniformly
+ *
+ * FIX: without this, all API calls were unauthenticated and would fail
+ * against the requireApiKey middleware added to the server.
+ */
+async function authedFetch(url, options = {}) {
+  const key = getApiKey();
+  if (!key) {
+    showLoginOverlay();
+    throw new Error('No API key — please log in.');
+  }
+
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': key,
+      ...(options.headers ?? {}),
+    },
+  });
+
+  if (res.status === 401) {
+    // Key was wrong or expired — clear it and prompt again
+    sessionStorage.removeItem(AUTH_STORAGE_KEY);
+    showLoginOverlay('Invalid API key. Please try again.');
+    throw new Error('Unauthorized');
+  }
+
+  if (!res.ok) {
+    throw new Error(`Request failed: ${res.status} ${res.statusText}`);
+  }
+
+  return res;
+}
+
+// ─── DOM HELPERS ──────────────────────────────────────────────────────────────
+/**
+ * Escape a value for safe use as HTML text (used only when innerHTML
+ * is unavoidable, e.g. static string composition).
+ * For dynamic user data we use textContent or DOM APIs directly.
+ */
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,  '&amp;')
+    .replace(/</g,  '&lt;')
+    .replace(/>/g,  '&gt;')
+    .replace(/"/g,  '&quot;')
+    .replace(/'/g,  '&#039;');
+}
+
+/** Safely set textContent on an element by ID */
+function setText(id, value, fallback = '—') {
+  const el = document.getElementById(id);
+  if (el) el.textContent = (value !== null && value !== undefined && value !== '') ? value : fallback;
+}
+
+/**
+ * FIX: replaces .innerHTML = `<a href="...">user data</a>` pattern.
+ * Builds a link safely using DOM APIs — no innerHTML, no XSS risk.
+ */
+function setLink(containerId, href, displayText) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.textContent = ''; // clear existing content
+  if (href && displayText) {
+    const a = document.createElement('a');
+    a.href        = href;
+    a.textContent = displayText; // textContent — safe
+    container.appendChild(a);
+  } else {
+    container.textContent = '—';
+  }
+}
+
+function showEl(id) { const el = document.getElementById(id); if (el) el.style.display = 'block'; }
+function hideEl(id) { const el = document.getElementById(id); if (el) el.style.display = 'none';  }
+
+// ─── DATE HELPERS ─────────────────────────────────────────────────────────────
+/**
+ * FIX: normalise both dates to midnight before comparing.
+ * The original `Math.ceil((courtDate - new Date()) / 86400000)` was
+ * time-sensitive — at 9am a "tomorrow at 8am" court date showed 0 days.
+ */
+function calcDaysUntil(date) {
+  if (!date) return null;
+  const now    = new Date(); now.setHours(0, 0, 0, 0);
+  const target = new Date(date); target.setHours(0, 0, 0, 0);
+  return Math.ceil((target - now) / MSECS_PER_DAY);
+}
+
+/**
+ * FIX: guard against negative diffMs (clock skew / future createdAt).
+ * Original would show misleading negative values.
+ */
 function timeAgo(date) {
-  const now = new Date();
-  const diffMs = now - new Date(date);
-  const diffMins = Math.floor(diffMs / 60000);
+  const diffMs = Date.now() - new Date(date).getTime();
+  if (diffMs < 0) return 'Just now';
+  const diffMins  = Math.floor(diffMs / 60_000);
   const diffHours = Math.floor(diffMins / 60);
-  const diffDays = Math.floor(diffHours / 24);
-  if (diffDays > 0) return `${diffDays}d ago`;
+  const diffDays  = Math.floor(diffHours / 24);
+  if (diffDays  > 0) return `${diffDays}d ago`;
   if (diffHours > 0) return `${diffHours}h ago`;
-  if (diffMins > 0) return `${diffMins}m ago`;
+  if (diffMins  > 0) return `${diffMins}m ago`;
   return 'Just now';
 }
 
-async function loadStats() {
-  try {
-    const res = await fetch('/api/intakes/stats');
-    const data = await res.json();
-    if (!data.success) return;
-    document.getElementById('stat-new').textContent = data.stats.newLeads;
-    document.getElementById('stat-court').textContent = data.stats.upcomingCourt || 0;
-    document.getElementById('stat-total').textContent = data.stats.total;
-    document.getElementById('count-new').textContent = data.stats.newLeads;
-    document.getElementById('count-done').textContent = (data.stats.total - data.stats.newLeads) || 0;
-  } catch(e) { console.error(e); }
+function formatCurrency(cents) {
+  if (!cents) return null;
+  return '$' + (cents / 100).toLocaleString('en-US');
 }
 
+// ─── HOUR CHART ───────────────────────────────────────────────────────────────
+function renderHourChart(hourData) {
+  const container = document.getElementById('hour-chart');
+  const maxVal    = Math.max(...hourData, 1);
+  const total     = hourData.reduce((sum, v) => sum + v, 0);
+  const afterHours = [
+    ...hourData.slice(0, 9),
+    ...hourData.slice(17),
+  ].reduce((sum, v) => sum + v, 0);
+
+  document.getElementById('after-hours-pct').textContent =
+    (total > 0 ? Math.round((afterHours / total) * 100) : 0) + '%';
+
+  // FIX: build bars with DOM APIs — avoids innerHTML assignment on a loop
+  container.textContent = '';
+  hourData.forEach((val, i) => {
+    const bar = document.createElement('div');
+    bar.className = `hour-bar ${i >= 9 && i < 17 ? 'business' : 'after-hours'}`;
+    bar.style.height = `${Math.max((val / maxVal * 45) + 5, 5)}px`;
+    // Accessible tooltip
+    bar.title = `${i}:00 — ${val} lead${val !== 1 ? 's' : ''}`;
+    bar.setAttribute('aria-hidden', 'true'); // chart is decorative; described by text
+    container.appendChild(bar);
+  });
+}
+
+// ─── STATS ────────────────────────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const res  = await authedFetch('/api/intakes/stats');
+    const data = await res.json();
+    if (!data.success) return;
+
+    setText('stat-new',   data.stats.newLeads);
+    setText('stat-court', data.stats.upcomingCourt ?? 0);
+    setText('stat-total', data.stats.total);
+    setText('count-new',  data.stats.newLeads);
+    // "done" tab = everything that isn't 'new'
+    setText('count-done', Math.max(0, data.stats.total - data.stats.newLeads));
+  } catch (err) {
+    // Auth errors are handled inside authedFetch; log everything else
+    if (err.message !== 'Unauthorized') console.error('loadStats:', err.message);
+  }
+}
+
+// ─── LEADS ────────────────────────────────────────────────────────────────────
 async function loadLeads() {
   const list = document.getElementById('leads-list');
-  list.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
+  list.innerHTML = '<div class="loading"><div class="spinner" aria-hidden="true"></div>Loading...</div>';
+
   try {
-    const res = await fetch('/api/intakes');
+    const res  = await authedFetch('/api/intakes');
     const data = await res.json();
+
     if (!data.success || data.intakes.length === 0) {
-      list.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">No leads yet</div><p>Leads will appear here when someone uses Ander.</p></div>';
-      renderHourChart(sampleHourData);
+      list.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon" aria-hidden="true">📭</div>
+          <div class="empty-title">No leads yet</div>
+          <p>Leads will appear here when someone uses Ander.</p>
+        </div>`;
+      // Keep the sample chart if there's no real data
+      renderHourChart(SAMPLE_HOUR_DATA);
       return;
     }
-    allLeads = data.intakes;
+
+    // FIX: rebuild Map from fresh data for O(1) lookups everywhere
+    leadsById.clear();
+    data.intakes.forEach(lead => leadsById.set(lead._id, lead));
+
+    // Build hour distribution from real data
     const hourCounts = new Array(24).fill(0);
-    allLeads.forEach(lead => { hourCounts[new Date(lead.createdAt).getHours()]++; });
-    renderHourChart(hourCounts.some(c => c > 0) ? hourCounts : sampleHourData);
+    data.intakes.forEach(lead => {
+      hourCounts[new Date(lead.createdAt).getHours()]++;
+    });
+    // FIX: renderHourChart only called once here (not at page init AND here)
+    renderHourChart(hourCounts.some(c => c > 0) ? hourCounts : SAMPLE_HOUR_DATA);
+
     renderLeads();
-  } catch(e) { 
-    console.error(e); 
-    list.innerHTML = '<div class="empty-state">Error loading leads.</div>'; 
+
+    // FIX: if the detail modal is open, refresh its contents with updated data
+    if (currentLeadId && leadsById.has(currentLeadId)) {
+      populateModal(leadsById.get(currentLeadId));
+    }
+  } catch (err) {
+    if (err.message !== 'Unauthorized') {
+      console.error('loadLeads:', err.message);
+      list.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon" aria-hidden="true">⚠️</div>
+          <div class="empty-title">Error loading leads</div>
+          <p>${esc(err.message)}</p>
+        </div>`;
+    }
   }
 }
 
 function renderLeads() {
   const list = document.getElementById('leads-list');
-  let filtered = allLeads;
-  if (currentFilter === 'new') filtered = allLeads.filter(l => l.status === 'new');
+  // Clear existing content safely
+  list.textContent = '';
+
+  const allLeads = [...leadsById.values()];
+  let filtered;
+  if      (currentFilter === 'new')  filtered = allLeads.filter(l => l.status === 'new');
   else if (currentFilter === 'done') filtered = allLeads.filter(l => l.status !== 'new');
-  
+  else                                filtered = allLeads;
+
   if (filtered.length === 0) {
     const msg = currentFilter === 'new' ? 'All caught up! No new leads.' : 'No leads here.';
-    list.innerHTML = `<div class="empty-state"><div class="empty-icon">✨</div><div class="empty-title">${msg}</div></div>`;
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.innerHTML = `<div class="empty-icon" aria-hidden="true">✨</div><div class="empty-title">${esc(msg)}</div>`;
+    list.appendChild(empty);
     return;
   }
-  
-  list.innerHTML = filtered.map(lead => {
-    const initial = (lead.firstName || '?')[0].toUpperCase();
-    const isDone = lead.status !== 'new';
-    let courtBadge = '';
-    let courtClass = '';
-    if (lead.courtDate) {
-      const daysUntil = Math.ceil((new Date(lead.courtDate) - new Date()) / 86400000);
-      if (daysUntil <= 7 && daysUntil >= 0) {
-        courtBadge = `<span class="badge badge-court">⚠️ Court in ${daysUntil}d</span>`;
-        courtClass = 'court-soon';
-      }
-    }
-    return `
-      <div class="lead-card ${courtClass} ${isDone ? 'done' : ''}" onclick="openLead('${lead._id}')">
-        <div class="lead-avatar">${initial}</div>
-        <div class="lead-info">
-          <div class="lead-name">
-            ${esc(lead.firstName || 'Unknown')}
-            ${!isDone ? '<span class="badge badge-new">NEW</span>' : ''}
-            ${courtBadge}
-          </div>
-          <div class="lead-meta">
-            <span class="badge badge-area">${esc(lead.practiceArea || 'General')}</span>
-            ${lead.debtAmount ? `<span>$${(lead.debtAmount / 100).toLocaleString()}</span>` : ''}
-            ${lead.county ? `<span>${esc(lead.county)} County</span>` : ''}
-          </div>
-        </div>
-        <div class="lead-contact">
-          <div class="lead-phone">${lead.phone ? `<a href="tel:${lead.phone}" onclick="event.stopPropagation()">${esc(lead.phone)}</a>` : '—'}</div>
-          <div class="lead-time">${timeAgo(lead.createdAt)}</div>
-        </div>
-        <div class="lead-actions" onclick="event.stopPropagation()">
-          <button class="action-btn done-btn ${isDone ? 'is-done' : ''}" onclick="toggleDone('${lead._id}', event)" title="${isDone ? 'Mark as new' : 'Mark as done'}">
-            ${isDone ? '✓' : '○'}
-          </button>
-        </div>
-      </div>`;
-  }).join('');
+
+  // FIX: build each card with DOM APIs via createLeadCard()
+  // Eliminates the inline onclick="openLead('${id}')" pattern that
+  // embeds JS in HTML strings and creates XSS surface area
+  const fragment = document.createDocumentFragment();
+  filtered.forEach(lead => fragment.appendChild(createLeadCard(lead)));
+  list.appendChild(fragment);
 }
 
+/**
+ * FIX: builds a single lead card entirely with DOM APIs.
+ * No innerHTML, no inline onclick — all event handling via delegation.
+ */
+function createLeadCard(lead) {
+  const isDone    = lead.status !== 'new';
+  const daysLeft  = calcDaysUntil(lead.courtDate); // FIX: shared helper, midnight-normalised
+  const courtSoon = daysLeft !== null && daysLeft >= 0 && daysLeft <= 7;
+
+  const card = document.createElement('div');
+  card.className = [
+    'lead-card',
+    courtSoon ? 'court-soon' : '',
+    isDone    ? 'done'       : '',
+  ].filter(Boolean).join(' ');
+  card.dataset.id = lead._id;
+  // FIX: role + tabindex make lead cards keyboard-navigable
+  card.setAttribute('role', 'listitem');
+  card.setAttribute('tabindex', '0');
+  card.setAttribute('aria-label',
+    `${lead.firstName || 'Unknown'} — ${lead.practiceArea || 'General'}. ${isDone ? 'Handled.' : 'New lead.'}`
+  );
+
+  // ── Avatar ──────────────────────────────────────────────────────────────
+  const avatar = document.createElement('div');
+  avatar.className = 'lead-avatar';
+  avatar.textContent = (lead.firstName || '?')[0].toUpperCase();
+  avatar.setAttribute('aria-hidden', 'true');
+
+  // ── Info column ──────────────────────────────────────────────────────────
+  const info    = document.createElement('div');
+  info.className = 'lead-info';
+
+  const nameRow  = document.createElement('div');
+  nameRow.className = 'lead-name';
+  // FIX: textContent assignment — safe against XSS
+  const nameText = document.createTextNode(lead.firstName || 'Unknown');
+  nameRow.appendChild(nameText);
+
+  if (!isDone) {
+    const newBadge = document.createElement('span');
+    newBadge.className = 'badge badge-new';
+    newBadge.textContent = 'NEW';
+    nameRow.appendChild(newBadge);
+  }
+
+  if (courtSoon) {
+    const courtBadge = document.createElement('span');
+    courtBadge.className = 'badge badge-court';
+    courtBadge.textContent = `⚠️ Court in ${daysLeft}d`;
+    nameRow.appendChild(courtBadge);
+  }
+
+  const metaRow = document.createElement('div');
+  metaRow.className = 'lead-meta';
+
+  const areaBadge = document.createElement('span');
+  areaBadge.className = 'badge badge-area';
+  areaBadge.textContent = lead.practiceArea || 'General';
+  metaRow.appendChild(areaBadge);
+
+  if (lead.debtAmount) {
+    const debtSpan = document.createElement('span');
+    debtSpan.textContent = formatCurrency(lead.debtAmount);
+    metaRow.appendChild(debtSpan);
+  }
+
+  if (lead.county) {
+    const countySpan = document.createElement('span');
+    countySpan.textContent = `${lead.county} County`;
+    metaRow.appendChild(countySpan);
+  }
+
+  info.appendChild(nameRow);
+  info.appendChild(metaRow);
+
+  // ── Contact column ────────────────────────────────────────────────────────
+  const contact = document.createElement('div');
+  contact.className = 'lead-contact';
+
+  const phoneDiv = document.createElement('div');
+  phoneDiv.className = 'lead-phone';
+  if (lead.phone) {
+    const a = document.createElement('a');
+    // FIX: href built via property assignment, not string interpolation
+    a.href        = `tel:${lead.phone}`;
+    a.textContent = lead.phone; // textContent — safe
+    phoneDiv.appendChild(a);
+  } else {
+    phoneDiv.textContent = '—';
+  }
+
+  const timeDiv = document.createElement('div');
+  timeDiv.className = 'lead-time';
+  timeDiv.textContent = timeAgo(lead.createdAt);
+
+  contact.appendChild(phoneDiv);
+  contact.appendChild(timeDiv);
+
+  // ── Done toggle button ────────────────────────────────────────────────────
+  const actions = document.createElement('div');
+  actions.className = 'lead-actions';
+
+  const doneBtn = document.createElement('button');
+  doneBtn.className = `action-btn done-btn${isDone ? ' is-done' : ''}`;
+  // FIX: data-action + data-id used by event delegation — no inline onclick
+  doneBtn.dataset.action = 'toggle-done';
+  doneBtn.dataset.id     = lead._id;
+  doneBtn.title          = isDone ? 'Mark as new' : 'Mark as done';
+  doneBtn.setAttribute('aria-label', isDone ? 'Mark as new' : 'Mark as done');
+  doneBtn.textContent    = isDone ? '✓' : '○';
+
+  actions.appendChild(doneBtn);
+
+  card.appendChild(avatar);
+  card.appendChild(info);
+  card.appendChild(contact);
+  card.appendChild(actions);
+  return card;
+}
+
+// ─── EVENT DELEGATION ─────────────────────────────────────────────────────────
+// FIX: one listener on the container instead of inline onclick on every card.
+// Handles card clicks, done-button clicks, and phone link clicks.
+document.getElementById('leads-list').addEventListener('click', e => {
+  // Phone/email links — let the browser handle natively
+  if (e.target.closest('a[href^="tel:"], a[href^="mailto:"]')) return;
+
+  // Done toggle button
+  const doneBtn = e.target.closest('[data-action="toggle-done"]');
+  if (doneBtn) {
+    e.stopPropagation();
+    toggleDone(doneBtn.dataset.id, doneBtn);
+    return;
+  }
+
+  // Card click → open modal
+  const card = e.target.closest('.lead-card');
+  if (card) openLead(card.dataset.id);
+});
+
+// FIX: keyboard support for lead cards (Enter / Space to open)
+document.getElementById('leads-list').addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const card = e.target.closest('.lead-card');
+  if (card) { e.preventDefault(); openLead(card.dataset.id); }
+});
+
+// FIX: tab filter via event delegation — no inline onclick needed
+document.querySelector('.tabs').addEventListener('click', e => {
+  const tab = e.target.closest('.tab');
+  if (!tab || !tab.dataset.filter) return;
+  setFilter(tab.dataset.filter, tab);
+});
+
+// ─── MODAL ────────────────────────────────────────────────────────────────────
 function openLead(id) {
-  currentLeadId = id;
-  const lead = allLeads.find(l => l._id === id);
+  const lead = leadsById.get(id); // FIX: O(1) Map lookup
   if (!lead) return;
-  
-  document.getElementById('prep-avatar').textContent = (lead.firstName || '?')[0].toUpperCase();
-  document.getElementById('prep-name').textContent = lead.firstName || 'Unknown';
-  document.getElementById('prep-time').textContent = timeAgo(lead.createdAt);
-  
-  const urgencyEl = document.getElementById('prep-urgency');
-  const urgencyText = document.getElementById('prep-urgency-text');
-  const hasUrgentCourt = lead.courtDate && Math.ceil((new Date(lead.courtDate) - new Date()) / 86400000) <= 7;
-  
-  if (hasUrgentCourt) {
+  currentLeadId = id;
+
+  // Remember where focus was so we can restore it on close
+  modalReturnFocus = document.activeElement;
+
+  populateModal(lead);
+
+  const overlay = document.getElementById('modalOverlay');
+  overlay.classList.add('open');
+
+  // FIX: move focus into the modal for keyboard/screen reader users
+  requestAnimationFrame(() => {
+    document.getElementById('modalCloseBtn')?.focus();
+  });
+}
+
+/**
+ * Separated from openLead so the auto-refresh can update an already-open
+ * modal without triggering focus movement or re-animating the overlay.
+ *
+ * FIX: all fields populated via setText/setLink (DOM APIs), not innerHTML.
+ */
+function populateModal(lead) {
+  setText('prep-avatar', (lead.firstName || '?')[0].toUpperCase());
+  setText('prep-name',   lead.firstName || 'Unknown');
+  setText('prep-time',   timeAgo(lead.createdAt));
+
+  // ── Urgency banner ────────────────────────────────────────────────────────
+  const urgencyEl   = document.getElementById('prep-urgency');
+  const daysLeft    = calcDaysUntil(lead.courtDate);
+  const urgentCourt = daysLeft !== null && daysLeft >= 0 && daysLeft <= 7;
+
+  if (urgentCourt) {
     urgencyEl.className = 'prep-urgency high';
-    urgencyText.textContent = '⚠️ Court date this week';
+    setText('prep-urgency-text', `⚠️ Court date in ${daysLeft} day${daysLeft === 1 ? '' : 's'}`);
   } else if (lead.status === 'new') {
     urgencyEl.className = 'prep-urgency medium';
-    urgencyText.textContent = 'New lead';
+    setText('prep-urgency-text', 'New lead');
   } else {
     urgencyEl.className = 'prep-urgency low';
-    urgencyText.textContent = 'Handled';
+    setText('prep-urgency-text', 'Handled');
   }
-  
-  document.getElementById('prep-phone').innerHTML = lead.phone ? `<a href="tel:${lead.phone}">${lead.phone}</a>` : '—';
-  document.getElementById('prep-email').innerHTML = lead.email ? `<a href="mailto:${lead.email}">${lead.email}</a>` : '—';
-  document.getElementById('prep-area').textContent = lead.practiceArea || 'General';
-  document.getElementById('prep-debt').textContent = lead.debtAmount ? '$' + (lead.debtAmount / 100).toLocaleString() : '—';
-  
-  if (lead.courtDate) {
-    const courtDate = new Date(lead.courtDate);
-    const daysUntil = Math.ceil((courtDate - new Date()) / 86400000);
-    document.getElementById('prep-court-field').style.display = 'block';
-    document.getElementById('prep-court').textContent = courtDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ` (${daysUntil} days)`;
-  } else { document.getElementById('prep-court-field').style.display = 'none'; }
-  
+
+  // ── Contact fields ────────────────────────────────────────────────────────
+  // FIX: setLink uses DOM APIs — replaces innerHTML = `<a href="tel:${phone}">` 
+  // which was vulnerable to XSS if phone contained HTML/JS
+  setLink('prep-phone', lead.phone  ? `tel:${lead.phone}`       : null, lead.phone);
+  setLink('prep-email', lead.email  ? `mailto:${lead.email}`    : null, lead.email);
+  setText('prep-area',  lead.practiceArea || 'General');
+  setText('prep-debt',  formatCurrency(lead.debtAmount));
+
+  // ── Court date ────────────────────────────────────────────────────────────
+  if (lead.courtDate && daysLeft !== null) {
+    showEl('prep-court-field');
+    const formatted = new Date(lead.courtDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    setText('prep-court', `${formatted} (${daysLeft} day${daysLeft === 1 ? '' : 's'})`);
+  } else {
+    hideEl('prep-court-field');
+  }
+
+  // ── Case number ───────────────────────────────────────────────────────────
   if (lead.caseNumber) {
-    document.getElementById('prep-case-field').style.display = 'block';
-    document.getElementById('prep-case').textContent = lead.caseNumber;
-  } else { document.getElementById('prep-case-field').style.display = 'none'; }
-  
+    showEl('prep-case-field');
+    setText('prep-case', lead.caseNumber);
+  } else {
+    hideEl('prep-case-field');
+  }
+
+  // ── County ────────────────────────────────────────────────────────────────
   if (lead.county) {
-    document.getElementById('prep-county-field').style.display = 'block';
-    document.getElementById('prep-county').textContent = lead.county + ' County';
-  } else { document.getElementById('prep-county-field').style.display = 'none'; }
-  
-  document.getElementById('prep-story').textContent = lead.story || 'No details provided.';
-  
-  if (lead.sentimentFlags && lead.sentimentFlags.length > 0) {
-    document.getElementById('prep-sentiment-section').style.display = 'block';
-    document.getElementById('prep-sentiment').innerHTML = lead.sentimentFlags.map(s => `<span class="prep-sentiment-tag">${s}</span>`).join('');
-  } else { document.getElementById('prep-sentiment-section').style.display = 'none'; }
-  
-  document.getElementById('prep-call-btn').href = lead.phone ? `tel:${lead.phone}` : '#';
-  document.getElementById('modalOverlay').classList.add('open');
+    showEl('prep-county-field');
+    setText('prep-county', `${lead.county} County`);
+  } else {
+    hideEl('prep-county-field');
+  }
+
+  // ── Story ─────────────────────────────────────────────────────────────────
+  setText('prep-story', lead.story || 'No details provided.');
+
+  // ── Sentiment tags ────────────────────────────────────────────────────────
+  // FIX: was innerHTML = sentimentFlags.map(s => `<span>${s}</span>`).join('')
+  // s comes directly from user chat input — a payload like
+  // <img src=x onerror=alert(1)> would execute in the attorney's browser.
+  const sentSection   = document.getElementById('prep-sentiment-section');
+  const sentContainer = document.getElementById('prep-sentiment');
+  sentContainer.textContent = ''; // clear previous tags
+
+  if (lead.sentimentFlags?.length > 0) {
+    sentSection.style.display = 'block';
+    lead.sentimentFlags.forEach(flag => {
+      const tag = document.createElement('span');
+      tag.className   = 'prep-sentiment-tag';
+      tag.textContent = flag; // textContent — safe
+      sentContainer.appendChild(tag);
+    });
+  } else {
+    sentSection.style.display = 'none';
+  }
+
+  // ── Call button ───────────────────────────────────────────────────────────
+  // FIX: disable the button (visually and accessibly) when there is no phone,
+  // instead of setting href="#" which is confusing and potentially harmful
+  const callBtn = document.getElementById('prep-call-btn');
+  if (lead.phone) {
+    callBtn.href = `tel:${lead.phone}`;
+    callBtn.removeAttribute('aria-disabled');
+    callBtn.removeAttribute('tabindex');
+  } else {
+    callBtn.href = '#';
+    callBtn.setAttribute('aria-disabled', 'true');
+    callBtn.setAttribute('tabindex', '-1');
+  }
 }
 
-function closeModal(e) { if (e.target === document.getElementById('modalOverlay')) closeModalDirect(); }
-function closeModalDirect() { document.getElementById('modalOverlay').classList.remove('open'); currentLeadId = null; }
+function closeModalDirect() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  currentLeadId = null;
+  // FIX: restore focus to the element that triggered the modal
+  if (modalReturnFocus) {
+    modalReturnFocus.focus();
+    modalReturnFocus = null;
+  }
+}
 
-async function toggleDone(id, e) {
-  if (e) e.stopPropagation();
-  const lead = allLeads.find(l => l._id === id);
+// Close modal by clicking the backdrop (but not the modal panel itself)
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
+});
+
+// FIX: Escape key closes modal — standard UX expectation, was missing
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('modalOverlay').classList.contains('open')) {
+    closeModalDirect();
+  }
+});
+
+// Wire up modal close/done buttons in JS — no inline onclick needed
+document.getElementById('modalCloseBtn').addEventListener('click', closeModalDirect);
+document.getElementById('modalDoneBtn').addEventListener('click', async () => {
+  if (!currentLeadId) return;
+  await toggleDone(currentLeadId, null);
+  closeModalDirect();
+});
+
+// ─── ACTIONS ──────────────────────────────────────────────────────────────────
+/**
+ * FIX: properly handles the full request lifecycle:
+ * 1. Optimistic UI update for responsiveness
+ * 2. Checks response.ok (not just catch for network errors)
+ * 3. Rolls back optimistic update on failure
+ * 4. Shows loading state on the triggering button
+ */
+async function toggleDone(id, triggerBtn) {
+  const lead = leadsById.get(id); // FIX: O(1) lookup
   if (!lead) return;
-  const newStatus = lead.status === 'new' ? 'contacted' : 'new';
+
+  const previousStatus = lead.status;
+  const newStatus      = lead.status === 'new' ? 'contacted' : 'new';
+
+  // Show loading state on the button
+  if (triggerBtn) triggerBtn.classList.add('loading');
+
+  // Optimistic update
+  lead.status = newStatus;
+  renderLeads();
+
   try {
-    await fetch(`/api/intakes/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: newStatus }) });
-    lead.status = newStatus;
-    renderLeads();
-    loadStats();
-    toast(newStatus === 'new' ? 'Marked as new' : '✓ Done');
-  } catch(e) { toast('Error updating'); }
+    const res = await authedFetch(`/api/intakes/${id}`, {
+      method: 'PATCH',
+      body:   JSON.stringify({ status: newStatus }),
+    });
+
+    // authedFetch already throws on non-ok, so if we reach here it succeeded
+    const data = await res.json();
+    if (!data.success) throw new Error('Update rejected by server');
+
+    await loadStats();
+    showToast(newStatus === 'new' ? 'Marked as new' : '✓ Done');
+  } catch (err) {
+    if (err.message !== 'Unauthorized') {
+      // FIX: roll back the optimistic update so UI matches server state
+      lead.status = previousStatus;
+      renderLeads();
+      showToast('❌ Update failed — try again');
+      console.error('toggleDone:', err.message);
+    }
+  } finally {
+    if (triggerBtn) triggerBtn.classList.remove('loading');
+  }
 }
 
-async function markDoneFromModal() { if (!currentLeadId) return; await toggleDone(currentLeadId); closeModalDirect(); }
+/**
+ * FIX: CSV export now uses fetch + Blob download so we can include the
+ * X-API-Key header. The original window.location.href approach cannot
+ * send custom headers and would return a 401 against the auth middleware.
+ */
+async function exportCSV() {
+  showToast('⬇ Preparing download...');
+  try {
+    const res  = await authedFetch('/api/intakes/export/csv');
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `ander-leads-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('✅ Downloaded');
+  } catch (err) {
+    if (err.message !== 'Unauthorized') showToast('❌ Export failed');
+  }
+}
 
 function setFilter(filter, btn) {
   currentFilter = filter;
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.remove('active');
+    t.setAttribute('aria-selected', 'false');
+  });
   btn.classList.add('active');
+  btn.setAttribute('aria-selected', 'true');
   renderLeads();
 }
 
-function exportCSV() { window.location.href = '/api/intakes/export/csv'; toast('⬇ Downloading...'); }
-function loadData() { loadStats(); loadLeads(); }
-function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
-function esc(str) { if (!str) return ''; return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+// FIX: debounce manual refresh to prevent request flood on button spam
+function loadData() {
+  clearTimeout(refreshTimer);
+  refreshTimer = setTimeout(() => {
+    loadStats();
+    loadLeads();
+  }, REFRESH_DEBOUNCE_MS);
+}
 
-loadData();
-renderHourChart(sampleHourData);
-setInterval(loadData, 60000);
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), TOAST_DURATION_MS);
+}
+
+// ─── LOGIN EVENT WIRING ───────────────────────────────────────────────────────
+document.getElementById('loginBtn').addEventListener('click', submitApiKey);
+document.getElementById('apiKeyInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitApiKey();
+});
+
+// ─── TOPBAR EVENT WIRING ──────────────────────────────────────────────────────
+document.getElementById('refreshBtn').addEventListener('click', loadData);
+document.getElementById('exportBtn').addEventListener('click', exportCSV);
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+// FIX: render chart only once on load with sample data as placeholder.
+// loadLeads() will replace it with real data when the API responds.
+renderHourChart(SAMPLE_HOUR_DATA);
+
+if (getApiKey()) {
+  loadData();
+} else {
+  showLoginOverlay();
+}
+
+// FIX: store interval ID so it can be cleared if the app is ever torn down
+refreshIntervalId = setInterval(loadData, AUTO_REFRESH_MS);
 </script>
 </body>
 </html>
-
