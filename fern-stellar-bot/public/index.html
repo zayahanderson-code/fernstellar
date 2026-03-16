@@ -532,14 +532,8 @@ const storedName = localStorage.getItem('ander_name');
 const storedTime = localStorage.getItem('ander_time');
 const isReturning = storedSession && storedTime && (Date.now() - parseInt(storedTime)) < 24 * 60 * 60 * 1000;
 
-if (isReturning && storedName) {
-  const banner = document.getElementById('returning-banner');
-  const greeting = currentLang === 'es' 
-    ? `${storedName} — ¿pudiste conectar con el equipo?`
-    : `${storedName} — did you get a chance to connect with the team?`;
-  document.getElementById('returning-name').textContent = greeting;
-  banner.style.display = 'flex';
-}
+// Returning visitor detection is now handled in startChat()
+// No need for separate banner
 
 function openAnder(e) {
   if (e) e.preventDefault();
@@ -751,6 +745,13 @@ async function handleFileUpload(e) {
 
 async function startChat() {
   showTyping();
+  
+  // Check if returning visitor
+  const storedSession = localStorage.getItem('ander_session');
+  const storedName = localStorage.getItem('ander_name');
+  const storedTime = localStorage.getItem('ander_time');
+  const isReturning = storedSession && storedTime && (Date.now() - parseInt(storedTime)) < 24 * 60 * 60 * 1000;
+  
   try {
     const res = await fetch(`/api/start?lang=${currentLang}`);
     const data = await res.json();
@@ -761,12 +762,25 @@ async function startChat() {
     localStorage.setItem('ander_time', Date.now().toString());
 
     removeTyping();
-    // Prepend time-aware greeting to disclosure message
-    const greetedMsg = `${getGreeting()} ${data.message}`;
-    setTimeout(() => {
-      addMessage(greetedMsg, 'bot');
-      showQuickReplies('disclosure');
-    }, data.delay || 800);
+    
+    // If returning visitor with stored name, skip disclosure and acknowledge them
+    if (isReturning && storedName) {
+      const welcomeBack = currentLang === 'es'
+        ? `¡Hola de nuevo, ${storedName}! 😊 ¿Pudiste conectar con LaMya, o hay algo más en lo que pueda ayudarte hoy?`
+        : `Welcome back, ${storedName}! 😊 Did you get a chance to connect with LaMya, or is there something else I can help you with today?`;
+      
+      addMessage(welcomeBack, 'bot');
+      
+      // Mark as if they already accepted disclosure
+      step = 1;
+    } else {
+      // New visitor - show full disclosure
+      const greetedMsg = `${getGreeting()} ${data.message}`;
+      setTimeout(() => {
+        addMessage(greetedMsg, 'bot');
+        showQuickReplies('disclosure');
+      }, data.delay || 800);
+    }
   } catch(e) {
     removeTyping();
     const fallback = currentLang === 'es'
