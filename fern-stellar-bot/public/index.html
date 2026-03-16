@@ -736,6 +736,11 @@ async function handleFileUpload(e) {
       addMessage(currentLang === 'es' 
         ? `Documento subido: ${file.name}` 
         : `Document uploaded: ${file.name}`, 'user');
+      
+      // Close upload area after successful upload
+      setTimeout(() => {
+        docUploadArea.classList.remove('show');
+      }, 1500);
     }
   } catch (err) {
     console.error('Upload failed:', err);
@@ -801,16 +806,23 @@ async function sendMessage() {
         // Don't automatically show quick replies - let the backend control the flow
         // The backend will ask for name, then story naturally through conversation
         
-        // Show document upload after story is collected
+        // Show document upload after story is collected, hide after email is collected
         if (data.progress && data.progress.story && !data.progress.email) {
           docUploadArea.classList.add('show');
+        } else if (data.progress && data.progress.email) {
+          // Hide upload area once we move past the story phase
+          docUploadArea.classList.remove('show');
         }
       }
       
       if (data.done) {
-        if (data.calendlyLink) showCalendlyButton(data.calendlyLink);
+        // Show completion message and Calendly button
+        if (data.calendlyLink) {
+          setTimeout(() => showCalendlyButton(data.calendlyLink), 500);
+        }
         lockInput();
         progressBar.style.display = 'none';
+        docUploadArea.classList.remove('show'); // Hide upload on completion
         // Clear returning visitor on completion
         localStorage.removeItem('ander_session');
         localStorage.removeItem('ander_time');
@@ -856,4 +868,3 @@ document.querySelectorAll('.nav-links a').forEach(a => {
 </script>
 </body>
 </html>
-

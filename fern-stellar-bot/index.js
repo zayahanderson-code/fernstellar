@@ -145,6 +145,7 @@ function getSession(sessionId) {
       hasCourtCase: false, hasGarnishment: false,
       sentimentFlags: [], documentUrls: [],
       intakeComplete: false, offTopicCount: 0,
+      postIntakeQuestionCount: 0,
       history: [], language: 'en',
       awaitingCaseNumber: false, awaitingCounty: false
     });
@@ -872,7 +873,50 @@ app.post('/api/message', async (req, res) => {
 
   // Already complete
   if (session.intakeComplete) {
-    return res.json({ done: true, step, sessionId: sid, message: null, type: 'text', options: [], delay: 0 });
+    // Allow up to 3 follow-up questions after intake
+    session.postIntakeQuestionCount = (session.postIntakeQuestionCount || 0) + 1;
+    
+    if (session.postIntakeQuestionCount > 3) {
+      // After 3 questions, redirect to Calendly
+      const redirectMsg = session.language === 'es'
+        ? `${session.firstName}, estas son excelentes preguntas que LaMya puede responder mejor en una consulta. ¿Por qué no reservas 10 minutos con ella ahora? O simplemente espera su llamada dentro de 24 horas. 😊`
+        : `${session.firstName}, these are great questions that LaMya can answer best in a consultation. Why not book 10 minutes with her now? Or just wait for her call within 24 hours. 😊`;
+      
+      session.history.push({ role: 'user', content: userMessage });
+      session.history.push({ role: 'assistant', content: redirectMsg });
+      
+      return res.json({ 
+        done: true, 
+        step, 
+        sessionId: sid, 
+        message: redirectMsg, 
+        calendlyLink: CALENDLY_LINK,
+        type: 'text', 
+        options: [], 
+        delay: 800 
+      });
+    }
+    
+    // Answer brief legal questions, then remind them about Calendly
+    session.history.push({ role: 'user', content: userMessage });
+    const anderResponse = await askClaude(session);
+    const reminderMsg = session.language === 'es'
+      ? `\n\nRecuerda: LaMya puede profundizar en esto durante tu consulta gratuita. ${session.postIntakeQuestionCount === 3 ? '¡Reserva tu tiempo ahora!' : ''}`
+      : `\n\nRemember: LaMya can dive deeper into this during your free consultation. ${session.postIntakeQuestionCount === 3 ? 'Book your time now!' : ''}`;
+    
+    const fullResponse = anderResponse + reminderMsg;
+    session.history.push({ role: 'assistant', content: fullResponse });
+    
+    return res.json({ 
+      done: session.postIntakeQuestionCount >= 3, 
+      step, 
+      sessionId: sid, 
+      message: fullResponse, 
+      calendlyLink: session.postIntakeQuestionCount >= 3 ? CALENDLY_LINK : null,
+      type: 'text', 
+      options: [], 
+      delay: typingDelay(fullResponse) 
+    });
   }
 
   try {
