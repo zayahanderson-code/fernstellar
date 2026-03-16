@@ -34,6 +34,16 @@ app.use('/api/message', chatLimiter);
 // ─── BASIC AUTHENTICATION FOR DASHBOARD ─────────────────────────────────────
 const DASHBOARD_PASSWORD = process.env.DASHBOARD_PASSWORD || 'change-this-password';
 
+// Security headers middleware
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  next();
+});
+
 function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization;
   
@@ -79,9 +89,25 @@ const upload = multer({
 });
 
 // ─── MONGODB CONNECTION ─────────────────────────────────────────────────────
-mongoose.connect(process.env.MONGODB_URI)
+mongoose.connect(process.env.MONGODB_URI, {
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+})
   .then(() => console.log('🍃 MongoDB connected — Ander CRM ready'))
   .catch(err => console.error('❌ MongoDB connection failed:', err));
+
+// Handle MongoDB connection events
+mongoose.connection.on('disconnected', () => {
+  console.log('⚠️ MongoDB disconnected. Attempting to reconnect...');
+});
+
+mongoose.connection.on('reconnected', () => {
+  console.log('✅ MongoDB reconnected successfully');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('❌ MongoDB error:', err);
+});
 
 // ─── ENHANCED INTAKE SCHEMA ─────────────────────────────────────────────────
 const intakeSchema = new mongoose.Schema({
@@ -133,10 +159,49 @@ const Intake = mongoose.model('Intake', intakeSchema);
 
 // ─── SESSION MANAGEMENT ─────────────────────────────────────────────────────
 const sessions = new Map();
+const MAX_SESSIONS = 10000; // Hard limit on concurrent sessions
+
+// Clean up old sessions every 30 minutes
+setInterval(() => {
+  const now = Date.now();
+  const oneHour = 60 * 60 * 1000;
+  
+  for (const [sessionId, session] of sessions.entries()) {
+    // Remove sessions older than 1 hour or completed intakes older than 5 minutes
+    const sessionAge = now - (session.createdAt || now);
+    const shouldDelete = sessionAge > oneHour || 
+                        (session.intakeComplete && sessionAge > 5 * 60 * 1000);
+    
+    if (shouldDelete) {
+      sessions.delete(sessionId);
+      console.log(`🧹 Cleaned up session: ${sessionId}`);
+    }
+  }
+  
+  console.log(`📊 Active sessions: ${sessions.size}/${MAX_SESSIONS}`);
+}, 30 * 60 * 1000); // Run every 30 minutes
+
 function getSession(sessionId) {
+  // Check if at capacity
+  if (!sessions.has(sessionId) && sessions.size >= MAX_SESSIONS) {
+    console.warn(`⚠️ Session limit reached (${MAX_SESSIONS}). Cleaning oldest sessions...`);
+    
+    // Sort sessions by creation time (oldest first)
+    const sortedSessions = Array.from(sessions.entries())
+      .sort((a, b) => (a[1].createdAt || 0) - (b[1].createdAt || 0));
+    
+    // Remove oldest 10%
+    const toRemove = Math.floor(MAX_SESSIONS * 0.1);
+    for (let i = 0; i < toRemove && i < sortedSessions.length; i++) {
+      sessions.delete(sortedSessions[i][0]);
+      console.log(`🧹 Force-removed old session: ${sortedSessions[i][0]}`);
+    }
+  }
+  
   if (!sessions.has(sessionId)) {
     sessions.set(sessionId, {
       sessionId,
+      createdAt: Date.now(), // Track creation time
       firstName: null, email: null, phone: null,
       practiceArea: null, story: null, urgency: null,
       debtAmount: null, debtAmountRaw: null,
@@ -231,6 +296,37 @@ TU PERSONALIDAD Y REGLAS:
 - Cero juicio sobre situaciones de deuda
 - Cuando alguien tiene un CASO EN CORTE o EMBARGO, pregunta por el número de caso y el condado de Florida
 `;
+
+// ─── VALIDATION FUNCTIONS ───────────────────────────────────────────────────
+function validateEmail(email) {
+  if (!email || typeof email !== 'string') return false;
+  
+  // RFC 5322 compliant email regex (more strict)
+  const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  
+  // Additional checks
+  if (email.length > 254) return false; // Max email length
+  if (email.includes('..')) return false; // No consecutive dots
+  if (email.startsWith('.') || email.endsWith('.')) return false;
+  
+  return regex.test(email);
+}
+
+function validatePhone(phone) {
+  if (!phone || typeof phone !== 'string') return false;
+  
+  // Extract digits only
+  const digits = phone.replace(/\D/g, '');
+  
+  // US: 10 digits, International: 10-15 digits
+  if (digits.length < 10 || digits.length > 15) return false;
+  
+  // Reject obviously fake numbers
+  const fakePatterns = ['0000000000', '1111111111', '1234567890'];
+  if (fakePatterns.includes(digits)) return false;
+  
+  return true;
+}
 
 // ─── PRACTICE AREA CLASSIFICATION ───────────────────────────────────────────
 function classifyPracticeArea(text) {
@@ -497,15 +593,17 @@ function extractFields(session) {
   // Email
   if (!session.email) {
     const em = allText.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);
-    if (em) session.email = em[0].toLowerCase();
+    if (em && validateEmail(em[0])) {
+      session.email = em[0].toLowerCase();
+    }
   }
   
   // Phone
   if (!session.phone) {
     for (const msg of userMsgs) {
-      const d = msg.content.replace(/\D/g, '');
-      if (d.length === 10 || d.length === 11) {
-        session.phone = msg.content.trim();
+      const phoneCandidate = msg.content.trim();
+      if (validatePhone(phoneCandidate)) {
+        session.phone = phoneCandidate;
         break;
       }
     }
@@ -642,13 +740,32 @@ RULES:
 // ─── CLAUDE CONVERSATION ────────────────────────────────────────────────────
 async function askClaude(session) {
   const context = session.language === 'es' ? FIRM_CONTEXT_ES : FIRM_CONTEXT;
-  const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 200,
-    system: context + '\n\n' + buildStateSummary(session),
-    messages: session.history
-  });
-  return response.content[0].text;
+  
+  // Create abort controller for timeout
+  const controller = new AbortController();
+  const timeout = setTimeout(() => {
+    controller.abort();
+    console.error('⏱️ Anthropic API timeout after 30 seconds');
+  }, 30000); // 30 second timeout
+  
+  try {
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 200,
+      system: context + '\n\n' + buildStateSummary(session),
+      messages: session.history,
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    return response.content[0].text;
+  } catch (error) {
+    clearTimeout(timeout);
+    if (error.name === 'AbortError') {
+      console.error('❌ API request timed out');
+      throw new Error('Request timed out');
+    }
+    throw error;
+  }
 }
 
 // ─── EMAIL NOTIFICATIONS ────────────────────────────────────────────────────
@@ -851,8 +968,31 @@ app.get('/api/start', (req, res) => {
   res.json({ step: 0, sessionId, message, type: 'text', options: [], delay: typingDelay(message), language: lang });
 });
 
-app.post('/api/message', async (req, res) => {
+app.post('/api/message', chatLimiter, async (req, res) => {
   const { step, userMessage, sessionId, language } = req.body;
+  
+  // ✅ VALIDATE MESSAGE LENGTH
+  if (!userMessage || typeof userMessage !== 'string') {
+    return res.status(400).json({ 
+      success: false, 
+      error: 'Message is required' 
+    });
+  }
+  
+  if (userMessage.length > 500) {
+    return res.status(400).json({ 
+      success: false, 
+      error: 'Message must be 500 characters or less' 
+    });
+  }
+  
+  if (userMessage.trim().length === 0) {
+    return res.status(400).json({ 
+      success: false, 
+      error: 'Message cannot be empty' 
+    });
+  }
+  
   const sid = sessionId || crypto.randomUUID();
   const session = getSession(sid);
   if (language) session.language = language;
@@ -1008,8 +1148,14 @@ app.post('/api/message', async (req, res) => {
   }
 });
 
-// Document upload endpoint
-app.post('/api/upload', upload.single('document'), async (req, res) => {
+// Document upload endpoint with rate limiting
+const uploadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Max 5 uploads per 15 minutes per IP
+  message: 'Too many uploads, please try again later.',
+});
+
+app.post('/api/upload', uploadLimiter, upload.single('document'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ success: false, error: 'No file uploaded' });
   }
@@ -1103,14 +1249,17 @@ app.get('/api/intakes', requireAuth, async (req, res) => {
     if (urgency === 'urgent') query.urgency = 'urgent';
     
     if (search) {
+      // Sanitize search input to prevent NoSQL injection
+      const sanitizedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      
       query.$or = [
-        { firstName: { $regex: search, $options: 'i' } },
-        { phone: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
-        { practiceArea: { $regex: search, $options: 'i' } },
-        { story: { $regex: search, $options: 'i' } },
-        { caseNumber: { $regex: search, $options: 'i' } },
-        { county: { $regex: search, $options: 'i' } }
+        { firstName: { $regex: sanitizedSearch, $options: 'i' } },
+        { phone: { $regex: sanitizedSearch, $options: 'i' } },
+        { email: { $regex: sanitizedSearch, $options: 'i' } },
+        { practiceArea: { $regex: sanitizedSearch, $options: 'i' } },
+        { story: { $regex: sanitizedSearch, $options: 'i' } },
+        { caseNumber: { $regex: sanitizedSearch, $options: 'i' } },
+        { county: { $regex: sanitizedSearch, $options: 'i' } }
       ];
     }
     

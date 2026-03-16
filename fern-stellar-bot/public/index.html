@@ -720,10 +720,23 @@ async function handleFileUpload(e) {
       const docsEl = document.getElementById('uploaded-docs');
       const docEl = document.createElement('div');
       docEl.className = 'uploaded-doc';
-      docEl.innerHTML = `
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-        <span>${file.name}</span>
-      `;
+      
+      // Safely create SVG
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('viewBox', '0 0 24 24');
+      svg.setAttribute('fill', 'none');
+      svg.setAttribute('stroke', 'currentColor');
+      svg.setAttribute('stroke-width', '2');
+      const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+      polyline.setAttribute('points', '20 6 9 17 4 12');
+      svg.appendChild(polyline);
+      
+      // Safely add filename as text (prevents XSS)
+      const span = document.createElement('span');
+      span.textContent = file.name; // ✅ Escapes HTML automatically
+      
+      docEl.appendChild(svg);
+      docEl.appendChild(span);
       docsEl.appendChild(docEl);
       
       // Add a message about the upload
