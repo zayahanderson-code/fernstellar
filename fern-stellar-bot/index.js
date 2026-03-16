@@ -1139,6 +1139,11 @@ app.get('/dashboard', (req, res) => {
 
 // ─── SERVER START ───────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🌿 Fern Stellar · Ander v2 running on http://localhost:${PORT}`);
+const HOST = '0.0.0.0'; // Bind to all interfaces for Railway/Docker
+
+app.listen(PORT, HOST, () => {
+  console.log(`🌿 Fern Stellar · Ander v2 running on port ${PORT}`);
+  console.log(`📊 Dashboard: /dashboard`);
+  console.log(`💬 Chat API: /api/chat`);
+  console.log(`🍃 MongoDB: ${process.env.MONGODB_URI ? 'Connected' : 'Not configured'}`);
 });
