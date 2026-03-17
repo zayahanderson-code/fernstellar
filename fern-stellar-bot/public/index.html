@@ -809,7 +809,8 @@ async function startChat() {
 
 async function sendMessage() {
   const text = inputEl.value.trim();
-  if (!text || isTyping || intakeDone) return;
+  // Block if empty, typing, OR if input is actually disabled
+  if (!text || isTyping || inputEl.disabled) return;
   inputEl.value = ''; inputEl.style.height = 'auto';
   charCounter.textContent = '500';
   charCounter.className = 'char-counter';
@@ -837,54 +838,82 @@ async function sendMessage() {
         // Don't automatically show quick replies - let the backend control the flow
         // The backend will ask for name, then story naturally through conversation
         
-        // Show document upload after story is collected, hide after email is collected
+        // Show document upload after story is collected, but BEFORE case info
+        // Hide once case info OR email collection starts
         // BUT only if user hasn't already interacted with upload box
-        if (data.progress && data.progress.story && !data.progress.email && !uploadInteracted) {
+        if (data.progress && data.progress.story && !data.progress.caseInfo && !data.progress.email && !uploadInteracted) {
           docUploadArea.classList.add('show');
         } else {
-          // Hide upload area once email phase starts OR user has interacted
+          // Hide upload area once case info OR email phase starts OR user has interacted
           docUploadArea.classList.remove('show');
         }
       }
       
       if (data.done) {
-        console.log('✅ INTAKE COMPLETE!');
-        intakeDone = true;
+        console.log('==========================================');
+        console.log('✅ INTAKE COMPLETE RECEIVED FROM BACKEND');
+        console.log('📅 Calendly Link:', data.calendlyLink);
+        console.log('📝 Post-intake question count:', data.postIntakeQuestionCount);
+        console.log('==========================================');
         
         // Hide progress and upload
         progressBar.style.display = 'none';
         docUploadArea.classList.remove('show');
         
-        // Show completion checkmark
-        const completionWrapper = document.createElement('div');
-        completionWrapper.style.cssText = 'text-align:center;padding:24px;margin:16px 0;';
-        
-        const checkmark = document.createElement('div');
-        checkmark.style.cssText = 'font-size:56px;color:#22c55e;margin-bottom:8px;animation:scaleIn 0.3s ease;';
-        checkmark.textContent = '✓';
-        
-        const completionText = document.createElement('div');
-        completionText.style.cssText = 'font-size:14px;color:#166534;font-weight:600;';
-        completionText.textContent = currentLang === 'es' ? '¡Formulario Completado!' : 'Intake Complete!';
-        
-        completionWrapper.appendChild(checkmark);
-        completionWrapper.appendChild(completionText);
-        messagesEl.appendChild(completionWrapper);
-        scrollBottom();
-        
-        // Show Calendly button
-        if (data.calendlyLink) {
-          setTimeout(() => {
-            showCalendlyButton(data.calendlyLink);
-            console.log('📅 Calendly button displayed');
-          }, 500);
+        // Show completion checkmark ONLY on first completion
+        if (!intakeDone) {
+          const completionWrapper = document.createElement('div');
+          completionWrapper.style.cssText = 'text-align:center;padding:24px;margin:16px 0;';
+          
+          const checkmark = document.createElement('div');
+          checkmark.style.cssText = 'font-size:56px;color:#22c55e;margin-bottom:8px;animation:scaleIn 0.3s ease;';
+          checkmark.textContent = '✓';
+          
+          const completionText = document.createElement('div');
+          completionText.style.cssText = 'font-size:14px;color:#166534;font-weight:600;';
+          completionText.textContent = currentLang === 'es' ? '¡Formulario Completado!' : 'Intake Complete!';
+          
+          completionWrapper.appendChild(checkmark);
+          completionWrapper.appendChild(completionText);
+          messagesEl.appendChild(completionWrapper);
+          scrollBottom();
+          
+          // Mark as done but DON'T lock input yet (allow 3 questions)
+          intakeDone = true;
         }
         
-        // Lock input with completion message
-        lockInput();
-        inputEl.placeholder = currentLang === 'es' 
-          ? 'Formulario completado ✓' 
-          : 'Intake complete ✓';
+        // Show Calendly button - ALWAYS if link is provided
+        if (data.calendlyLink) {
+          console.log('📅 Showing Calendly button with link:', data.calendlyLink);
+          setTimeout(() => {
+            showCalendlyButton(data.calendlyLink);
+            console.log('✅ Calendly button displayed');
+          }, 500);
+        } else {
+          console.warn('⚠️ No Calendly link provided by backend!');
+        }
+        
+        // Check if we should lock input now (after 3+ questions)
+        // Backend sends done: true on first completion AND after 3 questions
+        // We only lock on the "after 3 questions" done
+        const shouldLockNow = data.message && (
+          data.message.includes('book 10 minutes') || 
+          data.message.includes('reservas 10 minutos') ||
+          data.message.includes('these are great questions')
+        );
+        
+        if (shouldLockNow) {
+          console.log('🔒 Locking input after 3 post-intake questions...');
+          lockInput();
+          inputEl.placeholder = currentLang === 'es' 
+            ? 'Por favor reserva con LaMya ✓' 
+            : 'Please book with LaMya ✓';
+          console.log('✅ Input locked. User must use Calendly now.');
+        } else {
+          console.log('📝 Allowing post-intake questions (up to 3)...');
+          // Don't lock - allow questions
+          sendBtn.disabled = false;
+        }
         
         // Clear returning visitor data on completion
         localStorage.removeItem('ander_session');
