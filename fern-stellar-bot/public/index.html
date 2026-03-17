@@ -145,6 +145,7 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
 .typing-dot:nth-child(2) { animation-delay: .15s; }
 .typing-dot:nth-child(3) { animation-delay: .3s; }
 @keyframes typingBounce { 0%,60%,100% { transform: translateY(0); opacity:.4; } 30% { transform: translateY(-5px); opacity:1; } }
+@keyframes scaleIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
 /* Quick reply chips */
 .quick-replies { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 16px 12px; }
@@ -525,6 +526,7 @@ const proactiveBubble = document.getElementById('ander-proactive');
 let sessionId = null, step = 0, isTyping = false, started = false, intakeDone = false;
 let showingQuickReplies = false;
 let uploadedDocs = [];
+let uploadInteracted = false; // Track if user has clicked upload or finished uploading
 
 // Returning visitor detection
 const storedSession = localStorage.getItem('ander_session');
@@ -694,6 +696,7 @@ function updateQuickReplies() {
 
 // Document upload
 uploadTrigger.addEventListener('click', () => {
+  uploadInteracted = true; // User clicked upload - don't auto-show again
   docUploadArea.classList.toggle('show');
 });
 
@@ -746,6 +749,7 @@ async function handleFileUpload(e) {
       
       // Close upload area after successful upload
       setTimeout(() => {
+        uploadInteracted = true; // User uploaded - don't auto-show again
         docUploadArea.classList.remove('show');
       }, 1500);
     }
@@ -834,23 +838,55 @@ async function sendMessage() {
         // The backend will ask for name, then story naturally through conversation
         
         // Show document upload after story is collected, hide after email is collected
-        if (data.progress && data.progress.story && !data.progress.email) {
+        // BUT only if user hasn't already interacted with upload box
+        if (data.progress && data.progress.story && !data.progress.email && !uploadInteracted) {
           docUploadArea.classList.add('show');
-        } else if (data.progress && data.progress.email) {
-          // Hide upload area once we move past the story phase
+        } else {
+          // Hide upload area once email phase starts OR user has interacted
           docUploadArea.classList.remove('show');
         }
       }
       
       if (data.done) {
-        // Show completion message and Calendly button
-        if (data.calendlyLink) {
-          setTimeout(() => showCalendlyButton(data.calendlyLink), 500);
-        }
-        lockInput();
+        console.log('✅ INTAKE COMPLETE!');
+        intakeDone = true;
+        
+        // Hide progress and upload
         progressBar.style.display = 'none';
-        docUploadArea.classList.remove('show'); // Hide upload on completion
-        // Clear returning visitor on completion
+        docUploadArea.classList.remove('show');
+        
+        // Show completion checkmark
+        const completionWrapper = document.createElement('div');
+        completionWrapper.style.cssText = 'text-align:center;padding:24px;margin:16px 0;';
+        
+        const checkmark = document.createElement('div');
+        checkmark.style.cssText = 'font-size:56px;color:#22c55e;margin-bottom:8px;animation:scaleIn 0.3s ease;';
+        checkmark.textContent = '✓';
+        
+        const completionText = document.createElement('div');
+        completionText.style.cssText = 'font-size:14px;color:#166534;font-weight:600;';
+        completionText.textContent = currentLang === 'es' ? '¡Formulario Completado!' : 'Intake Complete!';
+        
+        completionWrapper.appendChild(checkmark);
+        completionWrapper.appendChild(completionText);
+        messagesEl.appendChild(completionWrapper);
+        scrollBottom();
+        
+        // Show Calendly button
+        if (data.calendlyLink) {
+          setTimeout(() => {
+            showCalendlyButton(data.calendlyLink);
+            console.log('📅 Calendly button displayed');
+          }, 500);
+        }
+        
+        // Lock input with completion message
+        lockInput();
+        inputEl.placeholder = currentLang === 'es' 
+          ? 'Formulario completado ✓' 
+          : 'Intake complete ✓';
+        
+        // Clear returning visitor data on completion
         localStorage.removeItem('ander_session');
         localStorage.removeItem('ander_time');
         localStorage.removeItem('ander_name');

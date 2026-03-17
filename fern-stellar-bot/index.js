@@ -50,6 +50,11 @@ app.use((req, res, next) => {
 function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization;
   
+  // ✅ FORCE LOGIN POPUP EVERY TIME - prevent browser from saving credentials
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  
   if (!authHeader || !authHeader.startsWith('Basic ')) {
     res.setHeader('WWW-Authenticate', 'Basic realm="Ander Dashboard"');
     return res.status(401).send('Authentication required');
@@ -60,8 +65,29 @@ function requireAuth(req, res, next) {
   const [username, password] = credentials.split(':');
   
   if (password === DASHBOARD_PASSWORD) {
+    // ✅ LOG SUCCESSFUL LOGIN
+    const timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
+    const ip = req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const userAgent = req.headers['user-agent'] || 'Unknown';
+    
+    console.log(`🔐 DASHBOARD LOGIN SUCCESS`);
+    console.log(`   Username: ${username}`);
+    console.log(`   IP Address: ${ip}`);
+    console.log(`   Time: ${timestamp}`);
+    console.log(`   Device: ${userAgent.substring(0, 100)}`);
+    console.log(`   Path: ${req.path}`);
+    
     next();
   } else {
+    // ❌ LOG FAILED LOGIN ATTEMPT
+    const timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
+    const ip = req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    
+    console.log(`❌ DASHBOARD LOGIN FAILED`);
+    console.log(`   Username: ${username}`);
+    console.log(`   IP Address: ${ip}`);
+    console.log(`   Time: ${timestamp}`);
+    
     res.setHeader('WWW-Authenticate', 'Basic realm="Ander Dashboard"');
     return res.status(401).send('Invalid credentials');
   }
