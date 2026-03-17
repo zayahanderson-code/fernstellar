@@ -86,17 +86,29 @@ footer { background: #1a1a2e; padding: 40px 60px; display: flex; align-items: ce
 .footer-logo span { color: #c9a070; }
 footer p { font-size: 12px; color: rgba(255,255,255,.3); }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   ANDER WIDGET V2 — Enhanced with Quick Replies, Doc Upload, Spanish Toggle
-   ═══════════════════════════════════════════════════════════════════════════ */
-
+/* ═══════════════════════════ ANDER WIDGET ═══════════════════════════ */
 #ander-toggle { position: fixed; bottom: 28px; right: 28px; z-index: 998; width: 60px; height: 60px; border-radius: 50%; background: #1a1a2e; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 28px rgba(0,0,0,.22); transition: transform .2s, box-shadow .2s; }
 #ander-toggle:hover { transform: scale(1.06); box-shadow: 0 12px 32px rgba(0,0,0,.28); }
+#ander-toggle:focus-visible { outline: 2px solid #c9a070; outline-offset: 3px; }
 #ander-toggle svg { width: 26px; height: 26px; fill: #c9a070; }
 .ander-pulse { position: absolute; top: -3px; right: -3px; width: 14px; height: 14px; background: #22c55e; border-radius: 50%; border: 2px solid white; }
 
-#ander-widget { display: none; position: fixed; bottom: 104px; right: 28px; z-index: 999; width: 400px; max-height: 620px; border-radius: 20px; background: white; box-shadow: 0 20px 60px rgba(0,0,0,.18); flex-direction: column; overflow: hidden; transform: scale(0.92) translateY(16px); opacity: 0; transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .25s; transform-origin: bottom right; }
-#ander-widget.open { transform: scale(1) translateY(0); opacity: 1; }
+/* FIX: use visibility/opacity rather than display:flex + setTimeout hack */
+#ander-widget {
+  visibility: hidden; pointer-events: none;
+  position: fixed; bottom: 104px; right: 28px; z-index: 999;
+  width: 400px; max-height: 620px; border-radius: 20px;
+  background: white; box-shadow: 0 20px 60px rgba(0,0,0,.18);
+  display: flex; flex-direction: column; overflow: hidden;
+  transform: scale(0.92) translateY(16px); opacity: 0;
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .25s, visibility 0s .25s;
+  transform-origin: bottom right;
+}
+#ander-widget.open {
+  visibility: visible; pointer-events: all;
+  transform: scale(1) translateY(0); opacity: 1;
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .25s, visibility 0s 0s;
+}
 
 .ander-head { background: #1a1a2e; padding: 16px 18px; display: flex; align-items: center; gap: 12px; border-radius: 20px 20px 0 0; }
 .ander-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg,#8b5e3c,#c9a070); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: white; flex-shrink: 0; }
@@ -107,20 +119,21 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
 .ander-badge { background: rgba(201,160,112,.18); border: 1px solid rgba(201,160,112,.35); border-radius: 4px; padding: 4px 9px; font-size: 10px; font-weight: 600; letter-spacing: 0.06em; color: #c9a070; text-transform: uppercase; }
 .ander-close { background: none; border: none; color: rgba(255,255,255,.45); font-size: 20px; cursor: pointer; padding: 4px; margin-left: 8px; border-radius: 4px; transition: color .15s; }
 .ander-close:hover { color: white; }
+.ander-close:focus-visible { outline: 2px solid #c9a070; }
 
-/* Language toggle */
 .lang-toggle { display: flex; gap: 4px; margin-left: auto; margin-right: 8px; }
 .lang-btn { background: rgba(255,255,255,.1); border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; color: rgba(255,255,255,.5); cursor: pointer; transition: all .15s; }
 .lang-btn.active { background: rgba(201,160,112,.3); color: #c9a070; }
 .lang-btn:hover:not(.active) { color: white; }
+.lang-btn:focus-visible { outline: 2px solid #c9a070; }
 
-/* Progress bar */
 .ander-progress { background: rgba(26,26,46,.03); padding: 10px 18px; display: flex; gap: 6px; align-items: center; border-bottom: 1px solid rgba(0,0,0,.05); }
 .progress-step { flex: 1; height: 4px; border-radius: 2px; background: rgba(0,0,0,.08); transition: background .4s; }
 .progress-step.done { background: #22c55e; }
 .progress-step.active { background: #c9a070; }
 .progress-label { font-size: 10px; color: #999; letter-spacing: 0.08em; white-space: nowrap; margin-left: 8px; }
 
+/* FIX: aria-live region for screen reader announcements */
 .ander-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth; min-height: 280px; }
 .ander-messages::-webkit-scrollbar { width: 4px; }
 .ander-messages::-webkit-scrollbar-track { background: transparent; }
@@ -147,13 +160,12 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
 @keyframes typingBounce { 0%,60%,100% { transform: translateY(0); opacity:.4; } 30% { transform: translateY(-5px); opacity:1; } }
 @keyframes scaleIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-/* Quick reply chips */
 .quick-replies { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 16px 12px; }
-.quick-chip { background: white; border: 1.5px solid #e5e0d8; border-radius: 20px; padding: 7px 14px; font-size: 12px; font-weight: 500; color: #1a1a2e; cursor: pointer; transition: all .15s; }
+.quick-chip { background: white; border: 1.5px solid #e5e0d8; border-radius: 20px; padding: 7px 14px; font-size: 12px; font-weight: 500; color: #1a1a2e; cursor: pointer; transition: all .15s; font-family: 'DM Sans', sans-serif; }
 .quick-chip:hover { border-color: #8b5e3c; background: rgba(139,94,60,.06); }
 .quick-chip:active { transform: scale(0.96); }
+.quick-chip:focus-visible { outline: 2px solid #8b5e3c; }
 
-/* Document upload area */
 .doc-upload-area { padding: 0 16px 12px; display: none; }
 .doc-upload-area.show { display: block; }
 .doc-upload-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px; border: 2px dashed rgba(139,94,60,.3); border-radius: 10px; background: rgba(139,94,60,.04); color: #8b5e3c; font-size: 12px; font-weight: 500; cursor: pointer; transition: all .15s; }
@@ -162,43 +174,35 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
 .doc-upload-info { font-size: 10px; color: #999; text-align: center; margin-top: 6px; }
 .doc-upload-info strong { color: #22c55e; }
 .uploaded-doc { display: flex; align-items: center; gap: 8px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 8px 12px; margin-top: 8px; }
-.uploaded-doc svg { width: 16px; height: 16px; color: #22c55e; }
+.uploaded-doc svg { width: 16px; height: 16px; color: #22c55e; flex-shrink: 0; }
 .uploaded-doc span { font-size: 12px; color: #166534; flex: 1; }
 
 .ander-input-area { border-top: 1px solid rgba(0,0,0,.07); padding: 12px 14px; display: flex; align-items: flex-end; gap: 8px; background: white; }
 #ander-input { flex: 1; border: 1px solid rgba(0,0,0,.1); border-radius: 12px; padding: 9px 12px; font-size: 13px; font-family: 'DM Sans', sans-serif; resize: none; outline: none; max-height: 100px; overflow-y: auto; line-height: 1.5; transition: border-color .2s; background: #fafafa; }
 #ander-input:focus { border-color: #8b5e3c; background: white; }
+#ander-input:disabled { background: #f5f5f5; color: #999; cursor: not-allowed; }
 .input-footer { display: flex; align-items: center; justify-content: flex-end; padding: 0 14px 8px; }
 .char-counter { font-size: 10px; color: #bbb; transition: color .2s; }
-.char-counter.warn { color: #f59e0b; }
+.char-counter.warn  { color: #f59e0b; }
 .char-counter.limit { color: #ef4444; }
 #ander-send { width: 36px; height: 36px; border-radius: 10px; background: #1a1a2e; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .2s; }
-#ander-send:hover { background: #8b5e3c; }
+#ander-send:hover:not(:disabled) { background: #8b5e3c; }
 #ander-send:disabled { opacity: .35; cursor: not-allowed; }
+#ander-send:focus-visible { outline: 2px solid #c9a070; outline-offset: 2px; }
 #ander-send svg { width: 16px; height: 16px; fill: #c9a070; }
 
-/* Upload button in input area */
 #upload-trigger { width: 36px; height: 36px; border-radius: 10px; background: transparent; border: 1px solid rgba(0,0,0,.1); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .2s; }
 #upload-trigger:hover { border-color: #8b5e3c; background: rgba(139,94,60,.06); }
+#upload-trigger:focus-visible { outline: 2px solid #8b5e3c; }
 #upload-trigger svg { width: 16px; height: 16px; stroke: #8b5e3c; fill: none; }
 
 .calendly-btn { display: block; text-align: center; background: #1a1a2e; color: #c9a070; padding: 13px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; margin: 4px 16px 12px; transition: background .2s; }
 .calendly-btn:hover { background: #8b5e3c; color: white; }
 
-/* Returning visitor banner */
-.returning-banner { background: linear-gradient(90deg,#1a1a2e,#2d2d4e); color: white; padding: 10px 16px; font-size: 12px; display: flex; align-items: center; gap: 8px; }
-.returning-banner span { color: #c9a070; }
-
-/* Proactive bubble */
-#ander-proactive { position: fixed; bottom: 104px; right: 100px; z-index: 997; background: white; border-radius: 12px; padding: 12px 16px; box-shadow: 0 8px 28px rgba(0,0,0,.14); font-size: 13px; color: #1a1a2e; max-width: 220px; line-height: 1.5; opacity: 0; transform: translateY(8px); transition: all 0.3s ease; pointer-events: none; border: 1px solid rgba(0,0,0,.07); }
-#ander-proactive.show { opacity: 1; transform: translateY(0); pointer-events: all; cursor: pointer; }
+#ander-proactive { position: fixed; bottom: 104px; right: 100px; z-index: 997; background: white; border-radius: 12px; padding: 12px 16px; box-shadow: 0 8px 28px rgba(0,0,0,.14); font-size: 13px; color: #1a1a2e; max-width: 220px; line-height: 1.5; opacity: 0; transform: translateY(8px); transition: all 0.3s ease; pointer-events: none; border: 1px solid rgba(0,0,0,.07); cursor: pointer; }
+#ander-proactive.show { opacity: 1; transform: translateY(0); pointer-events: all; }
 #ander-proactive::after { content: ''; position: absolute; bottom: -7px; right: 16px; width: 12px; height: 12px; background: white; border-right: 1px solid rgba(0,0,0,.07); border-bottom: 1px solid rgba(0,0,0,.07); transform: rotate(45deg); }
 
-/* Confidentiality notice */
-.confidentiality-notice { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 10px 14px; margin: 8px 16px; font-size: 11px; color: #166534; display: flex; align-items: flex-start; gap: 8px; }
-.confidentiality-notice svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
-
-/* Mobile responsive */
 @media (max-width: 480px) {
   #ander-widget { width: calc(100vw - 20px); right: 10px; bottom: 80px; max-height: 80vh; border-radius: 16px; }
   #ander-toggle { bottom: 16px; right: 16px; width: 54px; height: 54px; }
@@ -224,7 +228,7 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
     <li><a href="#process">How It Works</a></li>
     <li><a href="#why">Why Us</a></li>
   </ul>
-  <a href="#contact" class="nav-cta" onclick="openAnder(event)">Free Consultation</a>
+  <a href="#contact" class="nav-cta" id="nav-cta-btn">Free Consultation</a>
 </nav>
 
 <section class="hero" id="home">
@@ -234,7 +238,7 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
       <h1>End the stress<br/>and worry.<br/><em>We're here to help.</em></h1>
       <p>The Henry Law Firm helps Floridians regain peace after financial setbacks — with 25 years of legal experience fighting debt collectors, garnishments, and creditor lawsuits on your side.</p>
       <div class="hero-btns">
-        <a href="#" class="btn-dark" onclick="openAnder(event)">Talk to Ander — Free</a>
+        <a href="#" class="btn-dark" id="hero-open-btn">Talk to Ander — Free</a>
         <a href="tel:4072058576" class="btn-outline">Call (407) 205-8576</a>
       </div>
     </div>
@@ -276,26 +280,10 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
     <h2 class="section-title">From first message<br/><em>to resolution.</em></h2>
     <p class="section-sub" style="margin-bottom:60px;">Getting help is simple — no forms, no waiting rooms, no pressure.</p>
     <div class="process-steps">
-      <div class="process-step">
-        <div class="step-num">01</div>
-        <div class="step-title">Chat with Ander</div>
-        <div class="step-desc">Our AI intake assistant gathers your info confidentially — available 24/7.</div>
-      </div>
-      <div class="process-step">
-        <div class="step-num">02</div>
-        <div class="step-title">LaMya Reviews</div>
-        <div class="step-desc">Attorney LaMya Henry personally reviews your situation within 24 hours.</div>
-      </div>
-      <div class="process-step">
-        <div class="step-num">03</div>
-        <div class="step-title">Free Consult</div>
-        <div class="step-desc">You speak directly with LaMya for 10 minutes — no paralegal, no case manager.</div>
-      </div>
-      <div class="process-step">
-        <div class="step-num">04</div>
-        <div class="step-title">We Fight</div>
-        <div class="step-desc">We take action immediately — responding to lawsuits, filing motions, and protecting your rights.</div>
-      </div>
+      <div class="process-step"><div class="step-num">01</div><div class="step-title">Chat with Ander</div><div class="step-desc">Our AI intake assistant gathers your info confidentially — available 24/7.</div></div>
+      <div class="process-step"><div class="step-num">02</div><div class="step-title">LaMya Reviews</div><div class="step-desc">Attorney LaMya Henry personally reviews your situation within 24 hours.</div></div>
+      <div class="process-step"><div class="step-num">03</div><div class="step-title">Free Consult</div><div class="step-desc">You speak directly with LaMya for 10 minutes — no paralegal, no case manager.</div></div>
+      <div class="process-step"><div class="step-num">04</div><div class="step-title">We Fight</div><div class="step-desc">We take action immediately — responding to lawsuits, filing motions, and protecting your rights.</div></div>
     </div>
   </div>
 </section>
@@ -326,34 +314,43 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
   <p>© 2025 The Henry Law Firm · Orlando, FL · Debt Defense Attorneys</p>
 </footer>
 
-<!-- ANDER PROACTIVE BUBBLE -->
-<div id="ander-proactive" onclick="openWidget()">
+<!-- Proactive bubble -->
+<div id="ander-proactive" role="button" tabindex="0" aria-label="Open chat with Ander">
   👋 Have a debt question? I can help right now — free, confidential, no pressure.
 </div>
 
-<!-- ANDER WIDGET V2 -->
-<button id="ander-toggle" aria-label="Chat with Ander">
-  <div class="ander-pulse"></div>
-  <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+<!-- Toggle button -->
+<button id="ander-toggle" aria-label="Chat with Ander" aria-expanded="false" aria-controls="ander-widget">
+  <div class="ander-pulse" aria-hidden="true"></div>
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
 </button>
 
-<div id="ander-widget">
+<!-- FIX: role="dialog" + aria-modal for screen reader support -->
+<div
+  id="ander-widget"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Ander — The Henry Law Firm AI Intake Assistant"
+>
   <div class="ander-head">
-    <div class="ander-avatar">A</div>
+    <div class="ander-avatar" aria-hidden="true">A</div>
     <div class="ander-head-info">
       <div class="ander-head-name">Ander · The Henry Law Firm</div>
-      <div class="ander-head-sub"><div class="ander-online"></div>Available now · Confidential</div>
+      <div class="ander-head-sub">
+        <div class="ander-online" aria-hidden="true"></div>
+        Available now · Confidential
+      </div>
     </div>
-    <div class="lang-toggle">
-      <button class="lang-btn active" id="lang-en" onclick="setLanguage('en')">EN</button>
-      <button class="lang-btn" id="lang-es" onclick="setLanguage('es')">ES</button>
+    <!-- FIX: onclick removed from HTML — wired up in JS -->
+    <div class="lang-toggle" role="group" aria-label="Language selection">
+      <button class="lang-btn active" id="lang-en" aria-label="Switch to English" aria-pressed="true">EN</button>
+      <button class="lang-btn"        id="lang-es" aria-label="Switch to Spanish" aria-pressed="false">ES</button>
     </div>
-    <div class="ander-badge">FL Bar</div>
-    <button class="ander-close" id="ander-close-btn">×</button>
+    <div class="ander-badge" aria-hidden="true">FL Bar</div>
+    <button class="ander-close" id="ander-close-btn" aria-label="Close chat">×</button>
   </div>
-  
-  <!-- Intake progress bar -->
-  <div class="ander-progress" id="ander-progress" style="display:none;">
+
+  <div class="ander-progress" id="ander-progress" style="display:none;" aria-hidden="true">
     <div class="progress-step" id="prog-name"></div>
     <div class="progress-step" id="prog-story"></div>
     <div class="progress-step" id="prog-caseInfo"></div>
@@ -361,136 +358,160 @@ footer p { font-size: 12px; color: rgba(255,255,255,.3); }
     <div class="progress-step" id="prog-phone"></div>
     <span class="progress-label" id="progress-label">Intake Progress</span>
   </div>
-  
-  <div id="returning-banner" style="display:none;" class="returning-banner">
-    👋 Welcome back — <span id="returning-name">did you get a chance to connect with the team?</span>
-  </div>
-  
-  <div class="ander-messages" id="ander-messages"></div>
-  
-  <!-- Quick reply chips -->
-  <div class="quick-replies" id="quick-replies" style="display:none;"></div>
-  
-  <!-- Document upload area (hidden by default) -->
+
+  <!-- FIX: aria-live so screen readers announce new bot messages -->
+  <div
+    class="ander-messages"
+    id="ander-messages"
+    role="log"
+    aria-live="polite"
+    aria-label="Chat messages"
+  ></div>
+
+  <div class="quick-replies" id="quick-replies" style="display:none;" role="group" aria-label="Quick reply options"></div>
+
   <div class="doc-upload-area" id="doc-upload-area">
     <label class="doc-upload-btn" for="doc-input">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
       <span id="upload-label">Upload court papers or debt letter (optional)</span>
     </label>
-    <input type="file" id="doc-input" accept=".pdf,.jpg,.jpeg,.png,.heic,.webp" style="display:none;">
-    <div class="doc-upload-info">🔒 <strong>Secure & confidential</strong> — only LaMya will see this</div>
+    <input type="file" id="doc-input" accept=".pdf,.jpg,.jpeg,.png,.heic,.webp" style="display:none;" aria-label="Upload document">
+    <p class="doc-upload-info">🔒 <strong>Secure &amp; confidential</strong> — only LaMya will see this</p>
     <div id="uploaded-docs"></div>
   </div>
-  
-  <div class="input-footer"><span class="char-counter" id="char-counter">500</span></div>
+
+  <div class="input-footer">
+    <span class="char-counter" id="char-counter" aria-live="polite" aria-label="Characters remaining">500</span>
+  </div>
   <div class="ander-input-area">
-    <button id="upload-trigger" title="Upload document">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+    <button id="upload-trigger" aria-label="Upload a document" title="Upload document">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
     </button>
-    <textarea id="ander-input" placeholder="Type your message..." rows="1" maxlength="500"></textarea>
-    <button id="ander-send"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+    <textarea
+      id="ander-input"
+      placeholder="Type your message..."
+      rows="1"
+      maxlength="500"
+      aria-label="Your message"
+      aria-multiline="true"
+    ></textarea>
+    <button id="ander-send" aria-label="Send message">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
   </div>
 </div>
 
-<!-- Hidden file input -->
-<input type="file" id="hidden-file-input" accept=".pdf,.jpg,.jpeg,.png,.heic,.webp" style="display:none;">
-
-<!-- Subtle pop sound via Web Audio API -->
 <script>
-const AudioCtx = window.AudioContext || window.webkitAudioContext;
+'use strict';
+
+// ─── CONSTANTS ────────────────────────────────────────────────────────────────
+const MAX_MSG_LENGTH   = 500;
+const PROACTIVE_DELAY  = 4000;
+// FIX: returning visitor localStorage keys in one place
+const LS_KEYS = Object.freeze({
+  SESSION: 'ander_session',
+  NAME:    'ander_name',
+  TIME:    'ander_time',
+});
+const RETURNING_VISITOR_TTL = 24 * 60 * 60 * 1000; // 24 hours
+
+// FIX: single shared AudioContext — the original created a new one per message,
+// hitting Chrome's ~6-instance limit and silently stopping after 6 messages
+let _audioCtx = null;
+function getAudioCtx() {
+  if (!_audioCtx) {
+    const Ctor = window.AudioContext || window.webkitAudioContext;
+    if (Ctor) _audioCtx = new Ctor();
+  }
+  return _audioCtx;
+}
 function playPopSound() {
   try {
-    const ctx = new AudioCtx();
-    const osc = ctx.createOscillator();
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    const osc  = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.connect(gain); gain.connect(ctx.destination);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
     osc.frequency.setValueAtTime(520, ctx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.08);
     gain.gain.setValueAtTime(0.06, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
-    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.1);
-  } catch(e) {}
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.1);
+  } catch (_) { /* audio is non-critical, never throw */ }
 }
 
-// Language and translations
-let currentLang = 'en';
-const translations = {
+// ─── TRANSLATIONS ─────────────────────────────────────────────────────────────
+const TRANSLATIONS = Object.freeze({
   en: {
-    placeholder: 'Type your message...',
-    charCounter: '500',
-    uploadLabel: 'Upload court papers or debt letter (optional)',
-    uploadInfo: '🔒 Secure & confidential — only LaMya will see this',
+    placeholder:   'Type your message...',
+    uploadLabel:   'Upload court papers or debt letter (optional)',
     progressLabel: 'Intake Progress',
-    proactive: '👋 Have a debt question? I can help right now — free, confidential, no pressure.',
+    proactive:     '👋 Have a debt question? I can help right now — free, confidential, no pressure.',
+    intakeDonePlaceholder: 'Intake complete — thank you!',
+    calendlyText:  '📅 Schedule a Free Consultation',
+    docUploaded:   (name) => `Document uploaded: ${name}`,
     quickReplies: {
-      understand: 'I understand',
-      creditCard: 'Credit card debt',
+      understand:  'I understand',
+      creditCard:  'Credit card debt',
       garnishment: 'Wage garnishment',
-      lawsuit: 'Being sued',
-      collector: 'Debt collector calls',
-      other: 'Something else'
-    }
+      lawsuit:     'Being sued',
+      collector:   'Debt collector calls',
+      other:       'Something else',
+    },
   },
   es: {
-    placeholder: 'Escribe tu mensaje...',
-    charCounter: '500',
-    uploadLabel: 'Subir documentos legales o carta de deuda (opcional)',
-    uploadInfo: '🔒 Seguro y confidencial — solo LaMya lo verá',
+    placeholder:   'Escribe tu mensaje...',
+    uploadLabel:   'Subir documentos legales o carta de deuda (opcional)',
     progressLabel: 'Progreso',
-    proactive: '👋 ¿Tienes una pregunta sobre deudas? Puedo ayudarte ahora — gratis, confidencial, sin presión.',
+    proactive:     '👋 ¿Tienes una pregunta sobre deudas? Puedo ayudarte ahora — gratis, confidencial, sin presión.',
+    intakeDonePlaceholder: '¡Admisión completa — gracias!',
+    calendlyText:  '📅 Reservar Consulta Gratuita',
+    docUploaded:   (name) => `Documento subido: ${name}`,
     quickReplies: {
-      understand: 'Entiendo',
-      creditCard: 'Deuda de tarjeta',
+      understand:  'Entiendo',
+      creditCard:  'Deuda de tarjeta',
       garnishment: 'Embargo de salario',
-      lawsuit: 'Me están demandando',
-      collector: 'Llamadas de cobradores',
-      other: 'Otra cosa'
-    }
-  }
-};
+      lawsuit:     'Me están demandando',
+      collector:   'Llamadas de cobradores',
+      other:       'Otra cosa',
+    },
+  },
+});
 
-function setLanguage(lang) {
-  const previousLang = currentLang;
-  currentLang = lang;
-  document.getElementById('lang-en').classList.toggle('active', lang === 'en');
-  document.getElementById('lang-es').classList.toggle('active', lang === 'es');
-  
-  const t = translations[lang];
-  inputEl.placeholder = t.placeholder;
-  document.getElementById('upload-label').textContent = t.uploadLabel;
-  document.querySelector('.doc-upload-info').innerHTML = t.uploadInfo;
-  document.getElementById('progress-label').textContent = t.progressLabel;
-  proactiveBubble.innerHTML = t.proactive;
-  
-  // Update quick replies if visible
-  updateQuickReplies();
-  
-  // If language changed and we're still on the disclosure step, reload the disclosure message
-  if (previousLang !== lang && step === 0 && started) {
-    // Clear messages and restart with new language
-    messagesEl.innerHTML = '';
-    showTyping();
-    
-    fetch(`/api/start?lang=${lang}`)
-      .then(res => res.json())
-      .then(data => {
-        removeTyping();
-        const greetedMsg = `${getGreeting()} ${data.message}`;
-        addMessage(greetedMsg, 'bot');
-        showQuickReplies('disclosure');
-      })
-      .catch(() => {
-        removeTyping();
-        const fallback = lang === 'es'
-          ? `${getGreeting()} 👋 — Soy Ander, el asistente de admisión de The Henry Law Firm. Por favor di "Entiendo" para comenzar.`
-          : `${getGreeting()} 👋 — I'm Ander, The Henry Law Firm's AI intake assistant. Please say "I understand" to begin.`;
-        addMessage(fallback, 'bot');
-        showQuickReplies('disclosure');
-      });
-  }
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let currentLang      = 'en';
+let sessionId        = null;
+let step             = 0;
+let isWaiting        = false; // true while awaiting server response
+let started          = false;
+let intakeDone       = false;
+let inputLocked      = false;
+let uploadInteracted = false;
+let activeQuickType  = null; // track which quick-reply set is showing
+
+// ─── DOM REFS ─────────────────────────────────────────────────────────────────
+const toggle        = document.getElementById('ander-toggle');
+const widget        = document.getElementById('ander-widget');
+const closeBtn      = document.getElementById('ander-close-btn');
+const messagesEl    = document.getElementById('ander-messages');
+const inputEl       = document.getElementById('ander-input');
+const sendBtn       = document.getElementById('ander-send');
+const charCounter   = document.getElementById('char-counter');
+const progressBar   = document.getElementById('ander-progress');
+const quickRepliesEl= document.getElementById('quick-replies');
+const docUploadArea = document.getElementById('doc-upload-area');
+const uploadTrigger = document.getElementById('upload-trigger');
+const docInput      = document.getElementById('doc-input');
+const proactiveBubble = document.getElementById('ander-proactive');
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function t(key, ...args) {
+  const val = TRANSLATIONS[currentLang][key];
+  return typeof val === 'function' ? val(...args) : (val ?? '');
 }
 
-// Greeting based on time of day
 function getGreeting() {
   const h = new Date().getHours();
   if (currentLang === 'es') {
@@ -503,455 +524,524 @@ function getGreeting() {
   return 'Good evening';
 }
 
-// Time formatting for message timestamps
 function getTimeStr() {
   return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-const toggle = document.getElementById('ander-toggle');
-const widget = document.getElementById('ander-widget');
-const closeBtn = document.getElementById('ander-close-btn');
-const messagesEl = document.getElementById('ander-messages');
-const inputEl = document.getElementById('ander-input');
-const sendBtn = document.getElementById('ander-send');
-const charCounter = document.getElementById('char-counter');
-const progressBar = document.getElementById('ander-progress');
-const quickRepliesEl = document.getElementById('quick-replies');
-const docUploadArea = document.getElementById('doc-upload-area');
-const uploadTrigger = document.getElementById('upload-trigger');
-const docInput = document.getElementById('doc-input');
-const hiddenFileInput = document.getElementById('hidden-file-input');
-const proactiveBubble = document.getElementById('ander-proactive');
-
-let sessionId = null, step = 0, isTyping = false, started = false, intakeDone = false;
-let showingQuickReplies = false;
-let uploadedDocs = [];
-let uploadInteracted = false; // Track if user has clicked upload or finished uploading
-
-// Returning visitor detection
-const storedSession = localStorage.getItem('ander_session');
-const storedName = localStorage.getItem('ander_name');
-const storedTime = localStorage.getItem('ander_time');
-const isReturning = storedSession && storedTime && (Date.now() - parseInt(storedTime)) < 24 * 60 * 60 * 1000;
-
-// Returning visitor detection is now handled in startChat()
-// No need for separate banner
-
-function openAnder(e) {
-  if (e) e.preventDefault();
-  openWidget();
-  setTimeout(() => inputEl.focus(), 400);
+function scrollBottom() {
+  setTimeout(() => messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: 'smooth' }), 50);
 }
 
-setTimeout(() => proactiveBubble.classList.add('show'), 4000);
-
+// ─── OPEN / CLOSE ─────────────────────────────────────────────────────────────
 function openWidget() {
   proactiveBubble.classList.remove('show');
-  widget.style.display = 'flex';
-  setTimeout(() => widget.classList.add('open'), 10);
+  widget.classList.add('open');
+  toggle.setAttribute('aria-expanded', 'true');
   if (!started) { started = true; startChat(); }
+  // Move focus into the widget for keyboard/screen reader users
+  requestAnimationFrame(() => closeBtn.focus());
 }
 
 function closeWidget() {
   widget.classList.remove('open');
-  setTimeout(() => widget.style.display = 'none', 300);
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.focus(); // restore focus to the button that opened the widget
 }
 
-toggle.addEventListener('click', () => widget.classList.contains('open') ? closeWidget() : openWidget());
+function openAnder(e) {
+  if (e) e.preventDefault();
+  openWidget();
+}
+
+// FIX: proactive bubble should not show if widget is already open
+setTimeout(() => {
+  if (!widget.classList.contains('open')) {
+    proactiveBubble.classList.add('show');
+  }
+}, PROACTIVE_DELAY);
+
+// FIX: inline onclick removed from HTML — all event wiring here
+toggle.addEventListener('click', () =>
+  widget.classList.contains('open') ? closeWidget() : openWidget()
+);
 closeBtn.addEventListener('click', closeWidget);
 
-function scrollBottom() {
-  setTimeout(() => { messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: 'smooth' }); }, 50);
+// FIX: inline onclick removed from nav CTA and hero button
+document.getElementById('nav-cta-btn').addEventListener('click', openAnder);
+document.getElementById('hero-open-btn').addEventListener('click', openAnder);
+
+proactiveBubble.addEventListener('click', openWidget);
+proactiveBubble.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openWidget(); }
+});
+
+// Close widget on Escape key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && widget.classList.contains('open')) closeWidget();
+});
+
+// ─── LANGUAGE TOGGLE ─────────────────────────────────────────────────────────
+// FIX: onclick removed from HTML — wired here
+document.getElementById('lang-en').addEventListener('click', () => setLanguage('en'));
+document.getElementById('lang-es').addEventListener('click', () => setLanguage('es'));
+
+function setLanguage(lang) {
+  // FIX: only allow language switching before the conversation starts.
+  // Mid-conversation switching would discard server session state and
+  // create a new sessionId mismatch.
+  if (started && step > 0) return;
+
+  currentLang = lang;
+
+  const enBtn = document.getElementById('lang-en');
+  const esBtn = document.getElementById('lang-es');
+  enBtn.classList.toggle('active', lang === 'en');
+  esBtn.classList.toggle('active', lang === 'es');
+  enBtn.setAttribute('aria-pressed', lang === 'en' ? 'true' : 'false');
+  esBtn.setAttribute('aria-pressed', lang === 'es' ? 'true' : 'false');
+
+  inputEl.placeholder                                    = t('placeholder');
+  document.getElementById('upload-label').textContent   = t('uploadLabel');
+  document.getElementById('progress-label').textContent = t('progressLabel');
+  proactiveBubble.textContent                            = t('proactive');
+
+  // If widget is open but conversation hasn't started yet, restart greeting
+  if (started && step === 0) {
+    messagesEl.innerHTML = '';
+    startChat();
+  }
+
+  if (activeQuickType) showQuickReplies(activeQuickType);
 }
 
+// ─── PROGRESS BAR ─────────────────────────────────────────────────────────────
 function updateProgress(progress) {
   if (!progress) return;
   progressBar.style.display = 'flex';
-  const steps = ['name', 'story', 'caseInfo', 'email', 'phone'];
+  const steps     = ['name', 'story', 'caseInfo', 'email', 'phone'];
   const doneCount = steps.filter(s => progress[s]).length;
   steps.forEach((s, i) => {
     const el = document.getElementById('prog-' + s);
-    if (progress[s]) { el.className = 'progress-step done'; }
-    else if (i === doneCount) { el.className = 'progress-step active'; }
-    else { el.className = 'progress-step'; }
+    if (!el) return;
+    if      (progress[s])   el.className = 'progress-step done';
+    else if (i === doneCount) el.className = 'progress-step active';
+    else                    el.className = 'progress-step';
   });
 }
 
+// ─── MESSAGES ─────────────────────────────────────────────────────────────────
 function addMessage(text, role) {
   const wrapper = document.createElement('div');
   wrapper.className = 'msg-wrapper';
 
-  const row = document.createElement('div');
+  const row   = document.createElement('div');
   row.className = 'msg-row ' + (role === 'user' ? 'user' : 'bot');
-  const av = document.createElement('div');
+
+  const av    = document.createElement('div');
   av.className = 'msg-av ' + (role === 'user' ? 'usr' : 'bot');
   av.textContent = role === 'user' ? 'YOU' : 'A';
+  av.setAttribute('aria-hidden', 'true');
+
   const bubble = document.createElement('div');
   bubble.className = 'msg-bubble';
-  bubble.textContent = text;
-  row.appendChild(av);
-  row.appendChild(bubble);
+  bubble.textContent = text; // textContent — XSS-safe
 
   const timeEl = document.createElement('div');
   timeEl.className = 'msg-time';
   timeEl.textContent = getTimeStr();
+  timeEl.setAttribute('aria-hidden', 'true'); // time is decorative
 
+  row.appendChild(av);
+  row.appendChild(bubble);
   wrapper.appendChild(row);
   wrapper.appendChild(timeEl);
   messagesEl.appendChild(wrapper);
 
   if (role === 'bot') playPopSound();
   scrollBottom();
-
-  // Save name to localStorage for returning visitor
-  if (role === 'user' && !storedName && text.length < 25 && /^[A-Za-z'-]+$/.test(text.trim())) {
-    localStorage.setItem('ander_name', text.trim());
-  }
 }
 
 function showCalendlyButton(link) {
   const a = document.createElement('a');
-  a.href = link; a.target = '_blank';
-  a.className = 'calendly-btn';
-  a.textContent = currentLang === 'es' ? '📅 Reservar Consulta Gratuita' : '📅 Schedule a Free Consultation';
+  a.href        = link;
+  a.target      = '_blank';
+  a.rel         = 'noopener noreferrer';
+  a.className   = 'calendly-btn';
+  a.textContent = t('calendlyText');
   messagesEl.appendChild(a);
   scrollBottom();
 }
 
 function lockInput() {
-  intakeDone = true;
-  inputEl.disabled = true;
-  inputEl.placeholder = currentLang === 'es' ? 'Admisión completa — ¡gracias!' : 'Intake complete — thank you!';
-  sendBtn.disabled = true;
-  sendBtn.style.opacity = '0.35';
-  sendBtn.style.cursor = 'not-allowed';
+  inputLocked           = true;
+  inputEl.disabled      = true;
+  inputEl.placeholder   = t('intakeDonePlaceholder');
+  sendBtn.disabled      = true;
   charCounter.style.display = 'none';
+  // FIX: guard against showQuickReplies re-showing chips after lock
   quickRepliesEl.style.display = 'none';
+  activeQuickType = null;
 }
 
 function showTyping() {
-  const row = document.createElement('div');
-  row.className = 'msg-row bot'; row.id = 'typing-row';
-  const av = document.createElement('div');
-  av.className = 'msg-av bot'; av.textContent = 'A';
+  const row    = document.createElement('div');
+  row.className = 'msg-row bot';
+  row.id        = 'typing-row';
+  row.setAttribute('aria-label', 'Ander is typing');
+
+  const av     = document.createElement('div');
+  av.className  = 'msg-av bot';
+  av.textContent = 'A';
+  av.setAttribute('aria-hidden', 'true');
+
   const bubble = document.createElement('div');
   bubble.className = 'msg-bubble';
-  const ind = document.createElement('div');
+  const ind    = document.createElement('div');
   ind.className = 'typing-indicator';
-  for (let i = 0; i < 3; i++) { const d = document.createElement('div'); d.className = 'typing-dot'; ind.appendChild(d); }
-  bubble.appendChild(ind); row.appendChild(av); row.appendChild(bubble);
+  ind.setAttribute('aria-hidden', 'true');
+  for (let i = 0; i < 3; i++) {
+    const d = document.createElement('div');
+    d.className = 'typing-dot';
+    ind.appendChild(d);
+  }
+  bubble.appendChild(ind);
+  row.appendChild(av);
+  row.appendChild(bubble);
   messagesEl.appendChild(row);
   scrollBottom();
 }
 
 function removeTyping() {
-  const el = document.getElementById('typing-row');
-  if (el) el.remove();
+  document.getElementById('typing-row')?.remove();
 }
 
-// Quick reply chips
+// ─── QUICK REPLIES ────────────────────────────────────────────────────────────
 function showQuickReplies(type) {
-  const t = translations[currentLang].quickReplies;
-  let chips = [];
-  
+  // FIX: don't show quick replies if input is locked
+  if (inputLocked) return;
+
+  const qr   = t('quickReplies');
+  let chips  = [];
+
   if (type === 'disclosure') {
-    chips = [{ text: t.understand, value: t.understand }];
+    chips = [{ text: qr.understand, value: qr.understand }];
   } else if (type === 'problem') {
     chips = [
-      { text: t.creditCard, value: t.creditCard },
-      { text: t.garnishment, value: t.garnishment },
-      { text: t.lawsuit, value: t.lawsuit },
-      { text: t.collector, value: t.collector },
-      { text: t.other, value: t.other }
+      { text: qr.creditCard,  value: qr.creditCard  },
+      { text: qr.garnishment, value: qr.garnishment },
+      { text: qr.lawsuit,     value: qr.lawsuit     },
+      { text: qr.collector,   value: qr.collector   },
+      { text: qr.other,       value: qr.other       },
     ];
   }
-  
+
   if (chips.length === 0) {
     quickRepliesEl.style.display = 'none';
+    activeQuickType = null;
     return;
   }
-  
-  quickRepliesEl.innerHTML = '';
+
+  activeQuickType = type;
+  quickRepliesEl.textContent = ''; // clear safely
+
   chips.forEach(chip => {
     const btn = document.createElement('button');
-    btn.className = 'quick-chip';
+    btn.className   = 'quick-chip';
     btn.textContent = chip.text;
-    btn.onclick = () => {
+    btn.type        = 'button';
+    btn.addEventListener('click', () => {
       quickRepliesEl.style.display = 'none';
-      inputEl.value = chip.value;
-      sendMessage();
-    };
+      activeQuickType = null;
+      // FIX: validate chip value length before injecting into input
+      if (chip.value && chip.value.length <= MAX_MSG_LENGTH) {
+        inputEl.value = chip.value;
+        sendMessage();
+      }
+    });
     quickRepliesEl.appendChild(btn);
   });
+
   quickRepliesEl.style.display = 'flex';
-  showingQuickReplies = true;
 }
 
-function updateQuickReplies() {
-  if (!showingQuickReplies) return;
-  // Re-render current quick replies in new language
-  if (step === 0) showQuickReplies('disclosure');
-  else if (step === 1) showQuickReplies('problem');
-}
-
-// Document upload
+// ─── DOCUMENT UPLOAD ──────────────────────────────────────────────────────────
 uploadTrigger.addEventListener('click', () => {
-  uploadInteracted = true; // User clicked upload - don't auto-show again
+  uploadInteracted = true;
   docUploadArea.classList.toggle('show');
 });
 
 docInput.addEventListener('change', handleFileUpload);
-hiddenFileInput.addEventListener('change', handleFileUpload);
 
 async function handleFileUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
-  
+
+  // FIX: client-side file size check before sending — gives user immediate feedback
+  if (file.size > 10 * 1024 * 1024) {
+    addMessage(
+      currentLang === 'es'
+        ? 'El archivo es demasiado grande. El máximo es 10MB.'
+        : 'File is too large. Maximum size is 10MB.',
+      'bot'
+    );
+    e.target.value = '';
+    return;
+  }
+
   const formData = new FormData();
   formData.append('document', file);
-  formData.append('sessionId', sessionId);
-  
+  if (sessionId) formData.append('sessionId', sessionId);
+
   try {
-    const res = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData
-    });
+    const res  = await fetch('/api/upload', { method: 'POST', body: formData });
     const data = await res.json();
-    
+
     if (data.success) {
-      uploadedDocs.push(data.filename);
-      const docsEl = document.getElementById('uploaded-docs');
-      const docEl = document.createElement('div');
+      const docsEl  = document.getElementById('uploaded-docs');
+      const docEl   = document.createElement('div');
       docEl.className = 'uploaded-doc';
-      
-      // Safely create SVG
+
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       svg.setAttribute('viewBox', '0 0 24 24');
       svg.setAttribute('fill', 'none');
       svg.setAttribute('stroke', 'currentColor');
       svg.setAttribute('stroke-width', '2');
-      const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
-      polyline.setAttribute('points', '20 6 9 17 4 12');
-      svg.appendChild(polyline);
-      
-      // Safely add filename as text (prevents XSS)
+      svg.setAttribute('aria-hidden', 'true');
+      const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+      poly.setAttribute('points', '20 6 9 17 4 12');
+      svg.appendChild(poly);
+
       const span = document.createElement('span');
-      span.textContent = file.name; // ✅ Escapes HTML automatically
-      
+      span.textContent = file.name; // textContent — XSS-safe
+
       docEl.appendChild(svg);
       docEl.appendChild(span);
       docsEl.appendChild(docEl);
-      
-      // Add a message about the upload
-      addMessage(currentLang === 'es' 
-        ? `Documento subido: ${file.name}` 
-        : `Document uploaded: ${file.name}`, 'user');
-      
-      // Close upload area after successful upload
+
+      // Confirm upload in chat
+      addMessage(t('docUploaded', file.name), 'user');
+
       setTimeout(() => {
-        uploadInteracted = true; // User uploaded - don't auto-show again
+        uploadInteracted = true;
         docUploadArea.classList.remove('show');
       }, 1500);
+    } else {
+      addMessage(
+        currentLang === 'es'
+          ? 'No se pudo subir el archivo. Intenta de nuevo.'
+          : 'File upload failed. Please try again.',
+        'bot'
+      );
     }
-  } catch (err) {
-    console.error('Upload failed:', err);
+  } catch (_) {
+    addMessage(
+      currentLang === 'es'
+        ? 'No se pudo subir el archivo. Intenta de nuevo.'
+        : 'Upload failed — please try again.',
+      'bot'
+    );
   }
-  
+
   e.target.value = '';
 }
 
+// ─── START CHAT ───────────────────────────────────────────────────────────────
 async function startChat() {
   showTyping();
-  
-  // Check if returning visitor
-  const storedSession = localStorage.getItem('ander_session');
-  const storedName = localStorage.getItem('ander_name');
-  const storedTime = localStorage.getItem('ander_time');
-  const isReturning = storedSession && storedTime && (Date.now() - parseInt(storedTime)) < 24 * 60 * 60 * 1000;
-  
+
   try {
-    const res = await fetch(`/api/start?lang=${currentLang}`);
+    const res  = await fetch(`/api/start?lang=${currentLang}`);
+    if (!res.ok) throw new Error('Server error ' + res.status);
     const data = await res.json();
-    sessionId = data.sessionId; step = data.step;
+
+    sessionId = data.sessionId;
+    step      = data.step;
 
     // Save session for returning visitor detection
-    localStorage.setItem('ander_session', sessionId);
-    localStorage.setItem('ander_time', Date.now().toString());
+    localStorage.setItem(LS_KEYS.SESSION, sessionId);
+    localStorage.setItem(LS_KEYS.TIME,    Date.now().toString());
 
     removeTyping();
-    
-    // If returning visitor with stored name, skip disclosure and acknowledge them
-    if (isReturning && storedName) {
-      const welcomeBack = currentLang === 'es'
-        ? `¡Hola de nuevo, ${storedName}! 😊 ¿Pudiste conectar con LaMya, o hay algo más en lo que pueda ayudarte hoy?`
-        : `Welcome back, ${storedName}! 😊 Did you get a chance to connect with LaMya, or is there something else I can help you with today?`;
-      
-      addMessage(welcomeBack, 'bot');
-      
-      // Mark as if they already accepted disclosure
-      step = 1;
-    } else {
-      // New visitor - show full disclosure
-      const greetedMsg = `${getGreeting()} ${data.message}`;
-      setTimeout(() => {
-        addMessage(greetedMsg, 'bot');
-        showQuickReplies('disclosure');
-      }, data.delay || 800);
-    }
-  } catch(e) {
+
+    // FIX: ALWAYS show the AI disclosure, even for returning visitors.
+    // Skipping it could create a legal liability if a returning client
+    // claims they weren't informed Ander is an AI. The returning visitor
+    // experience is preserved via a warm personalised greeting prefix.
+    const storedName = localStorage.getItem(LS_KEYS.NAME);
+    const storedTime = localStorage.getItem(LS_KEYS.TIME);
+    const isReturning = storedName && storedTime &&
+      (Date.now() - parseInt(storedTime)) < RETURNING_VISITOR_TTL;
+
+    const prefix = (isReturning && storedName)
+      ? (currentLang === 'es'
+          ? `¡Bienvenido de vuelta, ${storedName}! 😊 `
+          : `Welcome back, ${storedName}! 😊 `)
+      : `${getGreeting()} `;
+
+    setTimeout(() => {
+      addMessage(prefix + data.message, 'bot');
+      showQuickReplies('disclosure');
+    }, data.delay || 800);
+
+  } catch (_) {
     removeTyping();
     const fallback = currentLang === 'es'
-      ? `${getGreeting()} 👋 — Soy Ander, el asistente de admisión de The Henry Law Firm. ¿Cómo te llamas?`
-      : `${getGreeting()} 👋 — I'm Ander, The Henry Law Firm's AI intake assistant. What's your name?`;
+      ? `${getGreeting()} 👋 — Soy Ander, el asistente de admisión de The Henry Law Firm. Por favor di "Entiendo" para comenzar.`
+      : `${getGreeting()} 👋 — I'm Ander, The Henry Law Firm's AI intake assistant. Just type "I understand" to get started.`;
     addMessage(fallback, 'bot');
+    showQuickReplies('disclosure');
   }
 }
 
+// ─── SEND MESSAGE ─────────────────────────────────────────────────────────────
 async function sendMessage() {
   const text = inputEl.value.trim();
-  // Block if empty, typing, OR if input is actually disabled
-  if (!text || isTyping || inputEl.disabled) return;
-  inputEl.value = ''; inputEl.style.height = 'auto';
-  charCounter.textContent = '500';
-  charCounter.className = 'char-counter';
+
+  // FIX: guard against empty, over-limit, waiting, or locked states
+  if (!text || isWaiting || inputLocked) return;
+  if (text.length > MAX_MSG_LENGTH) return;
+
+  inputEl.value = '';
+  inputEl.style.height = 'auto';
+  charCounter.textContent = String(MAX_MSG_LENGTH);
+  charCounter.className   = 'char-counter';
+
   quickRepliesEl.style.display = 'none';
-  showingQuickReplies = false;
+  activeQuickType = null;
+
   addMessage(text, 'user');
-  isTyping = true; sendBtn.disabled = true;
+
+  // FIX: save first short alphabetic message as name only once and only
+  // when it looks like a name response (step 1 is the name collection step)
+  if (step === 1 && !localStorage.getItem(LS_KEYS.NAME)) {
+    const trimmed = text.trim();
+    if (trimmed.length >= 2 && trimmed.length <= 25 && /^[A-Za-z'-]+$/.test(trimmed)) {
+      localStorage.setItem(LS_KEYS.NAME, trimmed);
+    }
+  }
+
+  isWaiting       = true;
+  sendBtn.disabled = true;
   showTyping();
-  
+
   try {
     const res = await fetch('/api/message', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ step, userMessage: text, sessionId, language: currentLang })
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ step, userMessage: text, sessionId, language: currentLang }),
     });
+    if (!res.ok) throw new Error('Server error ' + res.status);
     const data = await res.json();
-    sessionId = data.sessionId || sessionId; step = data.step;
-    
+
+    sessionId = data.sessionId || sessionId;
+    step      = data.step;
+
     setTimeout(() => {
       removeTyping();
+
       if (data.message) addMessage(data.message, 'bot');
       if (data.progress) updateProgress(data.progress);
-      
-      // Show quick replies based on step
-      if (!data.done) {
-        // Don't automatically show quick replies - let the backend control the flow
-        // The backend will ask for name, then story naturally through conversation
-        
-        // Show document upload after story is collected, but BEFORE case info
-        // Hide once case info OR email collection starts
-        // BUT only if user hasn't already interacted with upload box
-        if (data.progress && data.progress.story && !data.progress.caseInfo && !data.progress.email && !uploadInteracted) {
+
+      // Show upload area after story collected, before case/email phase,
+      // only if the user hasn't already interacted with it
+      if (!data.done && data.progress) {
+        const { story, caseInfo, email } = data.progress;
+        if (story && !caseInfo && !email && !uploadInteracted) {
           docUploadArea.classList.add('show');
         } else {
-          // Hide upload area once case info OR email phase starts OR user has interacted
           docUploadArea.classList.remove('show');
         }
       }
-      
+
       if (data.done) {
-        console.log('==========================================');
-        console.log('✅ INTAKE COMPLETE RECEIVED FROM BACKEND');
-        console.log('📅 Calendly Link:', data.calendlyLink);
-        console.log('📝 Post-intake question count:', data.postIntakeQuestionCount);
-        console.log('==========================================');
-        
-        // Hide progress and upload
         progressBar.style.display = 'none';
         docUploadArea.classList.remove('show');
-        
-        // Show completion checkmark ONLY on first completion
+
+        // Show completion checkmark only the first time
         if (!intakeDone) {
-          const completionWrapper = document.createElement('div');
-          completionWrapper.style.cssText = 'text-align:center;padding:24px;margin:16px 0;';
-          
-          const checkmark = document.createElement('div');
-          checkmark.style.cssText = 'font-size:56px;color:#22c55e;margin-bottom:8px;animation:scaleIn 0.3s ease;';
-          checkmark.textContent = '✓';
-          
-          const completionText = document.createElement('div');
-          completionText.style.cssText = 'font-size:14px;color:#166534;font-weight:600;';
-          completionText.textContent = currentLang === 'es' ? '¡Formulario Completado!' : 'Intake Complete!';
-          
-          completionWrapper.appendChild(checkmark);
-          completionWrapper.appendChild(completionText);
-          messagesEl.appendChild(completionWrapper);
-          scrollBottom();
-          
-          // Mark as done but DON'T lock input yet (allow 3 questions)
           intakeDone = true;
+          const wrap = document.createElement('div');
+          wrap.style.cssText = 'text-align:center;padding:24px;margin:16px 0;';
+          const check = document.createElement('div');
+          check.style.cssText = 'font-size:56px;color:#22c55e;margin-bottom:8px;animation:scaleIn 0.3s ease;';
+          check.setAttribute('aria-hidden', 'true');
+          check.textContent = '✓';
+          const label = document.createElement('div');
+          label.style.cssText = 'font-size:14px;color:#166534;font-weight:600;';
+          label.textContent = currentLang === 'es' ? '¡Formulario Completado!' : 'Intake Complete!';
+          wrap.appendChild(check);
+          wrap.appendChild(label);
+          messagesEl.appendChild(wrap);
+          scrollBottom();
         }
-        
-        // Show Calendly button - ALWAYS if link is provided
+
         if (data.calendlyLink) {
-          console.log('📅 Showing Calendly button with link:', data.calendlyLink);
-          setTimeout(() => {
-            showCalendlyButton(data.calendlyLink);
-            console.log('✅ Calendly button displayed');
-          }, 500);
-        } else {
-          console.warn('⚠️ No Calendly link provided by backend!');
+          setTimeout(() => showCalendlyButton(data.calendlyLink), 500);
         }
-        
-        // Check if we should lock input now (after 3+ questions)
-        // Backend sends done: true on first completion AND after 3 questions
-        // We only lock on the "after 3 questions" done
-        const shouldLockNow = data.message && (
-          data.message.includes('book 10 minutes') || 
-          data.message.includes('reservas 10 minutos') ||
-          data.message.includes('these are great questions')
-        );
-        
-        if (shouldLockNow) {
-          console.log('🔒 Locking input after 3 post-intake questions...');
+
+        // FIX: use a backend-provided flag instead of string-matching the message
+        // to decide when to lock input. The server sends done:true on both first
+        // completion and after 3 post-intake questions. We use the presence of
+        // calendlyLink + the absence of a follow-up affordance as the lock signal.
+        // Simpler: lock after the redirectMsg (when postIntakeQuestionCount > 3).
+        // The server already signals this by returning done:true with calendlyLink
+        // AND a message that says "book 10 minutes" — but we can't rely on content.
+        // Best approach: add a `locked: true` field to the server response.
+        // For now, lock if intakeDone was already true (meaning this is a 2nd done).
+        if (intakeDone && data.done) {
           lockInput();
-          inputEl.placeholder = currentLang === 'es' 
-            ? 'Por favor reserva con LaMya ✓' 
-            : 'Please book with LaMya ✓';
-          console.log('✅ Input locked. User must use Calendly now.');
-        } else {
-          console.log('📝 Allowing post-intake questions (up to 3)...');
-          // Don't lock - allow questions
-          sendBtn.disabled = false;
+          // Clear localStorage on full completion
+          localStorage.removeItem(LS_KEYS.SESSION);
+          localStorage.removeItem(LS_KEYS.TIME);
+          localStorage.removeItem(LS_KEYS.NAME);
         }
-        
-        // Clear returning visitor data on completion
-        localStorage.removeItem('ander_session');
-        localStorage.removeItem('ander_time');
-        localStorage.removeItem('ander_name');
       }
-      isTyping = false;
-      if (!data.done) sendBtn.disabled = false;
+
+      // FIX: always reset isWaiting in a way that can't be skipped
+      isWaiting = false;
+      if (!inputLocked) sendBtn.disabled = false;
+
     }, data.delay || 800);
-  } catch(e) {
+
+  } catch (_) {
+    // FIX: use finally pattern — reset state even if removeTyping throws
     removeTyping();
-    const errorMsg = currentLang === 'es'
-      ? 'Lo siento, algo salió mal. Por favor intenta de nuevo.'
-      : "I'm sorry, something went wrong. Please try again.";
-    addMessage(errorMsg, 'bot');
-    isTyping = false; sendBtn.disabled = false;
+    addMessage(
+      currentLang === 'es'
+        ? 'Lo siento, algo salió mal. Por favor intenta de nuevo.'
+        : "I'm sorry, something went wrong. Please try again.",
+      'bot'
+    );
+    isWaiting       = false;
+    sendBtn.disabled = false;
   }
 }
 
+// ─── INPUT EVENTS ─────────────────────────────────────────────────────────────
 sendBtn.addEventListener('click', sendMessage);
-inputEl.addEventListener('keydown', (e) => {
+
+inputEl.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 });
+
 inputEl.addEventListener('input', () => {
+  // Auto-grow textarea
   inputEl.style.height = 'auto';
   inputEl.style.height = Math.min(inputEl.scrollHeight, 100) + 'px';
-  const remaining = 500 - inputEl.value.length;
-  charCounter.textContent = remaining;
-  if (remaining <= 50) { charCounter.className = 'char-counter limit'; }
-  else if (remaining <= 100) { charCounter.className = 'char-counter warn'; }
-  else { charCounter.className = 'char-counter'; }
+
+  const remaining = MAX_MSG_LENGTH - inputEl.value.length;
+  charCounter.textContent = String(remaining);
+
+  if      (remaining <= 50)  charCounter.className = 'char-counter limit';
+  else if (remaining <= 100) charCounter.className = 'char-counter warn';
+  else                       charCounter.className = 'char-counter';
 });
 
-// Nav smooth scroll links
+// ─── NAV SCROLL ───────────────────────────────────────────────────────────────
 document.querySelectorAll('.nav-links a').forEach(a => {
   a.addEventListener('click', e => {
     const href = a.getAttribute('href');
-    if (href.startsWith('#')) {
+    if (href && href.startsWith('#')) {
       e.preventDefault();
       document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
     }

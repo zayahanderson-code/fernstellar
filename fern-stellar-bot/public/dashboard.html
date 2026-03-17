@@ -14,7 +14,6 @@
   }
   body { font-family: 'Outfit', sans-serif; background: var(--cream); color: var(--ink); min-height: 100vh; }
 
-  /* ── Screen-reader only utility ── */
   .sr-only {
     position: absolute; width: 1px; height: 1px; padding: 0;
     margin: -1px; overflow: hidden; clip: rect(0,0,0,0);
@@ -34,12 +33,14 @@
   .btn {
     padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 500;
     cursor: pointer; border: none; transition: all 0.15s;
-    font-family: 'Outfit', sans-serif; text-decoration: none;
+    font-family: 'Outfit', sans-serif; text-decoration: none; display: inline-flex;
+    align-items: center; gap: 6px;
   }
   .btn-ghost { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); }
   .btn-ghost:hover { background: rgba(255,255,255,0.15); color: white; }
-  /* FIX: focus-visible styles for keyboard users */
   .btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  /* FIX: loading state for topbar buttons during async operations */
+  .btn[aria-busy="true"] { opacity: 0.6; pointer-events: none; }
 
   .content { max-width: 900px; margin: 0 auto; padding: 32px 24px; }
 
@@ -56,7 +57,7 @@
   .hour-insight { font-size: 12px; color: var(--muted); background: #fef3c7; border: 1px solid #fcd34d; border-radius: 6px; padding: 5px 10px; }
   .hour-insight strong { color: #92400e; }
   .hour-chart { display: flex; align-items: flex-end; gap: 2px; height: 50px; }
-  .hour-bar { flex: 1; border-radius: 2px 2px 0 0; min-width: 6px; transition: all 0.3s; }
+  .hour-bar { flex: 1; border-radius: 2px 2px 0 0; min-width: 6px; transition: height 0.3s; }
   .hour-bar.business { background: #cbd5e1; }
   .hour-bar.after-hours { background: var(--gold); }
   .hour-labels { display: flex; justify-content: space-between; margin-top: 6px; font-size: 9px; color: var(--muted); }
@@ -75,11 +76,10 @@
 
   .leads-list { display: flex; flex-direction: column; gap: 12px; }
 
-  /* FIX: lead cards use role="button" + tabindex so they need focus styles */
   .lead-card {
     background: var(--white); border-radius: 12px; border: 1px solid var(--border);
     padding: 20px 24px; display: flex; align-items: center; gap: 20px;
-    transition: all 0.15s; cursor: pointer; position: relative;
+    transition: box-shadow 0.15s, transform 0.15s; cursor: pointer; position: relative;
   }
   .lead-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); transform: translateY(-1px); }
   .lead-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
@@ -95,13 +95,11 @@
   .lead-info { flex: 1; min-width: 0; }
   .lead-name { font-weight: 600; font-size: 16px; color: var(--ink); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .lead-meta { font-size: 13px; color: var(--muted); margin-top: 4px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-  .lead-meta a { color: var(--blue); text-decoration: none; }
-  .lead-meta a:hover { text-decoration: underline; }
 
   .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
-  .badge-area { background: var(--gold-dim); color: #8a6a1a; }
+  .badge-area  { background: var(--gold-dim); color: #8a6a1a; }
   .badge-court { background: #fef3c7; color: #92400e; }
-  .badge-new { background: #dbeafe; color: #1e40af; }
+  .badge-new   { background: #dbeafe; color: #1e40af; }
 
   .lead-contact { text-align: right; flex-shrink: 0; }
   .lead-phone { font-family: 'DM Mono', monospace; font-size: 14px; color: var(--ink); font-weight: 500; }
@@ -119,12 +117,14 @@
   .action-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
   .action-btn.done-btn:hover { background: #f0fdf4; border-color: var(--green); }
   .action-btn.done-btn.is-done { background: #f0fdf4; border-color: var(--green); color: var(--green); }
-  /* FIX: loading state for action button while PATCH is in flight */
   .action-btn.loading { opacity: 0.5; pointer-events: none; }
 
   .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
   .empty-icon { font-size: 48px; margin-bottom: 16px; }
   .empty-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--ink); margin-bottom: 8px; }
+  /* FIX: retry button shown on error states */
+  .empty-retry { margin-top: 16px; padding: 10px 24px; background: var(--ink); color: var(--gold-light); border: none; border-radius: 8px; font-size: 13px; font-family: 'Outfit', sans-serif; cursor: pointer; }
+  .empty-retry:hover { background: #1e2e40; }
 
   .loading { text-align: center; padding: 60px; color: var(--muted); }
   .spinner {
@@ -163,8 +163,7 @@
   .prep-time { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px; }
   .prep-close {
     background: none; border: none; color: rgba(255,255,255,0.5); font-size: 24px;
-    cursor: pointer; padding: 4px 8px; border-radius: 6px; align-self: flex-start;
-    line-height: 1;
+    cursor: pointer; padding: 4px 8px; border-radius: 6px; align-self: flex-start; line-height: 1;
   }
   .prep-close:hover { color: white; background: rgba(255,255,255,0.1); }
   .prep-close:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
@@ -181,7 +180,6 @@
 
   .prep-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .prep-field { background: var(--cream); border-radius: 8px; padding: 12px 14px; }
-  .prep-field.full { grid-column: 1 / -1; }
   .prep-field.highlight { background: #fef3c7; border: 1px solid #fcd34d; }
   .prep-field-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 4px; }
   .prep-field-value { font-size: 14px; color: var(--ink); font-weight: 500; }
@@ -194,18 +192,18 @@
   .prep-sentiment-tag { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; }
 
   .prep-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 12px; }
-  .prep-footer .btn { flex: 1; padding: 14px; font-size: 14px; text-align: center; border-radius: 10px; }
-  .btn-call { background: var(--ink); color: var(--gold-light); text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .prep-footer .btn { flex: 1; padding: 14px; font-size: 14px; text-align: center; border-radius: 10px; justify-content: center; }
+  .btn-call { background: var(--ink); color: var(--gold-light); text-decoration: none; }
   .btn-call:hover { background: #1e2e40; }
-  /* FIX: visual state when no phone number is available */
   .btn-call[aria-disabled="true"] { opacity: 0.4; pointer-events: none; cursor: not-allowed; }
   .btn-done { background: var(--green); color: white; }
   .btn-done:hover { background: #16a34a; }
 
+  /* FIX: toast z-index raised above login overlay (400) so it's always visible */
   .toast {
     position: fixed; bottom: 24px; right: 24px; background: var(--ink); color: var(--white);
     padding: 12px 20px; border-radius: 8px; font-size: 13px;
-    opacity: 0; transform: translateY(10px); transition: all 0.25s; z-index: 300;
+    opacity: 0; transform: translateY(10px); transition: all 0.25s; z-index: 500;
     pointer-events: none;
   }
   .toast.show { opacity: 1; transform: translateY(0); }
@@ -213,8 +211,7 @@
   /* ── Login overlay ── */
   .login-overlay {
     position: fixed; inset: 0; background: var(--ink);
-    z-index: 400; display: none;
-    align-items: center; justify-content: center;
+    z-index: 400; display: none; align-items: center; justify-content: center;
   }
   .login-overlay.visible { display: flex; }
   .login-card {
@@ -231,9 +228,14 @@
     transition: border-color 0.2s; color: var(--ink);
   }
   .login-input:focus { border-color: var(--ink); }
-  .login-input.error { border-color: var(--red); }
+  .login-input.error { border-color: var(--red); animation: shake 0.3s ease; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25%       { transform: translateX(-6px); }
+    75%       { transform: translateX(6px); }
+  }
   .login-error { font-size: 12px; color: var(--red); margin-bottom: 12px; min-height: 16px; }
-  .btn-primary { background: var(--ink); color: var(--gold-light); width: 100%; padding: 14px; font-size: 15px; border-radius: 10px; }
+  .btn-primary { background: var(--ink); color: var(--gold-light); width: 100%; padding: 14px; font-size: 15px; border-radius: 10px; justify-content: center; }
   .btn-primary:hover { background: #1e2e40; }
   .btn-primary:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
@@ -245,22 +247,22 @@
     .lead-contact { width: 100%; text-align: left; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
     .lead-actions { position: absolute; top: 16px; right: 16px; }
     .prep-modal { border-radius: 16px 16px 0 0; max-height: 95vh; position: fixed; bottom: 0; width: 100%; max-width: 100%; }
+    .topbar-actions .btn span[aria-hidden] { display: none; } /* icon-only on mobile */
   }
 </style>
 </head>
 <body>
 
-<!-- FIX: login overlay — collects API key once per session, stores in sessionStorage -->
 <div class="login-overlay" id="loginOverlay" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
   <div class="login-card">
     <div class="login-logo" id="loginTitle">Ander <span>Inbox</span></div>
     <p class="login-sub">The Henry Law Firm</p>
-    <label for="apiKeyInput" class="sr-only">Dashboard API Key</label>
+    <label for="apiKeyInput" class="sr-only">Dashboard Password</label>
     <input
       type="password"
       id="apiKeyInput"
       class="login-input"
-      placeholder="Enter API key"
+      placeholder="Enter password"
       autocomplete="current-password"
       aria-describedby="loginError"
     >
@@ -277,14 +279,13 @@
     </div>
   </div>
   <div class="topbar-actions">
-    <!-- FIX: inline onclick removed — wired up in JS -->
     <button class="btn btn-ghost" id="refreshBtn" aria-label="Refresh leads">
       ↻ <span aria-hidden="true">Refresh</span>
     </button>
     <button class="btn btn-ghost" id="exportBtn" aria-label="Export leads to CSV">
       ⬇ <span aria-hidden="true">Export</span>
     </button>
-    <button class="btn btn-ghost" id="logoutBtn" aria-label="Logout">
+    <button class="btn btn-ghost" id="logoutBtn" aria-label="Log out">
       🔓 <span aria-hidden="true">Logout</span>
     </button>
   </div>
@@ -311,20 +312,18 @@
       <div class="hour-title">When people reach out</div>
       <div class="hour-insight"><strong id="after-hours-pct">—</strong> after hours</div>
     </div>
-    <!-- FIX: aria-label added; bars get individual titles via JS -->
     <div class="hour-chart" id="hour-chart" role="img" aria-label="Hourly lead activity chart"></div>
     <div class="hour-labels" aria-hidden="true">
       <span>12am</span><span>9am</span><span>5pm</span><span>12am</span>
     </div>
   </div>
 
-  <!-- FIX: inline onclick removed; data-filter used for delegation -->
   <div class="tabs" role="tablist" aria-label="Filter leads">
     <button class="tab active" role="tab" aria-selected="true"  data-filter="new"  id="tab-new">
-      New <span class="count" id="count-new" aria-label="new leads count">0</span>
+      New <span class="count" id="count-new">0</span>
     </button>
     <button class="tab"        role="tab" aria-selected="false" data-filter="done" id="tab-done">
-      Done <span class="count" id="count-done" aria-label="done leads count">0</span>
+      Done <span class="count" id="count-done">0</span>
     </button>
     <button class="tab"        role="tab" aria-selected="false" data-filter="all"  id="tab-all">
       All
@@ -336,22 +335,14 @@
   </div>
 </main>
 
-<!-- FIX: role="dialog" + aria-modal on the modal panel, not the overlay -->
 <div class="modal-overlay" id="modalOverlay">
-  <div
-    class="prep-modal"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="prep-name"
-    id="prepModal"
-  >
+  <div class="prep-modal" role="dialog" aria-modal="true" aria-labelledby="prep-name" id="prepModal">
     <div class="prep-header">
       <div class="prep-avatar-lg" id="prep-avatar" aria-hidden="true">?</div>
       <div class="prep-header-info">
         <div class="prep-name" id="prep-name">Loading...</div>
         <div class="prep-time" id="prep-time">Just now</div>
       </div>
-      <!-- FIX: inline onclick removed — wired up in JS -->
       <button class="prep-close" id="modalCloseBtn" aria-label="Close lead detail">×</button>
     </div>
 
@@ -405,11 +396,9 @@
     </div>
 
     <div class="prep-footer">
-      <!-- FIX: aria-disabled managed by JS when no phone is available -->
       <a href="#" class="btn btn-call" id="prep-call-btn">
         <span aria-hidden="true">📞</span> Call
       </a>
-      <!-- FIX: inline onclick removed — wired up in JS -->
       <button class="btn btn-done" id="modalDoneBtn">✓ Done</button>
     </div>
   </div>
@@ -421,27 +410,27 @@
 'use strict';
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
-const MSECS_PER_DAY    = 86_400_000;
-const AUTO_REFRESH_MS  = 60_000;
-const TOAST_DURATION_MS = 2_500;
+const MSECS_PER_DAY       = 86_400_000;
+const AUTO_REFRESH_MS     = 60_000;
+const TOAST_DURATION_MS   = 2_500;
 const REFRESH_DEBOUNCE_MS = 300;
-const AUTH_STORAGE_KEY = 'ander_api_key';
+const AUTH_STORAGE_KEY    = 'ander_api_key';
 
-// Sample data shown before real data loads or when API has no records
 const SAMPLE_HOUR_DATA = [
   2, 1, 1, 0, 1, 2, 3, 5, 8, 12, 14, 11,
   10, 9, 11, 13, 10, 8, 7, 9, 6, 5, 4, 3,
 ];
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
-// FIX: Map for O(1) lead lookups instead of Array.find() on every action
-let leadsById        = new Map();
-let currentFilter    = 'new';
-let currentLeadId    = null;
-let refreshTimer     = null;   // debounce handle for manual refresh
-let refreshIntervalId = null;  // auto-refresh handle (stored so it can be cleared)
-// Element that was focused before opening the modal — restored on close
-let modalReturnFocus = null;
+let leadsById         = new Map();
+let currentFilter     = 'new';
+let currentLeadId     = null;
+let refreshTimer      = null;
+let refreshIntervalId = null;
+let modalReturnFocus  = null;
+// FIX: track whether we're currently logged out so auto-refresh
+// doesn't keep re-triggering showLoginOverlay while user is typing
+let isLoggedOut       = false;
 
 // ─── AUTH ─────────────────────────────────────────────────────────────────────
 function getApiKey() {
@@ -449,15 +438,16 @@ function getApiKey() {
 }
 
 function showLoginOverlay(errorMsg = '') {
+  isLoggedOut = true;
   const overlay = document.getElementById('loginOverlay');
   overlay.classList.add('visible');
   document.getElementById('loginError').textContent = errorMsg;
   document.getElementById('apiKeyInput').classList.toggle('error', !!errorMsg);
-  // Focus the input so the user can type immediately
   requestAnimationFrame(() => document.getElementById('apiKeyInput').focus());
 }
 
 function hideLoginOverlay() {
+  isLoggedOut = false;
   document.getElementById('loginOverlay').classList.remove('visible');
   document.getElementById('loginError').textContent = '';
   document.getElementById('apiKeyInput').classList.remove('error');
@@ -467,7 +457,7 @@ function hideLoginOverlay() {
 function submitApiKey() {
   const val = document.getElementById('apiKeyInput').value.trim();
   if (!val) {
-    showLoginOverlay('Please enter your API key.');
+    showLoginOverlay('Please enter your password.');
     return;
   }
   sessionStorage.setItem(AUTH_STORAGE_KEY, val);
@@ -476,53 +466,57 @@ function submitApiKey() {
 }
 
 function logout() {
-  // Clear API key from session storage
+  // FIX: cancel pending timers so they don't fire after logout
+  clearTimeout(refreshTimer);
+  clearInterval(refreshIntervalId);
+  refreshIntervalId = null;
+
   sessionStorage.removeItem(AUTH_STORAGE_KEY);
-  
-  // Clear all leads data
   leadsById.clear();
-  
-  // Show login overlay
+
+  // Reset stats display
+  ['stat-new', 'stat-court', 'stat-total'].forEach(id => setText(id, '—'));
+
+  // Reset list — don't show toast since the overlay is about to cover everything
+  const list = document.getElementById('leads-list');
+  list.innerHTML = '<div class="empty-state"><div class="empty-icon" aria-hidden="true">🔒</div><div class="empty-title">Logged out</div></div>';
+
   showLoginOverlay();
-  
-  // Clear the display
-  document.getElementById('leads-list').innerHTML = '<div class="empty-state"><div class="empty-icon" aria-hidden="true">🔓</div><div class="empty-title">Logged out</div></div>';
-  document.getElementById('stat-new').textContent = '—';
-  document.getElementById('stat-court').textContent = '—';
-  document.getElementById('stat-total').textContent = '—';
-  
-  showToast('Logged out successfully');
+
+  // FIX: restart the auto-refresh interval only after successful login.
+  // The interval is restarted inside hideLoginOverlay → loadData flow.
 }
 
 /**
- * Central fetch wrapper that:
- * 1. Attaches the API key header
- * 2. Intercepts 401 responses and shows the login overlay
- * 3. Throws on non-OK responses so callers can use try/catch uniformly
- *
- * FIX: without this, all API calls were unauthenticated and would fail
- * against the requireApiKey middleware added to the server.
+ * FIX: Content-Type header only sent when a request body exists.
+ * The original always sent Content-Type: application/json, including
+ * on GETs and the CSV export, which can confuse servers and CDNs.
  */
 async function authedFetch(url, options = {}) {
+  // Guard: if we know we're logged out, don't try the request
+  if (isLoggedOut) throw new Error('Unauthorized');
+
   const key = getApiKey();
   if (!key) {
     showLoginOverlay();
-    throw new Error('No API key — please log in.');
+    throw new Error('Unauthorized');
   }
+
+  const hasBody = options.body !== undefined && options.body !== null;
 
   const res = await fetch(url, {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
+      // FIX: only set Content-Type when we're actually sending a JSON body
+      ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
       'X-API-Key': key,
       ...(options.headers ?? {}),
     },
   });
 
   if (res.status === 401) {
-    // Key was wrong or expired — clear it and prompt again
     sessionStorage.removeItem(AUTH_STORAGE_KEY);
-    showLoginOverlay('Invalid API key. Please try again.');
+    showLoginOverlay('Invalid password. Please try again.');
     throw new Error('Unauthorized');
   }
 
@@ -534,39 +528,26 @@ async function authedFetch(url, options = {}) {
 }
 
 // ─── DOM HELPERS ──────────────────────────────────────────────────────────────
-/**
- * Escape a value for safe use as HTML text (used only when innerHTML
- * is unavoidable, e.g. static string composition).
- * For dynamic user data we use textContent or DOM APIs directly.
- */
 function esc(str) {
   if (!str) return '';
   return String(str)
-    .replace(/&/g,  '&amp;')
-    .replace(/</g,  '&lt;')
-    .replace(/>/g,  '&gt;')
-    .replace(/"/g,  '&quot;')
-    .replace(/'/g,  '&#039;');
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 }
 
-/** Safely set textContent on an element by ID */
 function setText(id, value, fallback = '—') {
   const el = document.getElementById(id);
   if (el) el.textContent = (value !== null && value !== undefined && value !== '') ? value : fallback;
 }
 
-/**
- * FIX: replaces .innerHTML = `<a href="...">user data</a>` pattern.
- * Builds a link safely using DOM APIs — no innerHTML, no XSS risk.
- */
 function setLink(containerId, href, displayText) {
   const container = document.getElementById(containerId);
   if (!container) return;
-  container.textContent = ''; // clear existing content
+  container.textContent = '';
   if (href && displayText) {
     const a = document.createElement('a');
     a.href        = href;
-    a.textContent = displayText; // textContent — safe
+    a.textContent = displayText;
     container.appendChild(a);
   } else {
     container.textContent = '—';
@@ -577,11 +558,6 @@ function showEl(id) { const el = document.getElementById(id); if (el) el.style.d
 function hideEl(id) { const el = document.getElementById(id); if (el) el.style.display = 'none';  }
 
 // ─── DATE HELPERS ─────────────────────────────────────────────────────────────
-/**
- * FIX: normalise both dates to midnight before comparing.
- * The original `Math.ceil((courtDate - new Date()) / 86400000)` was
- * time-sensitive — at 9am a "tomorrow at 8am" court date showed 0 days.
- */
 function calcDaysUntil(date) {
   if (!date) return null;
   const now    = new Date(); now.setHours(0, 0, 0, 0);
@@ -589,10 +565,6 @@ function calcDaysUntil(date) {
   return Math.ceil((target - now) / MSECS_PER_DAY);
 }
 
-/**
- * FIX: guard against negative diffMs (clock skew / future createdAt).
- * Original would show misleading negative values.
- */
 function timeAgo(date) {
   const diffMs = Date.now() - new Date(date).getTime();
   if (diffMs < 0) return 'Just now';
@@ -612,53 +584,54 @@ function formatCurrency(cents) {
 
 // ─── HOUR CHART ───────────────────────────────────────────────────────────────
 function renderHourChart(hourData) {
-  const container = document.getElementById('hour-chart');
-  const maxVal    = Math.max(...hourData, 1);
-  const total     = hourData.reduce((sum, v) => sum + v, 0);
-  const afterHours = [
-    ...hourData.slice(0, 9),
-    ...hourData.slice(17),
-  ].reduce((sum, v) => sum + v, 0);
+  const container  = document.getElementById('hour-chart');
+  const maxVal     = Math.max(...hourData, 1);
+  const total      = hourData.reduce((s, v) => s + v, 0);
+  const afterHours = [...hourData.slice(0, 9), ...hourData.slice(17)].reduce((s, v) => s + v, 0);
 
   document.getElementById('after-hours-pct').textContent =
     (total > 0 ? Math.round((afterHours / total) * 100) : 0) + '%';
 
-  // FIX: build bars with DOM APIs — avoids innerHTML assignment on a loop
   container.textContent = '';
   hourData.forEach((val, i) => {
     const bar = document.createElement('div');
-    bar.className = `hour-bar ${i >= 9 && i < 17 ? 'business' : 'after-hours'}`;
+    bar.className  = `hour-bar ${i >= 9 && i < 17 ? 'business' : 'after-hours'}`;
     bar.style.height = `${Math.max((val / maxVal * 45) + 5, 5)}px`;
-    // Accessible tooltip
-    bar.title = `${i}:00 — ${val} lead${val !== 1 ? 's' : ''}`;
-    bar.setAttribute('aria-hidden', 'true'); // chart is decorative; described by text
+    bar.title      = `${i}:00 — ${val} lead${val !== 1 ? 's' : ''}`;
+    bar.setAttribute('aria-hidden', 'true');
     container.appendChild(bar);
   });
 }
 
 // ─── STATS ────────────────────────────────────────────────────────────────────
 async function loadStats() {
+  // FIX: don't attempt requests while logged out
+  if (isLoggedOut) return;
   try {
     const res  = await authedFetch('/api/intakes/stats');
     const data = await res.json();
     if (!data.success) return;
-
     setText('stat-new',   data.stats.newLeads);
     setText('stat-court', data.stats.upcomingCourt ?? 0);
     setText('stat-total', data.stats.total);
     setText('count-new',  data.stats.newLeads);
-    // "done" tab = everything that isn't 'new'
     setText('count-done', Math.max(0, data.stats.total - data.stats.newLeads));
   } catch (err) {
-    // Auth errors are handled inside authedFetch; log everything else
     if (err.message !== 'Unauthorized') console.error('loadStats:', err.message);
   }
 }
 
 // ─── LEADS ────────────────────────────────────────────────────────────────────
 async function loadLeads() {
+  // FIX: don't attempt requests while logged out
+  if (isLoggedOut) return;
+
   const list = document.getElementById('leads-list');
-  list.innerHTML = '<div class="loading"><div class="spinner" aria-hidden="true"></div>Loading...</div>';
+  // FIX: preserve scroll position across refreshes — only show spinner on first load
+  const isFirstLoad = leadsById.size === 0;
+  if (isFirstLoad) {
+    list.innerHTML = '<div class="loading"><div class="spinner" aria-hidden="true"></div>Loading...</div>';
+  }
 
   try {
     const res  = await authedFetch('/api/intakes');
@@ -671,55 +644,57 @@ async function loadLeads() {
           <div class="empty-title">No leads yet</div>
           <p>Leads will appear here when someone uses Ander.</p>
         </div>`;
-      // Keep the sample chart if there's no real data
       renderHourChart(SAMPLE_HOUR_DATA);
       return;
     }
 
-    // FIX: rebuild Map from fresh data for O(1) lookups everywhere
+    // FIX: capture scroll position before rebuilding so we can restore it
+    const scrollTop = list.scrollTop;
+
     leadsById.clear();
     data.intakes.forEach(lead => leadsById.set(lead._id, lead));
 
-    // Build hour distribution from real data
     const hourCounts = new Array(24).fill(0);
-    data.intakes.forEach(lead => {
-      hourCounts[new Date(lead.createdAt).getHours()]++;
-    });
-    // FIX: renderHourChart only called once here (not at page init AND here)
+    data.intakes.forEach(lead => { hourCounts[new Date(lead.createdAt).getHours()]++; });
     renderHourChart(hourCounts.some(c => c > 0) ? hourCounts : SAMPLE_HOUR_DATA);
 
     renderLeads();
 
-    // FIX: if the detail modal is open, refresh its contents with updated data
+    // FIX: restore scroll position after re-render
+    list.scrollTop = scrollTop;
+
+    // FIX: refresh open modal content without moving focus or re-animating
     if (currentLeadId && leadsById.has(currentLeadId)) {
       populateModal(leadsById.get(currentLeadId));
     }
   } catch (err) {
     if (err.message !== 'Unauthorized') {
       console.error('loadLeads:', err.message);
+      // FIX: show a retry button on error so users aren't stuck
       list.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon" aria-hidden="true">⚠️</div>
-          <div class="empty-title">Error loading leads</div>
+          <div class="empty-title">Couldn't load leads</div>
           <p>${esc(err.message)}</p>
+          <button class="empty-retry" id="retryBtn">Try Again</button>
         </div>`;
+      document.getElementById('retryBtn')?.addEventListener('click', loadData);
     }
   }
 }
 
 function renderLeads() {
   const list = document.getElementById('leads-list');
-  // Clear existing content safely
   list.textContent = '';
 
   const allLeads = [...leadsById.values()];
   let filtered;
   if      (currentFilter === 'new')  filtered = allLeads.filter(l => l.status === 'new');
   else if (currentFilter === 'done') filtered = allLeads.filter(l => l.status !== 'new');
-  else                                filtered = allLeads;
+  else                               filtered = allLeads;
 
   if (filtered.length === 0) {
-    const msg = currentFilter === 'new' ? 'All caught up! No new leads.' : 'No leads here.';
+    const msg   = currentFilter === 'new' ? 'All caught up! No new leads.' : 'No leads here.';
     const empty = document.createElement('div');
     empty.className = 'empty-state';
     empty.innerHTML = `<div class="empty-icon" aria-hidden="true">✨</div><div class="empty-title">${esc(msg)}</div>`;
@@ -727,65 +702,49 @@ function renderLeads() {
     return;
   }
 
-  // FIX: build each card with DOM APIs via createLeadCard()
-  // Eliminates the inline onclick="openLead('${id}')" pattern that
-  // embeds JS in HTML strings and creates XSS surface area
   const fragment = document.createDocumentFragment();
   filtered.forEach(lead => fragment.appendChild(createLeadCard(lead)));
   list.appendChild(fragment);
 }
 
-/**
- * FIX: builds a single lead card entirely with DOM APIs.
- * No innerHTML, no inline onclick — all event handling via delegation.
- */
 function createLeadCard(lead) {
   const isDone    = lead.status !== 'new';
-  const daysLeft  = calcDaysUntil(lead.courtDate); // FIX: shared helper, midnight-normalised
+  const daysLeft  = calcDaysUntil(lead.courtDate);
   const courtSoon = daysLeft !== null && daysLeft >= 0 && daysLeft <= 7;
 
   const card = document.createElement('div');
-  card.className = [
-    'lead-card',
-    courtSoon ? 'court-soon' : '',
-    isDone    ? 'done'       : '',
-  ].filter(Boolean).join(' ');
+  card.className = ['lead-card', courtSoon ? 'court-soon' : '', isDone ? 'done' : '']
+    .filter(Boolean).join(' ');
   card.dataset.id = lead._id;
-  // FIX: role + tabindex make lead cards keyboard-navigable
   card.setAttribute('role', 'listitem');
   card.setAttribute('tabindex', '0');
   card.setAttribute('aria-label',
     `${lead.firstName || 'Unknown'} — ${lead.practiceArea || 'General'}. ${isDone ? 'Handled.' : 'New lead.'}`
   );
 
-  // ── Avatar ──────────────────────────────────────────────────────────────
+  // Avatar
   const avatar = document.createElement('div');
   avatar.className = 'lead-avatar';
   avatar.textContent = (lead.firstName || '?')[0].toUpperCase();
   avatar.setAttribute('aria-hidden', 'true');
 
-  // ── Info column ──────────────────────────────────────────────────────────
+  // Info
   const info    = document.createElement('div');
   info.className = 'lead-info';
 
-  const nameRow  = document.createElement('div');
+  const nameRow = document.createElement('div');
   nameRow.className = 'lead-name';
-  // FIX: textContent assignment — safe against XSS
-  const nameText = document.createTextNode(lead.firstName || 'Unknown');
-  nameRow.appendChild(nameText);
+  nameRow.appendChild(document.createTextNode(lead.firstName || 'Unknown'));
 
   if (!isDone) {
-    const newBadge = document.createElement('span');
-    newBadge.className = 'badge badge-new';
-    newBadge.textContent = 'NEW';
-    nameRow.appendChild(newBadge);
+    const b = document.createElement('span');
+    b.className = 'badge badge-new'; b.textContent = 'NEW';
+    nameRow.appendChild(b);
   }
-
   if (courtSoon) {
-    const courtBadge = document.createElement('span');
-    courtBadge.className = 'badge badge-court';
-    courtBadge.textContent = `⚠️ Court in ${daysLeft}d`;
-    nameRow.appendChild(courtBadge);
+    const b = document.createElement('span');
+    b.className = 'badge badge-court'; b.textContent = `⚠️ Court in ${daysLeft}d`;
+    nameRow.appendChild(b);
   }
 
   const metaRow = document.createElement('div');
@@ -797,21 +756,20 @@ function createLeadCard(lead) {
   metaRow.appendChild(areaBadge);
 
   if (lead.debtAmount) {
-    const debtSpan = document.createElement('span');
-    debtSpan.textContent = formatCurrency(lead.debtAmount);
-    metaRow.appendChild(debtSpan);
+    const s = document.createElement('span');
+    s.textContent = formatCurrency(lead.debtAmount);
+    metaRow.appendChild(s);
   }
-
   if (lead.county) {
-    const countySpan = document.createElement('span');
-    countySpan.textContent = `${lead.county} County`;
-    metaRow.appendChild(countySpan);
+    const s = document.createElement('span');
+    s.textContent = `${lead.county} County`;
+    metaRow.appendChild(s);
   }
 
   info.appendChild(nameRow);
   info.appendChild(metaRow);
 
-  // ── Contact column ────────────────────────────────────────────────────────
+  // Contact
   const contact = document.createElement('div');
   contact.className = 'lead-contact';
 
@@ -819,9 +777,8 @@ function createLeadCard(lead) {
   phoneDiv.className = 'lead-phone';
   if (lead.phone) {
     const a = document.createElement('a');
-    // FIX: href built via property assignment, not string interpolation
-    a.href        = `tel:${lead.phone}`;
-    a.textContent = lead.phone; // textContent — safe
+    a.href = `tel:${lead.phone}`;
+    a.textContent = lead.phone;
     phoneDiv.appendChild(a);
   } else {
     phoneDiv.textContent = '—';
@@ -834,19 +791,17 @@ function createLeadCard(lead) {
   contact.appendChild(phoneDiv);
   contact.appendChild(timeDiv);
 
-  // ── Done toggle button ────────────────────────────────────────────────────
+  // Done button
   const actions = document.createElement('div');
   actions.className = 'lead-actions';
 
   const doneBtn = document.createElement('button');
   doneBtn.className = `action-btn done-btn${isDone ? ' is-done' : ''}`;
-  // FIX: data-action + data-id used by event delegation — no inline onclick
   doneBtn.dataset.action = 'toggle-done';
   doneBtn.dataset.id     = lead._id;
   doneBtn.title          = isDone ? 'Mark as new' : 'Mark as done';
   doneBtn.setAttribute('aria-label', isDone ? 'Mark as new' : 'Mark as done');
   doneBtn.textContent    = isDone ? '✓' : '○';
-
   actions.appendChild(doneBtn);
 
   card.appendChild(avatar);
@@ -857,13 +812,9 @@ function createLeadCard(lead) {
 }
 
 // ─── EVENT DELEGATION ─────────────────────────────────────────────────────────
-// FIX: one listener on the container instead of inline onclick on every card.
-// Handles card clicks, done-button clicks, and phone link clicks.
 document.getElementById('leads-list').addEventListener('click', e => {
-  // Phone/email links — let the browser handle natively
   if (e.target.closest('a[href^="tel:"], a[href^="mailto:"]')) return;
 
-  // Done toggle button
   const doneBtn = e.target.closest('[data-action="toggle-done"]');
   if (doneBtn) {
     e.stopPropagation();
@@ -871,19 +822,16 @@ document.getElementById('leads-list').addEventListener('click', e => {
     return;
   }
 
-  // Card click → open modal
   const card = e.target.closest('.lead-card');
   if (card) openLead(card.dataset.id);
 });
 
-// FIX: keyboard support for lead cards (Enter / Space to open)
 document.getElementById('leads-list').addEventListener('keydown', e => {
   if (e.key !== 'Enter' && e.key !== ' ') return;
   const card = e.target.closest('.lead-card');
   if (card) { e.preventDefault(); openLead(card.dataset.id); }
 });
 
-// FIX: tab filter via event delegation — no inline onclick needed
 document.querySelector('.tabs').addEventListener('click', e => {
   const tab = e.target.closest('.tab');
   if (!tab || !tab.dataset.filter) return;
@@ -892,43 +840,27 @@ document.querySelector('.tabs').addEventListener('click', e => {
 
 // ─── MODAL ────────────────────────────────────────────────────────────────────
 function openLead(id) {
-  const lead = leadsById.get(id); // FIX: O(1) Map lookup
+  const lead = leadsById.get(id);
   if (!lead) return;
-  currentLeadId = id;
-
-  // Remember where focus was so we can restore it on close
+  currentLeadId    = id;
   modalReturnFocus = document.activeElement;
-
   populateModal(lead);
-
-  const overlay = document.getElementById('modalOverlay');
-  overlay.classList.add('open');
-
-  // FIX: move focus into the modal for keyboard/screen reader users
-  requestAnimationFrame(() => {
-    document.getElementById('modalCloseBtn')?.focus();
-  });
+  document.getElementById('modalOverlay').classList.add('open');
+  requestAnimationFrame(() => document.getElementById('modalCloseBtn')?.focus());
 }
 
-/**
- * Separated from openLead so the auto-refresh can update an already-open
- * modal without triggering focus movement or re-animating the overlay.
- *
- * FIX: all fields populated via setText/setLink (DOM APIs), not innerHTML.
- */
 function populateModal(lead) {
   setText('prep-avatar', (lead.firstName || '?')[0].toUpperCase());
   setText('prep-name',   lead.firstName || 'Unknown');
   setText('prep-time',   timeAgo(lead.createdAt));
 
-  // ── Urgency banner ────────────────────────────────────────────────────────
   const urgencyEl   = document.getElementById('prep-urgency');
   const daysLeft    = calcDaysUntil(lead.courtDate);
   const urgentCourt = daysLeft !== null && daysLeft >= 0 && daysLeft <= 7;
 
   if (urgentCourt) {
     urgencyEl.className = 'prep-urgency high';
-    setText('prep-urgency-text', `⚠️ Court date in ${daysLeft} day${daysLeft === 1 ? '' : 's'}`);
+    setText('prep-urgency-text', `⚠️ Court in ${daysLeft} day${daysLeft === 1 ? '' : 's'}`);
   } else if (lead.status === 'new') {
     urgencyEl.className = 'prep-urgency medium';
     setText('prep-urgency-text', 'New lead');
@@ -937,65 +869,43 @@ function populateModal(lead) {
     setText('prep-urgency-text', 'Handled');
   }
 
-  // ── Contact fields ────────────────────────────────────────────────────────
-  // FIX: setLink uses DOM APIs — replaces innerHTML = `<a href="tel:${phone}">` 
-  // which was vulnerable to XSS if phone contained HTML/JS
-  setLink('prep-phone', lead.phone  ? `tel:${lead.phone}`       : null, lead.phone);
-  setLink('prep-email', lead.email  ? `mailto:${lead.email}`    : null, lead.email);
+  setLink('prep-phone', lead.phone ? `tel:${lead.phone}`    : null, lead.phone);
+  setLink('prep-email', lead.email ? `mailto:${lead.email}` : null, lead.email);
   setText('prep-area',  lead.practiceArea || 'General');
   setText('prep-debt',  formatCurrency(lead.debtAmount));
 
-  // ── Court date ────────────────────────────────────────────────────────────
   if (lead.courtDate && daysLeft !== null) {
     showEl('prep-court-field');
-    const formatted = new Date(lead.courtDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    setText('prep-court', `${formatted} (${daysLeft} day${daysLeft === 1 ? '' : 's'})`);
+    const fmt = new Date(lead.courtDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    setText('prep-court', `${fmt} (${daysLeft} day${daysLeft === 1 ? '' : 's'})`);
   } else {
     hideEl('prep-court-field');
   }
 
-  // ── Case number ───────────────────────────────────────────────────────────
-  if (lead.caseNumber) {
-    showEl('prep-case-field');
-    setText('prep-case', lead.caseNumber);
-  } else {
-    hideEl('prep-case-field');
-  }
+  if (lead.caseNumber) { showEl('prep-case-field');   setText('prep-case',   lead.caseNumber); }
+  else                 { hideEl('prep-case-field'); }
 
-  // ── County ────────────────────────────────────────────────────────────────
-  if (lead.county) {
-    showEl('prep-county-field');
-    setText('prep-county', `${lead.county} County`);
-  } else {
-    hideEl('prep-county-field');
-  }
+  if (lead.county)     { showEl('prep-county-field'); setText('prep-county', `${lead.county} County`); }
+  else                 { hideEl('prep-county-field'); }
 
-  // ── Story ─────────────────────────────────────────────────────────────────
   setText('prep-story', lead.story || 'No details provided.');
 
-  // ── Sentiment tags ────────────────────────────────────────────────────────
-  // FIX: was innerHTML = sentimentFlags.map(s => `<span>${s}</span>`).join('')
-  // s comes directly from user chat input — a payload like
-  // <img src=x onerror=alert(1)> would execute in the attorney's browser.
   const sentSection   = document.getElementById('prep-sentiment-section');
   const sentContainer = document.getElementById('prep-sentiment');
-  sentContainer.textContent = ''; // clear previous tags
+  sentContainer.textContent = '';
 
   if (lead.sentimentFlags?.length > 0) {
     sentSection.style.display = 'block';
     lead.sentimentFlags.forEach(flag => {
       const tag = document.createElement('span');
       tag.className   = 'prep-sentiment-tag';
-      tag.textContent = flag; // textContent — safe
+      tag.textContent = flag;
       sentContainer.appendChild(tag);
     });
   } else {
     sentSection.style.display = 'none';
   }
 
-  // ── Call button ───────────────────────────────────────────────────────────
-  // FIX: disable the button (visually and accessibly) when there is no phone,
-  // instead of setting href="#" which is confusing and potentially harmful
   const callBtn = document.getElementById('prep-call-btn');
   if (lead.phone) {
     callBtn.href = `tel:${lead.phone}`;
@@ -1011,26 +921,17 @@ function populateModal(lead) {
 function closeModalDirect() {
   document.getElementById('modalOverlay').classList.remove('open');
   currentLeadId = null;
-  // FIX: restore focus to the element that triggered the modal
-  if (modalReturnFocus) {
-    modalReturnFocus.focus();
-    modalReturnFocus = null;
-  }
+  if (modalReturnFocus) { modalReturnFocus.focus(); modalReturnFocus = null; }
 }
 
-// Close modal by clicking the backdrop (but not the modal panel itself)
 document.getElementById('modalOverlay').addEventListener('click', e => {
   if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
 });
-
-// FIX: Escape key closes modal — standard UX expectation, was missing
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && document.getElementById('modalOverlay').classList.contains('open')) {
     closeModalDirect();
   }
 });
-
-// Wire up modal close/done buttons in JS — no inline onclick needed
 document.getElementById('modalCloseBtn').addEventListener('click', closeModalDirect);
 document.getElementById('modalDoneBtn').addEventListener('click', async () => {
   if (!currentLeadId) return;
@@ -1039,21 +940,13 @@ document.getElementById('modalDoneBtn').addEventListener('click', async () => {
 });
 
 // ─── ACTIONS ──────────────────────────────────────────────────────────────────
-/**
- * FIX: properly handles the full request lifecycle:
- * 1. Optimistic UI update for responsiveness
- * 2. Checks response.ok (not just catch for network errors)
- * 3. Rolls back optimistic update on failure
- * 4. Shows loading state on the triggering button
- */
 async function toggleDone(id, triggerBtn) {
-  const lead = leadsById.get(id); // FIX: O(1) lookup
+  const lead = leadsById.get(id);
   if (!lead) return;
 
   const previousStatus = lead.status;
   const newStatus      = lead.status === 'new' ? 'contacted' : 'new';
 
-  // Show loading state on the button
   if (triggerBtn) triggerBtn.classList.add('loading');
 
   // Optimistic update
@@ -1061,12 +954,10 @@ async function toggleDone(id, triggerBtn) {
   renderLeads();
 
   try {
-    const res = await authedFetch(`/api/intakes/${id}`, {
+    const res  = await authedFetch(`/api/intakes/${id}`, {
       method: 'PATCH',
       body:   JSON.stringify({ status: newStatus }),
     });
-
-    // authedFetch already throws on non-ok, so if we reach here it succeeded
     const data = await res.json();
     if (!data.success) throw new Error('Update rejected by server');
 
@@ -1074,7 +965,7 @@ async function toggleDone(id, triggerBtn) {
     showToast(newStatus === 'new' ? 'Marked as new' : '✓ Done');
   } catch (err) {
     if (err.message !== 'Unauthorized') {
-      // FIX: roll back the optimistic update so UI matches server state
+      // Roll back optimistic update
       lead.status = previousStatus;
       renderLeads();
       showToast('❌ Update failed — try again');
@@ -1085,13 +976,10 @@ async function toggleDone(id, triggerBtn) {
   }
 }
 
-/**
- * FIX: CSV export now uses fetch + Blob download so we can include the
- * X-API-Key header. The original window.location.href approach cannot
- * send custom headers and would return a 401 against the auth middleware.
- */
 async function exportCSV() {
-  showToast('⬇ Preparing download...');
+  const btn = document.getElementById('exportBtn');
+  btn.setAttribute('aria-busy', 'true');
+  // FIX: don't show toast while starting — show it only on completion or error
   try {
     const res  = await authedFetch('/api/intakes/export/csv');
     const blob = await res.blob();
@@ -1106,6 +994,8 @@ async function exportCSV() {
     showToast('✅ Downloaded');
   } catch (err) {
     if (err.message !== 'Unauthorized') showToast('❌ Export failed');
+  } finally {
+    btn.removeAttribute('aria-busy');
   }
 }
 
@@ -1120,8 +1010,9 @@ function setFilter(filter, btn) {
   renderLeads();
 }
 
-// FIX: debounce manual refresh to prevent request flood on button spam
 function loadData() {
+  // FIX: don't queue a refresh if we're logged out
+  if (isLoggedOut) return;
   clearTimeout(refreshTimer);
   refreshTimer = setTimeout(() => {
     loadStats();
@@ -1136,30 +1027,26 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), TOAST_DURATION_MS);
 }
 
-// ─── LOGIN EVENT WIRING ───────────────────────────────────────────────────────
+// ─── WIRING ───────────────────────────────────────────────────────────────────
 document.getElementById('loginBtn').addEventListener('click', submitApiKey);
 document.getElementById('apiKeyInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') submitApiKey();
 });
-
-// ─── TOPBAR EVENT WIRING ──────────────────────────────────────────────────────
 document.getElementById('refreshBtn').addEventListener('click', loadData);
 document.getElementById('exportBtn').addEventListener('click', exportCSV);
 document.getElementById('logoutBtn').addEventListener('click', logout);
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
-// FIX: render chart only once on load with sample data as placeholder.
-// loadLeads() will replace it with real data when the API responds.
 renderHourChart(SAMPLE_HOUR_DATA);
 
 if (getApiKey()) {
+  isLoggedOut = false;
   loadData();
+  // FIX: only start auto-refresh when logged in
+  refreshIntervalId = setInterval(loadData, AUTO_REFRESH_MS);
 } else {
   showLoginOverlay();
 }
-
-// FIX: store interval ID so it can be cleared if the app is ever torn down
-refreshIntervalId = setInterval(loadData, AUTO_REFRESH_MS);
 </script>
 </body>
 </html>
