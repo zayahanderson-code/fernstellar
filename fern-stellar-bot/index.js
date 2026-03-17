@@ -10,6 +10,9 @@ const path = require('path');
 const fs = require('fs');
 const app = express();
 
+// ✅ CRITICAL: Enable trust proxy for Railway (fixes rate limiter)
+app.set('trust proxy', 1);
+
 app.use(express.json());
 app.use(express.static('public'));
 
@@ -741,28 +744,24 @@ RULES:
 async function askClaude(session) {
   const context = session.language === 'es' ? FIRM_CONTEXT_ES : FIRM_CONTEXT;
   
-  // Create abort controller for timeout
-  const controller = new AbortController();
-  const timeout = setTimeout(() => {
-    controller.abort();
-    console.error('⏱️ Anthropic API timeout after 30 seconds');
-  }, 30000); // 30 second timeout
+  // Create timeout promise (Anthropic SDK doesn't support AbortController)
+  const timeoutPromise = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error('API request timed out after 30 seconds')), 30000);
+  });
+  
+  const apiPromise = anthropic.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 200,
+    system: context + '\n\n' + buildStateSummary(session),
+    messages: session.history
+  });
   
   try {
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 200,
-      system: context + '\n\n' + buildStateSummary(session),
-      messages: session.history,
-      signal: controller.signal
-    });
-    clearTimeout(timeout);
+    const response = await Promise.race([apiPromise, timeoutPromise]);
     return response.content[0].text;
   } catch (error) {
-    clearTimeout(timeout);
-    if (error.name === 'AbortError') {
-      console.error('❌ API request timed out');
-      throw new Error('Request timed out');
+    if (error.message.includes('timed out')) {
+      console.error('⏱️ Anthropic API timeout after 30 seconds');
     }
     throw error;
   }
