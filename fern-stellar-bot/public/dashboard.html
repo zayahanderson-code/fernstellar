@@ -160,8 +160,7 @@
   }
   .prep-header-info { flex: 1; }
   .prep-name { font-family: 'DM Serif Display', serif; font-size: 24px; color: white; }
-  .prep-time { font-size: 12px; color: rgba(255,255,255,0.5);
-margin-top: 4px; }
+  .prep-time { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px; }
   .prep-close {
     background: none; border: none; color: rgba(255,255,255,0.5); font-size: 24px;
     cursor: pointer; padding: 4px 8px; border-radius: 6px; align-self: flex-start;
@@ -284,6 +283,9 @@ margin-top: 4px; }
     </button>
     <button class="btn btn-ghost" id="exportBtn" aria-label="Export leads to CSV">
       ⬇ <span aria-hidden="true">Export</span>
+    </button>
+    <button class="btn btn-ghost" id="logoutBtn" aria-label="Logout">
+      🔓 <span aria-hidden="true">Logout</span>
     </button>
   </div>
 </header>
@@ -471,6 +473,25 @@ function submitApiKey() {
   sessionStorage.setItem(AUTH_STORAGE_KEY, val);
   hideLoginOverlay();
   loadData();
+}
+
+function logout() {
+  // Clear API key from session storage
+  sessionStorage.removeItem(AUTH_STORAGE_KEY);
+  
+  // Clear all leads data
+  leadsById.clear();
+  
+  // Show login overlay
+  showLoginOverlay();
+  
+  // Clear the display
+  document.getElementById('leads-list').innerHTML = '<div class="empty-state"><div class="empty-icon" aria-hidden="true">🔓</div><div class="empty-title">Logged out</div></div>';
+  document.getElementById('stat-new').textContent = '—';
+  document.getElementById('stat-court').textContent = '—';
+  document.getElementById('stat-total').textContent = '—';
+  
+  showToast('Logged out successfully');
 }
 
 /**
@@ -1124,6 +1145,7 @@ document.getElementById('apiKeyInput').addEventListener('keydown', e => {
 // ─── TOPBAR EVENT WIRING ──────────────────────────────────────────────────────
 document.getElementById('refreshBtn').addEventListener('click', loadData);
 document.getElementById('exportBtn').addEventListener('click', exportCSV);
+document.getElementById('logoutBtn').addEventListener('click', logout);
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 // FIX: render chart only once on load with sample data as placeholder.
