@@ -1453,10 +1453,6 @@ app.delete('/api/intakes/:id', requireApiKey, async (req, res) => {
   }
 });
 
-app.get('/dashboard', requireAuth, (req, res) => {
-  res.sendFile(__dirname + '/public/dashboard.html');
-});
-
 // ─── SERVER START ───────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0'; // Bind to all interfaces for Railway/Docker
